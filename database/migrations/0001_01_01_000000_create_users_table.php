@@ -13,12 +13,21 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('name', 150);
+            $table->string('email', 150)->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password', 255);
+
+            $table->enum('status', ['active', 'inactive', 'blocked'])->default('active');
+
+            $table->timestamp('last_login_at')->nullable();
+
             $table->rememberToken();
-            $table->timestamps();
+
+            $table->timestamps(); // Esto crea los timestamps created_at y updated_at
+            $table->softDeletes(); // Esto crea el timestamp deleted_at
+
+            $table->foreignId('tenant_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
