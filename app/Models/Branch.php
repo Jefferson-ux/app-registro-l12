@@ -42,4 +42,9 @@ class Branch extends Model
     {
         return $this->hasMany(AttendanceRecord::class);
     }
+
+    public function holidays(): HasMany
+    {
+        return $this->hasMany(Holiday::class);
+    }
 }

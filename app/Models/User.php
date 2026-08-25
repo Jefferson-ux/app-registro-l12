@@ -45,4 +45,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Employee::class);
     }
+
+    public function resolvedAttendanceIncidents(): HasMany
+    {
+        return $this->hasMany(AttendanceIncident::class, 'resolved_by');
+    }
+
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(AuditLog::class);
+    }
 }
