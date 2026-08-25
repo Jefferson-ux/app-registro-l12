@@ -66,4 +66,29 @@ class Tenant extends Model
     {
         return $this->hasMany(Employee::class);
     }
+
+    public function workSchedules(): HasMany
+    {
+        return $this->hasMany(WorkSchedule::class);
+    }
+
+    public function workScheduleDays(): HasMany
+    {
+        return $this->hasMany(WorkScheduleDay::class);
+    }
+
+    public function employeeSchedules(): HasMany
+    {
+        return $this->hasMany(EmployeeSchedule::class);
+    }
+
+    public function attendanceRecords(): HasMany
+    {
+        return $this->hasMany(AttendanceRecord::class);
+    }
+
+    public function attendanceSessions(): HasMany
+    {
+        return $this->hasMany(AttendanceSession::class);
+    }
 }

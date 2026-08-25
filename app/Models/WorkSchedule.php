@@ -6,24 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Branch extends Model
+class WorkSchedule extends Model
 {
     protected $fillable = [
         'tenant_id',
         'name',
-        'address',
-        'latitude',
-        'longitude',
-        'allowed_radius',
+        'description',
+        'schedule_type',
         'status',
     ];
 
     protected function casts(): array
     {
         return [
-            'latitude' => 'decimal:7',
-            'longitude' => 'decimal:7',
-            'allowed_radius' => 'integer',
             'status' => 'boolean',
         ];
     }
@@ -33,13 +28,13 @@ class Branch extends Model
         return $this->belongsTo(Tenant::class);
     }
 
-    public function employees(): HasMany
+    public function days(): HasMany
     {
-        return $this->hasMany(Employee::class);
+        return $this->hasMany(WorkScheduleDay::class);
     }
 
-    public function attendanceRecords(): HasMany
+    public function employeeSchedules(): HasMany
     {
-        return $this->hasMany(AttendanceRecord::class);
+        return $this->hasMany(EmployeeSchedule::class);
     }
 }

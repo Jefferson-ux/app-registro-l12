@@ -70,4 +70,19 @@ class Employee extends Model
     {
         return $this->hasMany(Employee::class, 'supervisor_id');
     }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(EmployeeSchedule::class);
+    }
+
+    public function attendanceRecords(): HasMany
+    {
+        return $this->hasMany(AttendanceRecord::class);
+    }
+
+    public function attendanceSessions(): HasMany
+    {
+        return $this->hasMany(AttendanceSession::class);
+    }
 }
