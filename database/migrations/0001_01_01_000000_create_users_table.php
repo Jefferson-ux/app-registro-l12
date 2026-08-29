@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('tenant_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete()
+                ->cascadeOnUpdate();
             $table->string('name', 150);
             $table->string('email', 150)->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -26,8 +31,6 @@ return new class extends Migration
 
             $table->timestamps(); // Esto crea los timestamps created_at y updated_at
             $table->softDeletes(); // Esto crea el timestamp deleted_at
-
-            $table->foreignId('tenant_id')->constrained()->restrictOnDelete()->cascadeOnUpdate();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
