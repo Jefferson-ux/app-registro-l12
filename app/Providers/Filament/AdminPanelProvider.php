@@ -30,22 +30,8 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                    'primary' => Color::Blue,
-                        'gray' => Color::Zinc,
-            ])
-            ->navigationGroups([
-            NavigationGroup::make()
-                 ->label('Logs'),
-                 //->icon('heroicon-o-shield-check'), // Icono opcional
-            NavigationGroup::make()
-                 ->label('Company'),
-                 //->icon('heroicon-o-building-office'),
-            NavigationGroup::make()
-                 ->label('Platform'),
-            NavigationGroup::make()
-                 ->label('Schedule'),
-            NavigationGroup::make()
-                 ->label('RRHH'),
+                'primary' => Color::Blue,
+                'gray' => Color::Zinc,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

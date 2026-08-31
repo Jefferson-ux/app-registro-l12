@@ -1,34 +1,42 @@
 <?php
 
-namespace App\Filament\Resources\Subscriptions;
+namespace App\Filament\App\Resources\WorkSchedules;
 
-use App\Filament\Resources\Subscriptions\Pages\ManageSubscriptions;
-use App\Models\Subscription;
+use App\Filament\App\Resources\WorkSchedules\Pages\ManageWorkSchedules;
+use App\Models\WorkSchedule;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use UnitEnum;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class SubscriptionResource extends Resource
+class WorkScheduleResource extends Resource
 {
-    protected static ?string $model = Subscription::class;
+    protected static ?string $model = WorkSchedule::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
-
-    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {
@@ -37,22 +45,17 @@ class SubscriptionResource extends Resource
                 Select::make('tenant_id')
                     ->relationship('tenant', 'name')
                     ->required(),
-                Select::make('plan_id')
-                    ->relationship('plan', 'name')
+                TextInput::make('name')
                     ->required(),
-                Select::make('status')
-                    ->options([
-            'trial' => 'Trial',
-            'active' => 'Active',
-            'past_due' => 'Past due',
-            'cancelled' => 'Cancelled',
-            'expired' => 'Expired',
-        ])
-                    ->default('trial')
+                Textarea::make('description')
+                    ->default(null)
+                    ->columnSpanFull(),
+                Select::make('schedule_type')
+                    ->options(['fixed' => 'Fixed', 'flexible' => 'Flexible', 'rotating' => 'Rotating'])
+                    ->default('fixed')
                     ->required(),
-                DateTimePicker::make('starts_at'),
-                DateTimePicker::make('ends_at'),
-                DateTimePicker::make('cancelled_at'),
+                Toggle::make('status')
+                    ->required(),
             ]);
     }
 
@@ -62,25 +65,23 @@ class SubscriptionResource extends Resource
             ->components([
                 TextEntry::make('tenant.name')
                     ->label('Tenant'),
-                TextEntry::make('plan.name')
-                    ->label('Plan'),
-                TextEntry::make('status')
+                TextEntry::make('name'),
+                TextEntry::make('description')
+                    ->placeholder('-')
+                    ->columnSpanFull(),
+                TextEntry::make('schedule_type')
                     ->badge(),
-                TextEntry::make('starts_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('ends_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('cancelled_at')
-                    ->dateTime()
-                    ->placeholder('-'),
+                IconEntry::make('status')
+                    ->boolean(),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('updated_at')
                     ->dateTime()
                     ->placeholder('-'),
+                TextEntry::make('deleted_at')
+                    ->dateTime()
+                    ->visible(fn (WorkSchedule $record): bool => $record->trashed()),
             ]);
     }
 
@@ -91,19 +92,12 @@ class SubscriptionResource extends Resource
             ->columns([
                 TextColumn::make('tenant.name')
                     ->searchable(),
-                TextColumn::make('plan.name')
+                TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('status')
+                TextColumn::make('schedule_type')
                     ->badge(),
-                TextColumn::make('starts_at')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('ends_at')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('cancelled_at')
-                    ->dateTime()
-                    ->sortable(),
+                IconColumn::make('status')
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -112,18 +106,26 @@ class SubscriptionResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('deleted_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
+                ForceDeleteAction::make(),
+                RestoreAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    ForceDeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -131,7 +133,15 @@ class SubscriptionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ManageSubscriptions::route('/'),
+            'index' => ManageWorkSchedules::route('/'),
         ];
+    }
+
+    public static function getRecordRouteBindingEloquentQuery(): Builder
+    {
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 }

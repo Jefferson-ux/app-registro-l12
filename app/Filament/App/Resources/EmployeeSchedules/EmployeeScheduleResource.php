@@ -1,34 +1,34 @@
 <?php
 
-namespace App\Filament\Resources\Subscriptions;
+namespace App\Filament\App\Resources\EmployeeSchedules;
 
-use App\Filament\Resources\Subscriptions\Pages\ManageSubscriptions;
-use App\Models\Subscription;
+use App\Filament\App\Resources\EmployeeSchedules\Pages\ManageEmployeeSchedules;
+use App\Models\EmployeeSchedule;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use UnitEnum;
 
-class SubscriptionResource extends Resource
+class EmployeeScheduleResource extends Resource
 {
-    protected static ?string $model = Subscription::class;
+    protected static ?string $model = EmployeeSchedule::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'name';
-
-    protected static ?int $navigationSort = 3;
+    protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Schema $schema): Schema
     {
@@ -37,22 +37,17 @@ class SubscriptionResource extends Resource
                 Select::make('tenant_id')
                     ->relationship('tenant', 'name')
                     ->required(),
-                Select::make('plan_id')
-                    ->relationship('plan', 'name')
+                Select::make('employee_id')
+                    ->relationship('employee', 'id')
                     ->required(),
-                Select::make('status')
-                    ->options([
-            'trial' => 'Trial',
-            'active' => 'Active',
-            'past_due' => 'Past due',
-            'cancelled' => 'Cancelled',
-            'expired' => 'Expired',
-        ])
-                    ->default('trial')
+                Select::make('work_schedule_id')
+                    ->relationship('workSchedule', 'name')
                     ->required(),
-                DateTimePicker::make('starts_at'),
-                DateTimePicker::make('ends_at'),
-                DateTimePicker::make('cancelled_at'),
+                DatePicker::make('start_date')
+                    ->required(),
+                DatePicker::make('end_date'),
+                Toggle::make('status')
+                    ->required(),
             ]);
     }
 
@@ -62,19 +57,17 @@ class SubscriptionResource extends Resource
             ->components([
                 TextEntry::make('tenant.name')
                     ->label('Tenant'),
-                TextEntry::make('plan.name')
-                    ->label('Plan'),
-                TextEntry::make('status')
-                    ->badge(),
-                TextEntry::make('starts_at')
-                    ->dateTime()
+                TextEntry::make('employee.id')
+                    ->label('Employee'),
+                TextEntry::make('workSchedule.name')
+                    ->label('Work schedule'),
+                TextEntry::make('start_date')
+                    ->date(),
+                TextEntry::make('end_date')
+                    ->date()
                     ->placeholder('-'),
-                TextEntry::make('ends_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('cancelled_at')
-                    ->dateTime()
-                    ->placeholder('-'),
+                IconEntry::make('status')
+                    ->boolean(),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),
@@ -87,23 +80,22 @@ class SubscriptionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('name')
+            ->recordTitleAttribute('id')
             ->columns([
                 TextColumn::make('tenant.name')
                     ->searchable(),
-                TextColumn::make('plan.name')
+                TextColumn::make('employee.id')
                     ->searchable(),
-                TextColumn::make('status')
-                    ->badge(),
-                TextColumn::make('starts_at')
-                    ->dateTime()
+                TextColumn::make('workSchedule.name')
+                    ->searchable(),
+                TextColumn::make('start_date')
+                    ->date()
                     ->sortable(),
-                TextColumn::make('ends_at')
-                    ->dateTime()
+                TextColumn::make('end_date')
+                    ->date()
                     ->sortable(),
-                TextColumn::make('cancelled_at')
-                    ->dateTime()
-                    ->sortable(),
+                IconColumn::make('status')
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -131,7 +123,7 @@ class SubscriptionResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ManageSubscriptions::route('/'),
+            'index' => ManageEmployeeSchedules::route('/'),
         ];
     }
 }
