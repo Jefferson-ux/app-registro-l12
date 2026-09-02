@@ -42,33 +42,47 @@ class UserResource extends Resource
         return $schema
             ->components([
                 Select::make('tenant_id')
+                    ->label('Empresa / Tenant')
                     ->relationship('tenant', 'name')
-                    ->default(null),
+                    ->searchable() // Búsqueda AJAX para no saturar memoria
+                    ->preload() // Precarga limpia de opciones
+                    ->default(null)
+                    ->nullable(),
                 TextInput::make('name')
+                    ->maxLength(150)
                     ->required(),
                 TextInput::make('email')
                     ->label('Email address')
                     ->email()
+                    ->maxLength(150)
+                    ->unique(ignoreRecord:true)
                     ->required(),
                 DateTimePicker::make('email_verified_at'),
                 TextInput::make('password')
+                    ->revealable() // Permite mostrar/ocultar el texto con el icono de ojo
                     ->password()
-                    ->required(),
+                    ->maxLength(255)
+                    ->dehydrated(fn (?string $state): bool => filled($state)) // No la sobrescribe si se deja vacía al editar
+                    ->required(fn (string $operation): bool => $operation === 'create'), // Solo requerida al crear
                 Select::make('status')
                     ->options(['active' => 'Active', 'inactive' => 'Inactive', 'blocked' => 'Blocked'])
                     ->default('active')
                     ->required(),
-                DateTimePicker::make('last_login_at'),
             ]);
     }
 
     public static function infolist(Schema $schema): Schema
     {
         return $schema
+            ->columns([
+                    'default' => 1, // Celular
+                    'sm' => 2,      // Tablets (pantallas pequeñas)
+                    'lg' => 3,      // Computadoras (pantallas grandes)
+                ])
             ->components([
                 TextEntry::make('tenant.name')
                     ->label('Tenant')
-                    ->placeholder('-'),
+                    ->placeholder('Sin Tenant'),
                 TextEntry::make('name'),
                 TextEntry::make('email')
                     ->label('Email address'),
@@ -76,7 +90,13 @@ class UserResource extends Resource
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                            'active' => 'success',
+                            'inactive' => 'warning',
+                            'blocked' => 'danger',
+                            default => 'gray',
+                        }),
                 TextEntry::make('last_login_at')
                     ->dateTime()
                     ->placeholder('-'),
@@ -98,17 +118,36 @@ class UserResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('tenant.name')
+                    ->label('Empresa')
+                    ->placeholder('Sin asignar')    
                     ->searchable(),
+
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('email')
                     ->label('Email address')
-                    ->searchable(),
+                    ->searchable()
+                    ->icon('heroicon-m-envelope'),
                 TextColumn::make('email_verified_at')
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                            'active' => 'success',
+                            'inactive' => 'warning',
+                            'blocked' => 'danger',
+                            default => 'gray',
+                        })
+                        ->formatStateUsing(fn (string $state): string => match ($state) {
+                            'active' => 'Activo',
+                            'inactive' => 'Inactivo',
+                            'blocked' => 'Bloqueado',
+                            default => $state,
+                        }),
+
+
+
                 TextColumn::make('last_login_at')
                     ->dateTime()
                     ->sortable(),
@@ -130,7 +169,8 @@ class UserResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->hidden(fn ($record) => method_exists($record, 'trashed') && $record->trashed()),
                 DeleteAction::make(),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),

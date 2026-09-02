@@ -25,6 +25,10 @@ class Tenant extends Model
         'trial_ends_at',
     ];
 
+    protected $attributes = [
+    'status' => 'trial', // Si creas un Tenant desde un Seeder o código, iniciará como 'trial'
+    ];
+
 
     protected function casts(): array
     {
