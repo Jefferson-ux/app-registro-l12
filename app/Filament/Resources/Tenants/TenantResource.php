@@ -75,11 +75,13 @@ class TenantResource extends Resource
                 TextInput::make('country')
                     ->label('País')
                     ->maxLength(100)
-                    ->default(null),
+                    ->readOnly() // TODO bloqueado por el momento
+                    ->default('Perú'),
                 TextInput::make('timezone')
                     ->label('Zona horaria')
                     ->maxLength(100)
                     ->default('America/Lima')
+                    ->readOnly() 
                     ->required(),
                 FileUpload::make('logo')
                     ->label('Logo corporativo')

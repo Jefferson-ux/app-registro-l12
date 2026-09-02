@@ -4,7 +4,9 @@ namespace App\Filament\Resources\Plans\Pages;
 
 use App\Filament\Resources\Plans\PlanResource;
 use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ManageRecords;
+use Filament\Support\Enums\MaxWidth;
 
 class ManagePlans extends ManageRecords
 {
@@ -13,7 +15,7 @@ class ManagePlans extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->modalWidth('6xl'),
         ];
     }
 }

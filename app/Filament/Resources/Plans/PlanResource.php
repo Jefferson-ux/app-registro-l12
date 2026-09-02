@@ -16,12 +16,16 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Support\Colors\Color;
 use UnitEnum;
 
 class PlanResource extends Resource
@@ -38,32 +42,89 @@ class PlanResource extends Resource
     {
         return $schema
             ->components([
-                TextInput::make('name')
-                    ->required(),
-                TextInput::make('slug')
-                    ->required(),
-                Textarea::make('description')
-                    ->columnSpanFull(),
-                TextInput::make('max_employees')
-                    ->numeric(),
-                TextInput::make('max_users')
-                    ->numeric(),
-                TextInput::make('max_branches')
-                    ->numeric(),
-                TextInput::make('price')
-                    ->required()
-                    ->numeric()
-                    ->default(0.0)
-                    ->prefix('$'),
-                TextInput::make('currency')
-                    ->required()
-                    ->default('PEN'),
-                Select::make('billing_period')
-                    ->options(['monthly' => 'Monthly', 'yearly' => 'Yearly'])
-                    ->default('monthly')
-                    ->required(),
-                Toggle::make('status')
-                    ->required(),
+                Section::make('Información Básica')
+                    ->description('Datos generales de la oferta del plan')
+                    ->columns([
+                        'default' => 1, // Pantallas muy pequeñas (móviles en vertical)
+                        //'sm' => 2,      // Pantallas pequeñas (móviles en horizontal / tabletas pequeñas)
+                        'md' => 2,      // Pantallas medianas (tabletas estándar)
+                        //'lg' => 4,      // Pantallas grandes (monitores de escritorio)
+                        //'xl' => 6,      // Pantallas extra grandes
+                        //'2xl' => 8,     // Pantallas gigantes
+                    ])
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Nombre del Plan')
+                            ->maxLength(100)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn (string $operation, $state, callable $set) => 
+                                $operation === 'create' ? $set('slug', Str::slug($state)) : null
+                                )
+                            ->required(),
+                        TextInput::make('slug')
+                            ->maxLength(100)
+                            ->unique(ignoreRecord:true),
+                        Textarea::make('description')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('Precios y Facturación')
+                    ->columns([
+                        'default' => 1, // Pantallas muy pequeñas (móviles en vertical)
+                        'lg' => 3,      // Pantallas grandes (monitores de escritorio)
+                        ])
+                    ->schema([
+                        TextInput::make('price')
+                            ->required()
+                            ->numeric()
+                            ->default(0.00)
+                            ->prefix('S/')
+                            ->step(0.01)
+                            ->minValue(0)
+                            ->maxValue(100000),
+                        TextInput::make('currency')
+                            ->required()
+                            ->maxLength(3)
+                            ->readOnly()
+                            ->default('PEN'),
+                        Select::make('billing_period')
+                            ->options(['monthly' => 'Monthly', 'yearly' => 'Yearly'])
+                            ->default('monthly')
+                            ->required(),
+                    ]),
+                
+                    Section::make()
+                        //->description('Deja los campos vacíos o en 0 si no hay restricciones')
+                        ->columns([
+                            'default' => 1, // Pantallas muy pequeñas (móviles en vertical)
+                            'lg' => 3,      // Pantallas grandes (monitores de escritorio)
+
+                            ])
+                        ->schema([
+                            TextInput::make('max_employees')
+                                ->numeric()
+                                ->minValue(0)
+                                ->maxValue(1000),
+                            TextInput::make('max_users')
+                                ->numeric()
+                                ->minValue(0)
+                                ->maxValue(1000),
+                            TextInput::make('max_branches')
+                                ->numeric()
+                                ->minValue(0)
+                                ->maxValue(1000),
+
+                    ]),
+                    Section::make('Estado del Plan')
+                ->schema([
+                    Toggle::make('status')
+                        ->label('Plan Activo')
+                        ->helperText('Los planes inactivos no se mostrarán como opción de compra para nuevos Tenants')
+                        ->default(true),
+                ]),
+
+
             ]);
     }
 
@@ -89,7 +150,12 @@ class PlanResource extends Resource
                     ->money(),
                 TextEntry::make('currency'),
                 TextEntry::make('billing_period')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (string $state)=> match ($state) {
+                        'monthly' => Color::hex('#50c878'),
+                        'yearly' => Color::hex('#D4AF37'),
+                        default => 'gray',
+                    }),
                 IconEntry::make('status')
                     ->boolean(),
                 TextEntry::make('created_at')
@@ -125,7 +191,12 @@ class PlanResource extends Resource
                 TextColumn::make('currency')
                     ->searchable(),
                 TextColumn::make('billing_period')
-                    ->badge(),
+                    ->badge()
+                    ->color(fn (string $state)=> match ($state) {
+                        'monthly' => Color::hex('#50c878'),
+                        'yearly' => Color::hex('#D4AF37'),
+                        default => 'gray',
+                    }),
                 IconColumn::make('status')
                     ->boolean(),
                 TextColumn::make('created_at')
@@ -142,9 +213,9 @@ class PlanResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
-            ])
+                EditAction::make()
+                    ->modalWidth('6xl'),
+                DeleteAction::make()])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
