@@ -2,16 +2,14 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\AuditLog;
 use Illuminate\Database\Seeder;
 
 class AuditLogSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //
+        // Genera 200 registros de auditoría usando el molde aleatorio
+        AuditLog::factory()->count(200)->create();
     }
 }
