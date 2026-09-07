@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Tenant extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'uuid',
         'name',
@@ -20,6 +23,10 @@ class Tenant extends Model
         'logo',
         'status',
         'trial_ends_at',
+    ];
+
+    protected $attributes = [
+    'status' => 'trial', // Si creas un Tenant desde un Seeder o código, iniciará como 'trial'
     ];
 
 
@@ -104,4 +111,14 @@ class Tenant extends Model
     {
         return $this->hasMany(AuditLog::class);
     }
+
+    protected static function booted(): void
+        {
+            static::creating(function (Tenant $tenant) {
+                if (empty($tenant->uuid)) {
+                    $tenant->uuid = (string) Str::uuid();
+                }
+            });
+        }
+
 }

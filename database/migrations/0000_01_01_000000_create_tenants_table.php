@@ -21,8 +21,8 @@ return new class extends Migration
             //
             $table->string('tax_id', 50)->nullable();
 
-            $table->string('email', 150);
-            $table->string('phone', 50);
+            $table->string('email', 150)->nullable();
+            $table->string('phone', 50)->nullable();
 
             $table->string('country', 100)->nullable();
             $table->string('timezone', 100)->default("America/Lima");
