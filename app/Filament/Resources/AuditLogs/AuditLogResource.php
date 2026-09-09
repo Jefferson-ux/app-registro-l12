@@ -5,6 +5,7 @@ namespace App\Filament\Resources\AuditLogs;
 use App\Filament\Resources\AuditLogs\Pages\ManageAuditLogs;
 use App\Models\AuditLog;
 use BackedEnum;
+use UnitEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -24,36 +25,63 @@ class AuditLogResource extends Resource
 {
     protected static ?string $model = AuditLog::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentMagnifyingGlass;
 
-    protected static ?string $recordTitleAttribute = 'id';
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static string|UnitEnum|null $navigationGroup = 'administration';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return traduct('navigation.administration');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return traduct('fields.audit_log');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return traduct('fields.audit_logs');
+    }
+
+
 
     public static function infolist(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextEntry::make('tenant.name')
-                    ->label('Tenant'),
+                    ->label(__('fields.tenant')),
                 TextEntry::make('user.name')
-                    ->label('User'),
-                TextEntry::make('action'),
-                TextEntry::make('entity_type'),
+                    ->label(__('fields.user')),
+                TextEntry::make('action')
+                    ->label(__('fields.action')),
+                TextEntry::make('entity_type')
+                    ->label(__('fields.entity_type')),
                 TextEntry::make('entity_id')
                     ->numeric()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(__('fields.entity_id')),
                 TextEntry::make('old_values')
                     ->placeholder('-')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->label(__('fields.old_values')),
                 TextEntry::make('new_values')
                     ->placeholder('-')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->label(__('fields.new_values')),
                 TextEntry::make('ip_address')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(__('fields.ip_address')),
                 TextEntry::make('user_agent')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(__('fields.user_agent')),
                 TextEntry::make('created_at')
                     ->dateTime()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(__('fields.created_at')),
             ]);
     }
 
@@ -64,25 +92,41 @@ class AuditLogResource extends Resource
             ->columns([
                 TextColumn::make('tenant.name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->label(traduct('fields.tenant')),
                 TextColumn::make('user.name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->label(traduct('fields.user')),
                 TextColumn::make('action')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct('fields.action')),
                 TextColumn::make('entity_type')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct('fields.entity_type')),
                 TextColumn::make('entity_id')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->label(traduct('fields.entity_id')),
                 TextColumn::make('ip_address')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct('fields.ip_address')),
                 TextColumn::make('user_agent')
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(50)
+                    ->tooltip(function (TextColumn $column): ?string {
+                            $state = $column->getState();
+                            if (strlen($state) <= $column->getCharacterLimit()) {
+                                return null;
+                            }
+                            return $state; // texto completo en el tooltip
+                        })
+                    ->label(traduct('fields.user_agent')),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label(traduct('fields.created_at')),
             ])
             ->filters([
                 //

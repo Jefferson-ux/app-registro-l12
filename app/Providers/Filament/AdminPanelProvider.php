@@ -71,6 +71,19 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+
+           ->navigationGroups([
+                NavigationGroup::make()
+                    ->label(traduct('navigation.multitenancy'))
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label(traduct('navigation.access_control'))
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label(traduct('navigation.administration'))
+                    ->collapsed(true),
+
+            ]); 
     }
 }
