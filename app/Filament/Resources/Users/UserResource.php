@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users;
 
 use App\Filament\Resources\Users\Pages\ManageUsers;
+use App\Models\Role;
 use App\Models\User;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -26,6 +27,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Spatie\Permission\PermissionRegistrar;
 
 class UserResource extends Resource
 {
@@ -68,6 +70,18 @@ class UserResource extends Resource
                     ->options(['active' => 'Active', 'inactive' => 'Inactive', 'blocked' => 'Blocked'])
                     ->default('active')
                     ->required(),
+                Select::make('roles')
+                    ->label('Roles')
+                    ->multiple()
+                    ->options(function ($record) {
+                        $tenantId = $record?->tenant_id ?? 0;
+                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+                        return Role::pluck('name', 'id');
+                    })
+                    ->preload()
+                    ->searchable()
+                    ->saveRelationshipsUsing(null)
+                    ->dehydrated(true),
             ]);
     }
 
@@ -170,7 +184,23 @@ class UserResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                    ->hidden(fn ($record) => method_exists($record, 'trashed') && $record->trashed()),
+                    ->hidden(fn ($record) => method_exists($record, 'trashed') && $record->trashed())
+                    
+
+                    ->mutateRecordDataUsing(function (array $data, $record) {
+                        $tenantId = $record->tenant_id ?? 0;
+                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+
+                        $data['roles'] = $record->roles->pluck('id')->toArray();
+                        return $data;
+                    })
+                    ->after(function ($record, array $data) {
+                        $tenantId = $record->tenant_id ?? 0;
+                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+
+                        $roleNames = Role::whereIn('id', $data['roles'] ?? [])->pluck('name');
+                        $record->syncRoles($roleNames);
+                    }),
                 DeleteAction::make(),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
