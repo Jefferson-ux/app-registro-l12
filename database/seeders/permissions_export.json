@@ -1,0 +1,830 @@
+[
+    {
+        "name": "Create:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Create:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDelete:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "ForceDeleteAny:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Reorder:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Replicate:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Restore:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "RestoreAny:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "Update:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:PlanesDistributionChart",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:SuperAdminStats",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:TenantsChart",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:WorkScheduleDay",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:AttendanceIncident",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:AttendanceRecord",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:AttendanceSession",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:AuditLog",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:Branch",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:Employee",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:EmployeeSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:Holiday",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:Plan",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:Position",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:Role",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:Subscription",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:Tenant",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:WorkSchedule",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:WorkScheduleDay",
+        "guard_name": "web"
+    }
+]
