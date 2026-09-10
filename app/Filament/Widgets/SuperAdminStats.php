@@ -53,40 +53,40 @@ class SuperAdminStats extends StatsOverviewWidget
 
         return [
             // Tarjeta 1: MRR
-            Stat::make('Ingreso Mensual (MRR)', 'S/ ' . number_format($mrr, 2))
-                ->description('Recurrencia estimada en Soles')
+            Stat::make(__("sections.mrr.title"), 'S/ ' . number_format($mrr, 2))
+                ->description(__("sections.mrr.description"))
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success'),
 
             // Tarjeta 2: Tenants Activos
-            Stat::make('Tenants Activos', Tenant::where('status', 'active')->count())
-                ->description('Empresas registradas en la plataforma')
+            Stat::make(__("sections.active_tenants.title"), Tenant::where('status', 'active')->count())
+                ->description(__("sections.active_tenants.description"))
                 ->descriptionIcon('heroicon-m-building-office-2')
                 ->color('info'),
 
             // Tarjeta 3: Vencimientos cercanos
-            Stat::make('Suscripciones por Vencer', Subscription::where('status', 'active')
+            Stat::make(__("sections.upcoming_expirations.title"), Subscription::where('status', 'active')
                 ->whereBetween('ends_at', [now(), now()->addDays(7)])
                 ->count())
-                ->description('Vencen en los próximos 7 días')
+                ->description(__("sections.upcoming_expirations.description"))
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color('warning'),
 
             // Tarjeta 4: Conversión de Clientes (Métrica de Crecimiento)
-            Stat::make('Conversión de Trial', number_format($tasaConversion, 1) . '%')
-                ->description('Clientes que pasaron a planes de pago')
+            Stat::make(__("sections.trial_conversions.title"), number_format($tasaConversion, 1) . '%')
+                ->description(__("sections.trial_conversions.description"))
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('success'),
 
             // Tarjeta 5: Churn Rate (Métrica de Riesgo Comercial)
-            Stat::make('Tasa de Cancelación', number_format($churnRate, 1) . '%')
-                ->description('Pérdida de clientes vs activos')
+            Stat::make(__("sections.cancellation_rate.title"), number_format($churnRate, 1) . '%')
+                ->description(__("sections.cancellation_rate.description"))
                 ->descriptionIcon('heroicon-m-user-minus')
                 ->color('danger'),
         
             // Tarjeta 6: LTV (Lifetime Value) Estimado por Cliente
-            Stat::make('Valor de Vida del Cliente (LTV)', 'S/ ' . number_format($ltvEstimado, 2))
-                ->description('Ingreso proyectado por cada empresa')
+            Stat::make(__("sections.lifetime_value.title"), 'S/ ' . number_format($ltvEstimado, 2))
+                ->description(__("sections.lifetime_value.description"))
                 ->descriptionIcon('heroicon-m-currency-dollar')
                 ->color('success'),
         ];

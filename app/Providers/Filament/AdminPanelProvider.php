@@ -30,6 +30,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->brandName('Aplicación de Registro (SuperAdmin)')
+            ->globalSearch(false) // Provisionalmente deshabilita la búsqueda global
             ->login()
             ->colors([
                 'danger' => Color::Red,
