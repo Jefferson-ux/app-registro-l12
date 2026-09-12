@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users;
 
 use App\Filament\Resources\Users\Pages\ManageUsers;
+use App\Models\Role;
 use App\Models\User;
 use BackedEnum;
 use UnitEnum;
@@ -27,6 +28,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Spatie\Permission\PermissionRegistrar;
 
 class UserResource extends Resource
 {
@@ -40,7 +42,7 @@ class UserResource extends Resource
 
     protected static ?int $navigationSort = 4;
 
-        public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): ?string
     {
         return traduct('navigation.access_control');
     }
@@ -74,7 +76,7 @@ class UserResource extends Resource
                     ->label(traduct('fields.email'))
                     ->email()
                     ->maxLength(150)
-                    ->unique(ignoreRecord:true)
+                    ->unique(ignoreRecord: true)
                     ->required(),
                 DateTimePicker::make('email_verified_at')
                     ->label(traduct('fields.email_verified_at'))
@@ -85,8 +87,8 @@ class UserResource extends Resource
                     ->password()
                     ->maxLength(255)
                     ->label(traduct('fields.password'))
-                    ->dehydrated(fn (?string $state): bool => filled($state)) // No la sobrescribe si se deja vacía al editar
-                    ->required(fn (string $operation): bool => $operation === 'create'), // Solo requerida al crear
+                    ->dehydrated(fn(?string $state): bool => filled($state)) // No la sobrescribe si se deja vacía al editar
+                    ->required(fn(string $operation): bool => $operation === 'create'), // Solo requerida al crear
                 Select::make('status')
                     ->options([
                         'active' => traduct('status.active'),
@@ -94,6 +96,19 @@ class UserResource extends Resource
                         'blocked' => traduct('status.blocked')
                     ])
                     ->default('active')
+                    ->required(),
+                Select::make('roles')
+                    ->label('Roles')
+                    ->multiple()
+                    ->options(function ($record) {
+                        $tenantId = $record?->tenant_id ?? 0;
+                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+                        return Role::pluck('name', 'id');
+                    })
+                    ->preload()
+                    ->searchable()
+                    ->saveRelationshipsUsing(null)
+                    ->dehydrated(true)
                     ->required()
                     ->label(traduct('fields.status')),
             ]);
@@ -103,10 +118,10 @@ class UserResource extends Resource
     {
         return $schema
             ->columns([
-                    'default' => 1, // Celular
-                    'sm' => 2,      // Tablets (pantallas pequeñas)
-                    'lg' => 3,      // Computadoras (pantallas grandes)
-                ])
+                'default' => 1, // Celular
+                'sm' => 2,      // Tablets (pantallas pequeñas)
+                'lg' => 3,      // Computadoras (pantallas grandes)
+            ])
             ->components([
                 TextEntry::make('tenant.name')
                     ->label(traduct('fields.tenant'))
@@ -122,13 +137,13 @@ class UserResource extends Resource
                 TextEntry::make('status')
                     ->badge()
                     ->label(traduct('fields.status'))
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
-                            'active' => 'success',
-                            'inactive' => 'warning',
-                            'blocked' => 'danger',
-                            default => 'gray',
-                        }),
+                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                    ->color(fn(string $state): string => match ($state) {
+                        'active' => 'success',
+                        'inactive' => 'warning',
+                        'blocked' => 'danger',
+                        default => 'gray',
+                    }),
                 TextEntry::make('last_login_at')
                     ->dateTime()
                     ->label(traduct('fields.last_login_at'))
@@ -144,7 +159,7 @@ class UserResource extends Resource
                 TextEntry::make('deleted_at')
                     ->dateTime()
                     ->label(traduct('fields.deleted_at'))
-                    ->visible(fn (User $record): bool => $record->trashed()),
+                    ->visible(fn(User $record): bool => $record->trashed()),
             ]);
     }
 
@@ -155,7 +170,7 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('tenant.name')
                     ->label(traduct('fields.tenant'))
-                    ->placeholder(__('sections.placeholder.not_assigned'))    
+                    ->placeholder(__('sections.placeholder.not_assigned'))
                     ->searchable(),
 
                 TextColumn::make('name')
@@ -172,13 +187,13 @@ class UserResource extends Resource
                 TextColumn::make('status')
                     ->label(traduct('fields.status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
-                            'active' => 'success',
-                            'inactive' => 'warning',
-                            'blocked' => 'danger',
-                            default => 'gray',
-                        }),
+                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                    ->color(fn(string $state): string => match ($state) {
+                        'active' => 'success',
+                        'inactive' => 'warning',
+                        'blocked' => 'danger',
+                        default => 'gray',
+                    }),
 
                 TextColumn::make('last_login_at')
                     ->label(traduct('fields.last_login_at'))
@@ -207,7 +222,23 @@ class UserResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                    ->hidden(fn ($record) => method_exists($record, 'trashed') && $record->trashed()),
+                    ->hidden(fn($record) => method_exists($record, 'trashed') && $record->trashed())
+
+
+                    ->mutateRecordDataUsing(function (array $data, $record) {
+                        $tenantId = $record->tenant_id ?? 0;
+                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+
+                        $data['roles'] = $record->roles->pluck('id')->toArray();
+                        return $data;
+                    })
+                    ->after(function ($record, array $data) {
+                        $tenantId = $record->tenant_id ?? 0;
+                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+
+                        $roleNames = Role::whereIn('id', $data['roles'] ?? [])->pluck('name');
+                        $record->syncRoles($roleNames);
+                    }),
                 DeleteAction::make(),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
