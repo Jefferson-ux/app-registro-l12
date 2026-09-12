@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\SetLocale;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -24,6 +25,7 @@ use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 // Middleware para la autenticación de usuarios en Laravel
 use App\Http\Middleware\SetPermissionsTeamId;
+use Filament\Actions\Action;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -74,6 +76,9 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
 
+                // Middleware de Cambio de Idioma
+                SetLocale::class,
+
             ])
             ->authMiddleware([
                 Authenticate::class,
@@ -93,6 +98,13 @@ class AdminPanelProvider extends PanelProvider
                     ->label(traduct('navigation.administration'))
                     ->collapsed(true),
 
+            ])
+
+            ->userMenuItems([
+                'toggle_lang' => Action::make('toggle_lang')
+                    ->label(fn() => app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español')
+                    ->icon('heroicon-o-language')
+                    ->url(fn() => route('lang.switch', app()->getLocale() === 'es' ? 'en' : 'es')),
             ]);
     }
 }
