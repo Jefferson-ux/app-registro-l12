@@ -21,6 +21,12 @@ return [
         'description' => 'Fechas de inicio, vencimiento y cancelación de la suscripción',
     ],
 
+    'role_form' => [
+        'title' => 'Información de Rol',
+        'description' => 'Formulario para crear o editar un rol',
+    ],
+
+    // Stats
     'mrr' => [
         'title' => 'MRR (Ingresos Mensuales Recurrentes)',
         'description' => 'Recurrencia estimada en Soles',
@@ -52,7 +58,9 @@ return [
     ],
 
     "helpers" => [
-        "status_plan_helper" => "Los planes inactivos no se mostrarán como opción de compra para nuevos Tenants"
+        "status_plan_helper" => "Los planes inactivos no se mostrarán como opción de compra para nuevos Tenants",
+        "select_all_global" => "Seleccionar todos los permisos",
+        "select_all" => "Seleccionar todo"
     ],
 
     "placeholder" => [

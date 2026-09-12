@@ -15,7 +15,7 @@ return [
         'title' => 'Subscription Information',
         'description' => 'Company, assigned plan, and subscription status',
     ],
-    
+
     'validity_cancellation' => [
         'title' => 'Validity & Cancellation',
         'description' => 'Subscription start, expiration, and cancellation dates',
@@ -26,6 +26,12 @@ return [
         'description' => 'Estimated recurring revenue in Soles',
     ],
 
+    'role_form' => [
+        'title' => 'Role Information',
+        'description' => 'Form to create or edit a role',
+    ],
+
+    // Stats
     'active_tenants' => [
         'title' => 'Active Tenants',
         'description' => 'Companies registered on the platform',
@@ -52,7 +58,9 @@ return [
     ],
 
     "helpers" => [
-        "status_plan_helper" => "Inactive plans will not be available as a purchase option for new Tenants"
+        "status_plan_helper" => "Inactive plans will not be available as a purchase option for new Tenants",
+        'select_all_global'  => 'Select all permissions',
+        'select_all'         => 'Select all',
     ],
 
     "placeholder" => [
