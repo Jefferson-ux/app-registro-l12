@@ -1,0 +1,268 @@
+/* Ubicación: public/css/dashboard.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+/* ---------- Tokens ---------- */
+:root {
+    --ink: #12203A;
+    --ink-2: #1C2F52;
+    --paper: #EFEDE7;
+    --paper-2: #FFFFFF;
+    --amber: #E8A33D;
+    --amber-dim: #C98A2E;
+    --text-on-ink: #F2EFE8;
+    --text-on-ink-muted: #AEB8CC;
+    --text-on-paper: #12203A;
+    --text-on-paper-muted: #5B6478;
+
+    --font-display: 'Fraunces', serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    color: var(--text-on-paper);
+    background: var(--paper);
+}
+
+a {
+    text-decoration: none;
+}
+
+/* ---------- Layout ---------- */
+.gateway {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    min-height: 100vh;
+}
+
+.panel {
+    display: flex;
+    align-items: center;
+    padding: 4rem 3.5rem;
+}
+
+.panel--ink {
+    background: linear-gradient(160deg, var(--ink) 0%, var(--ink-2) 100%);
+    color: var(--text-on-ink);
+}
+
+.panel--paper {
+    background: var(--paper);
+    justify-content: center;
+}
+
+.panel__inner {
+    max-width: 30rem;
+}
+
+/* ---------- Brand ---------- */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 3rem;
+}
+
+.brand__mark {
+    width: 0.85rem;
+    height: 0.85rem;
+    background: var(--amber);
+    border-radius: 2px;
+    transform: rotate(45deg);
+}
+
+.brand__name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* ---------- Headline ---------- */
+.headline {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(2.1rem, 3.4vw, 2.9rem);
+    line-height: 1.15;
+    margin: 0 0 1.4rem;
+    color: var(--text-on-ink);
+}
+
+.lede {
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--text-on-ink-muted);
+    max-width: 26rem;
+    margin: 0 0 3.5rem;
+}
+
+/* ---------- Clock ---------- */
+.clock {
+    width: 9rem;
+    height: 9rem;
+}
+
+.clock__face {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid rgba(242, 239, 232, 0.18);
+}
+
+.clock__tick {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 8px;
+    background: rgba(242, 239, 232, 0.35);
+    transform-origin: center 3.55rem;
+    transform: translate(-50%, -3.55rem) rotate(calc(var(--i) * 30deg));
+}
+
+.clock__hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: bottom center;
+    border-radius: 3px;
+}
+
+.clock__hand--hour {
+    width: 3px;
+    height: 2.1rem;
+    background: var(--text-on-ink);
+    transform: translateX(-50%) rotate(155deg);
+}
+
+.clock__hand--minute {
+    width: 2px;
+    height: 2.9rem;
+    background: var(--text-on-ink-muted);
+    transform: translateX(-50%) rotate(64deg);
+}
+
+.clock__hand--second {
+    width: 1px;
+    height: 3.1rem;
+    background: var(--amber);
+    transform: translateX(-50%) rotate(0deg);
+    animation: sweep 60s linear infinite;
+}
+
+.clock__pin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    background: var(--amber);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes sweep {
+    to {
+        transform: translateX(-50%) rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .clock__hand--second {
+        animation: none;
+    }
+}
+
+/* ---------- Access card ---------- */
+.access-card {
+    background: var(--paper-2);
+    border: 1px solid rgba(18, 32, 58, 0.08);
+    border-radius: 6px;
+    padding: 2.75rem;
+    width: 100%;
+    max-width: 22rem;
+    box-shadow: 0 24px 48px -32px rgba(18, 32, 58, 0.35);
+}
+
+.access-card__eyebrow {
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-on-paper-muted);
+}
+
+.access-card__title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 1.5rem;
+    line-height: 1.35;
+    margin: 0 0 2.25rem;
+    color: var(--text-on-paper);
+}
+
+.button {
+    display: block;
+    text-align: center;
+    background: var(--ink);
+    color: var(--text-on-ink);
+    font-weight: 500;
+    font-size: 0.98rem;
+    padding: 0.9rem 1.5rem;
+    border-radius: 5px;
+    transition: background-color 160ms ease;
+}
+
+.button:hover {
+    background: var(--ink-2);
+}
+
+.button:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 3px;
+}
+
+.help-link {
+    display: block;
+    text-align: center;
+    margin-top: 1.25rem;
+    font-size: 0.88rem;
+    color: var(--text-on-paper-muted);
+}
+
+.help-link:hover {
+    color: var(--text-on-paper);
+}
+
+.help-link:focus-visible {
+    outline: 2px solid var(--amber-dim);
+    outline-offset: 3px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+    .gateway {
+        grid-template-columns: 1fr;
+    }
+
+    .panel {
+        padding: 2.75rem 1.75rem;
+    }
+
+    .panel--ink {
+        padding-bottom: 3.5rem;
+    }
+
+    .clock {
+        display: none;
+    }
+
+    .lede {
+        margin-bottom: 0;
+    }
+}

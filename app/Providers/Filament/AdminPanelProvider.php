@@ -35,7 +35,14 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName('Aplicación de Registro (SuperAdmin)')
+            //->brandName('Aplicación de Registro (SuperAdmin)')
+            ->brandLogoHeight('auto')
+            ->brandLogo(fn() => new HtmlString(
+                request()->routeIs('filament.admin.auth.*')
+                    ? '<img src="' . asset('img/admin_logo.png') . '" style="max-width: 260px; width: 100%; height: auto;" alt="Logo Login">'
+                    : '<img src="' . asset('img/admin_logo.png') . '" style="max-width: 120px; width: 100%;margin:auto; height: auto;" alt="Logo Panel">'
+            ))
+
             ->globalSearch(false) // Provisionalmente deshabilita la búsqueda global
             ->login()
             ->colors([

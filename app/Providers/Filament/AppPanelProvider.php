@@ -29,8 +29,16 @@ class AppPanelProvider extends PanelProvider
         return $panel
             ->id('app')
             ->path('app')
+            ->login()
+            ->registration()
+            ->brandName("Panel Empresarial")
             ->colors([
-                'primary' => '#2ec411',
+                'primary' => "#2ec411",
+                'danger' => Color::Red,
+                'gray' => Color::Zinc,
+                'info' => Color::Blue,
+                'success' => Color::Green,
+                'warning' => Color::Amber,
             ])
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
@@ -56,7 +64,6 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                // Agrega el middleware personalizado para establecer el team_id en los permisos del usuario
                 SetPermissionsTeamId::class,
             ]);
     }
