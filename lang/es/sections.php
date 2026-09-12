@@ -1,7 +1,7 @@
 <?php
 
 return [
-    "basic_information" =>[
+    "basic_information" => [
         "title" => "Información Básica",
         "description" => "Datos generales de la oferta del plan",
     ],
@@ -14,14 +14,14 @@ return [
     'subscription_info' => [
         'title' => 'Información de la Suscripción',
         'description' => 'Empresa, plan asignado y estado de la suscripción',
-        ],
-    
+    ],
+
     'validity_cancellation' => [
         'title' => 'Vigencia y Cancelación',
         'description' => 'Fechas de inicio, vencimiento y cancelación de la suscripción',
     ],
 
-    'MRR' => [
+    'mrr' => [
         'title' => 'MRR (Ingresos Mensuales Recurrentes)',
         'description' => 'Recurrencia estimada en Soles',
     ],
@@ -52,7 +52,7 @@ return [
     ],
 
     "helpers" => [
-        "status_plan_helper"=>"Los planes inactivos no se mostrarán como opción de compra para nuevos Tenants"
+        "status_plan_helper" => "Los planes inactivos no se mostrarán como opción de compra para nuevos Tenants"
     ],
 
     "placeholder" => [

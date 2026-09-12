@@ -13,7 +13,7 @@ class PermissionsSeeder extends Seeder
     public function run(): void
     {
         $permissions = json_decode(
-            File::get(base_path('permissions_export.json')),
+            File::get(base_path('./database/seeders/json/permissions_export.json')),
             true
         );
 
