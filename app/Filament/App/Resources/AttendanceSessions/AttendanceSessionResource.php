@@ -65,35 +65,46 @@ class AttendanceSessionResource extends Resource
                     ->label(traductModel('employee')),
                 DatePicker::make('attendance_date')
                     ->required()
+                    ->native(false)
+                    ->displayFormat('d/m/Y')
                     ->label(traduct("fields.attendance_date")),
                 DateTimePicker::make('check_in_at')
+                    ->native(false)
+                    ->displayFormat('d/m/Y H:i')    
                     ->label(traduct("fields.check_in_at")),
                 DateTimePicker::make('check_out_at')
+                    ->native(false)
+                    ->displayFormat('d/m/Y H:i')
                     ->label(traduct("fields.check_out_at")),
                 TextInput::make('scheduled_minutes')
                     ->required()
                     ->numeric()
                     ->default(0)
+                    ->maxValue(100000000)
                     ->label(traduct("fields.scheduled_minutes")),
                 TextInput::make('worked_minutes')
                     ->required()
                     ->numeric()
                     ->default(0)
+                    ->maxValue(100000000)
                     ->label(traduct("fields.worked_minutes")),
                 TextInput::make('late_minutes')
                     ->required()
                     ->numeric()
                     ->default(0)
+                    ->maxValue(100000000)
                     ->label(traduct("fields.late_minutes")),
                 TextInput::make('early_leave_minutes')
                     ->required()
                     ->numeric()
                     ->default(0)
+                    ->maxValue(100000000)
                     ->label(traduct("fields.early_leave_minutes")),
                 TextInput::make('overtime_minutes')
                     ->required()
                     ->numeric()
                     ->default(0)
+                    ->maxValue(100000000)
                     ->label(traduct("fields.overtime_minutes")),
                 Select::make('status')
                     ->options([

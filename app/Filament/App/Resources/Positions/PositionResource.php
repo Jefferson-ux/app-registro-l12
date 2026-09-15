@@ -69,10 +69,12 @@ class PositionResource extends Resource
                     ->label(traduct("fields.department")),
                 TextInput::make('name')
                     ->required()
+                    ->maxLength(150)
                     ->label(traduct("fields.position_name")),
                 Textarea::make('description')
                     ->default(null)
                     ->columnSpanFull()
+                    ->maxLength(65535)
                     ->label(traduct("fields.description")),
                 Toggle::make('status')
                     ->required()
@@ -118,9 +120,6 @@ class PositionResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('tenant.name')
-                    ->searchable()
-                    ->label(traduct("fields.tenant")),
                 TextColumn::make('department.name')
                     ->searchable()
                     ->label(traduct("fields.department")),

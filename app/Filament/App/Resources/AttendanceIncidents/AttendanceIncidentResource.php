@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\AttendanceIncidents;
 
 use App\Filament\App\Resources\AttendanceIncidents\Pages\ManageAttendanceIncidents;
 use App\Models\AttendanceIncident;
+use App\Models\AttendanceSession;
 use App\Models\Employee;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -22,6 +23,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -68,10 +71,19 @@ class AttendanceIncidentResource extends Resource
                     ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
                     ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
                     ->preload()
+                    ->live() // necesario para que el segundo Select reaccione a este cambio
+                    ->afterStateUpdated(fn (Set $set) => $set('attendance_session_id', null)) 
                     ->required()
                     ->label(traduct('fields.employee')),
                 Select::make('attendance_session_id')
-                    ->relationship('attendanceSession', 'id')
+                    ->relationship(
+                        'attendanceSession',
+                        'id',
+                        modifyQueryUsing: fn (Builder $query, Get $get) => $query
+                            ->when($get('employee_id'), fn ($query, $employeeId) => $query->where('employee_id', $employeeId))
+                    )
+                    ->getOptionLabelFromRecordUsing(fn (AttendanceSession $record): string => "{$record->attendance_date}")
+                    ->preload()
                     ->required()
                     ->label(traductModel("attendance_session")),
                 Select::make('incident_type')
@@ -105,8 +117,10 @@ class AttendanceIncidentResource extends Resource
                     ->default('pending')
                     ->required()
                     ->label(traduct("fields.status")),
-                TextInput::make('resolved_by')
-                    ->numeric()
+                Select::make('resolved_by')
+                    ->relationship('resolver', 'name') 
+                    ->searchable()
+                    ->preload()
                     ->default(null)
                     ->label(traduct("fields.resolved_by")),
                 DateTimePicker::make('resolved_at')
@@ -205,9 +219,6 @@ class AttendanceIncidentResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                TextColumn::make('tenant.name')
-                    ->label(traduct('fields.tenant'))
-                    ->searchable(),
                 TextColumn::make('employee.id')
                     ->label(traduct('fields.employee'))
                     ->searchable(),

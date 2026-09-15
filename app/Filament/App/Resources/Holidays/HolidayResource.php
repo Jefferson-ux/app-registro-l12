@@ -62,6 +62,7 @@ class HolidayResource extends Resource
                     ->label(traduct('fields.branch')),
                 TextInput::make('name')
                     ->required()
+                    ->maxValue(150)
                     ->label(traduct('fields.holiday_name')),
                 DatePicker::make('holiday_date')
                     ->required()

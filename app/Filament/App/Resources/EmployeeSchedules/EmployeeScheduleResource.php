@@ -69,8 +69,14 @@ class EmployeeScheduleResource extends Resource
                     ->label(traduct("fields.schedule_name")),
                 DatePicker::make('start_date')
                     ->required()
+                    ->label(traduct("fields.resolved_at"))
+                    ->displayFormat('d/m/Y')
+                    ->native(false)
                     ->label(traduct("fields.start_date")),
                 DatePicker::make('end_date')
+                    ->label(traduct("fields.resolved_at"))
+                    ->displayFormat('d/m/Y')
+                    ->native(false)
                     ->label(traduct("fields.end_date")),
                 Toggle::make('status')
                     ->required()
@@ -114,9 +120,6 @@ class EmployeeScheduleResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                TextColumn::make('tenant.name')
-                    ->searchable()
-                    ->label(traduct("fields.tenant")),
                 TextColumn::make('employee.id')
                     ->searchable()
                     ->label(traduct("fields.employee")),

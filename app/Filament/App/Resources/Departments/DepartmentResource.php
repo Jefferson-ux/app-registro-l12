@@ -65,6 +65,7 @@ class DepartmentResource extends Resource
                     ->label(traduct("fields.tenant")),
                 TextInput::make('name')
                     ->required()
+                    ->maxLength(150)
                     ->label(traduct("fields.department_name")),
                 Select::make('parent_id')
                     ->relationship('parent', 'name')
@@ -112,9 +113,6 @@ class DepartmentResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('tenant.name')
-                    ->searchable()
-                    ->label(traduct("fields.tenant")),
                 TextColumn::make('name')
                     ->searchable()
                     ->label(traduct("fields.department_name")),

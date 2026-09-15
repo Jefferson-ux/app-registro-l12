@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\AttendanceRecords;
 
 use App\Filament\App\Resources\AttendanceRecords\Pages\ManageAttendanceRecords;
 use App\Models\AttendanceRecord;
+use App\Models\Employee;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -56,7 +57,10 @@ class AttendanceRecordResource extends Resource
                     ->required()
                     ->label(traduct('fields.tenant')),
                 Select::make('employee_id')
-                    ->relationship('employee', 'id')
+                    ->relationship('employee','id')
+                    ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
+                    ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
+                    ->preload()
                     ->required()
                     ->label(traduct('fields.employee')),
                 Select::make('branch_id')
@@ -89,21 +93,30 @@ class AttendanceRecordResource extends Resource
                     ->label(traduct('fields.method')),
                 TextInput::make('latitude')
                     ->numeric()
-                    ->default(null)
+                    ->step(0.0000001)
+                    ->minValue(-90)
+                    ->maxValue(90)
+                    ->nullable()
                     ->label(traduct('fields.latitude')),
                 TextInput::make('longitude')
                     ->numeric()
-                    ->default(null)
+                    ->step(0.0000001)
+                    ->minValue(-180)
+                    ->maxValue(180)
+                    ->nullable()
                     ->label(traduct('fields.longitude')),
                 TextInput::make('ip_address')
                     ->default(null)
+                    ->maxValue(45)
                     ->label(traduct('fields.ip_address')),
                 TextInput::make('device_identifier')
                     ->default(null)
+                    ->maxValue(255)
                     ->label(traduct('fields.device_identifier')),
                 Textarea::make('notes')
                     ->default(null)
                     ->columnSpanFull()
+                    ->maxLength(65535)
                     ->label(traduct('fields.notes')),
             ]);
     }

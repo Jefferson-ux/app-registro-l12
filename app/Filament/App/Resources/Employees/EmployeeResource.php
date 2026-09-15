@@ -77,35 +77,53 @@ class EmployeeResource extends Resource
                     ->default(null)
                     ->label(traduct("fields.position")),
                 Select::make('supervisor_id')
-                    ->relationship('supervisor', 'id')
+                        ->relationship(
+                            'supervisor',
+                            'id',
+                            modifyQueryUsing: fn (Builder $query, ?Employee $record) => $record
+                                ? $query->where('id', '!=', $record->id)
+                                : $query
+                        )
                     ->default(null)
+                    ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
+                    ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
+                    ->preload()
                     ->label(traduct("fields.supervisor")),
                 TextInput::make('employee_code')
                     ->required()
+                    ->maxLength(50)
                     ->label(traduct("fields.employee_code")),
                 TextInput::make('document_type')
                     ->default(null)
+                    ->maxLength(30)
                     ->label(traduct("fields.document_type")),
                 TextInput::make('document_number')
                     ->default(null)
+                    ->maxLength(50)
+                    ->unique(ignoreRecord: true)
                     ->label(traduct("fields.document_number")),
                 TextInput::make('first_name')
                     ->required()
+                    ->maxLength(100)
                     ->label(traduct("fields.first_name")),
                 TextInput::make('last_name')
                     ->required()
+                    ->maxLength(100)
                     ->label(traduct("fields.last_name")),
                 TextInput::make('personal_email')
                     ->email()
                     ->default(null)
+                    ->maxLength(150)
                     ->label(traduct("fields.personal_email")),
                 TextInput::make('work_email')
                     ->email()
                     ->default(null)
+                    ->maxLength(150)
                     ->label(traduct("fields.work_email")),
                 TextInput::make('phone')
                     ->tel()
                     ->default(null)
+                    ->maxLength(50)
                     ->label(traduct("fields.phone")),
                 DatePicker::make('hire_date')
                     ->displayFormat('d/m/Y')
@@ -215,12 +233,10 @@ class EmployeeResource extends Resource
         return $table
             ->recordTitleAttribute('first_name')
             ->columns([
-                TextColumn::make('tenant.name')
-                    ->searchable()
-                    ->label(traduct("fields.tenant")),
+
                 TextColumn::make('user.name')
                     ->searchable()
-                    ->label(traduct("fields.name")),
+                    ->label(traduct("fields.user")),
                 TextColumn::make('branch.name')
                     ->searchable()
                     ->label(traduct("fields.branch")),
@@ -250,20 +266,25 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.last_name")),
                 TextColumn::make('personal_email')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.personal_email")),
                 TextColumn::make('work_email')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.work_email")),
                 TextColumn::make('phone')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.phone")),
                 TextColumn::make('hire_date')
                     ->date()
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.hire_date")),
                 TextColumn::make('termination_date')
                     ->date()
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.termination_date")),
                 TextColumn::make('employment_status')
                     ->badge()

@@ -66,7 +66,8 @@ class WorkScheduleResource extends Resource
                     ->label(traduct("fields.tenant")),
                 TextInput::make('name')
                     ->required()
-                    ->label(traduct("fields.name")),
+                    ->maxLength(150)
+                    ->label(traduct("fields.schedule_name")),
                 Textarea::make('description')
                     ->default(null)
                     ->columnSpanFull()
@@ -137,9 +138,6 @@ class WorkScheduleResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('tenant.name')
-                    ->searchable()
-                    ->label(traduct('fields.tenant')),
                 TextColumn::make('name')
                     ->searchable()
                     ->label(traduct('fields.schedule_name')),

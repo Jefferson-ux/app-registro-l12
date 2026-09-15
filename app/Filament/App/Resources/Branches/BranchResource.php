@@ -65,26 +65,34 @@ class BranchResource extends Resource
                     ->required(),
                 TextInput::make('name')
                     ->required()
+                    ->maxLength(150)
                     ->label(traduct("fields.branch_name")),
                 TextInput::make('address')
                     ->default(null)
+                    ->maxLength(255)
                     ->label(traduct("fields.address")),
                 TextInput::make('latitude')
                     ->numeric()
-                    ->default(null)
+                    ->step(0.0000001)
+                    ->minValue(-90)
+                    ->maxValue(90)
+                    ->nullable()
                     ->label(traduct("fields.latitude")),
                 TextInput::make('longitude')
                     ->numeric()
-                    ->default(null)
+                    ->step(0.0000001)
+                    ->minValue(-180)
+                    ->maxValue(180)
+                    ->nullable()
                     ->label(traduct("fields.longitude")),
                 TextInput::make('allowed_radius')
                     ->numeric()
                     ->default(null)
+                    ->maxValue(10000000)
                     ->label(traduct("fields.allowed_radius")),
                 Toggle::make('status')
                     ->required()
-                    ->label(traduct("fields.status"))
-                    ,
+                    ->label(traduct("fields.status")),
             ]);
     }
 
@@ -135,10 +143,6 @@ class BranchResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('tenant.name')
-                    ->searchable()
-                    ->sortable()
-                    ->label(traduct("fields.tenant")),
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable()
@@ -148,12 +152,15 @@ class BranchResource extends Resource
                     ->label(traduct("fields.address")),
                 TextColumn::make('latitude')
                     ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.latitude")),
                 TextColumn::make('longitude')
                     ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.longitude")),
                 TextColumn::make('allowed_radius')
                     ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.allowed_radius")),
                 IconColumn::make('status')
                     ->boolean()

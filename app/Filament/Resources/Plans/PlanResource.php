@@ -102,7 +102,7 @@ class PlanResource extends Resource
                             ->prefix('S/')
                             ->step(0.01)
                             ->minValue(0)
-                            ->maxValue(100000)
+                            ->maxValue(1000000)
                             ->label(traduct('fields.price')),
                         TextInput::make('currency')
                             ->required()
@@ -128,17 +128,17 @@ class PlanResource extends Resource
                             TextInput::make('max_employees')
                                 ->numeric()
                                 ->minValue(0)
-                                ->maxValue(1000)
+                                ->maxValue(10000000)
                                 ->label(traduct('fields.max_employees')),
                             TextInput::make('max_users')
                                 ->numeric()
                                 ->minValue(0)
-                                ->maxValue(1000)
+                                ->maxValue(10000000)
                                 ->label(traduct('fields.max_users')),
                             TextInput::make('max_branches')
                                 ->numeric()
                                 ->minValue(0)
-                                ->maxValue(1000)
+                                ->maxValue(10000000)
                                 ->label(traduct('fields.max_branches')),
 
                     ]),

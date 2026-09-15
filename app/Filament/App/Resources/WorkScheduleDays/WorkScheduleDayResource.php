@@ -59,10 +59,19 @@ class WorkScheduleDayResource extends Resource
                 Select::make('work_schedule_id')
                     ->relationship('workSchedule', 'name')
                     ->required()
-                    ->label(traduct('fields.work_schedule')),
-                TextInput::make('day_of_week')
+                    ->label(traduct('fields.schedule_name')),
+                Select::make('day_of_week')
+                    ->options([
+                        1 => traductShort('status.day_of_week.monday'),
+                        2 => traductShort('status.day_of_week.tuesday'),
+                        3 => traductShort('status.day_of_week.wednesday'),
+                        4 => traductShort('status.day_of_week.thursday'),
+                        5 => traductShort('status.day_of_week.friday'),
+                        6 => traductShort('status.day_of_week.saturday'),
+                        7 => traductShort('status.day_of_week.sunday'),
+                    ])
                     ->required()
-                    ->numeric()
+                    ->native(false)
                     ->label(traduct('fields.day_of_week')),
                 Toggle::make('is_working_day')
                     ->required()
@@ -78,12 +87,14 @@ class WorkScheduleDayResource extends Resource
                 TextInput::make('check_in_tolerance_minutes')
                     ->required()
                     ->numeric()
+                    ->maxValue(10000)
                     ->default(0)
                     ->label(traduct('fields.check_in_tolerance')),
                 TextInput::make('check_out_tolerance_minutes')
                     ->required()
                     ->numeric()
                     ->default(0)
+                    ->maxValue(10000)
                     ->label(traduct('fields.check_out_tolerance')),
             ]);
     }
@@ -95,7 +106,7 @@ class WorkScheduleDayResource extends Resource
             TextEntry::make('tenant.name')
                 ->label(traduct('fields.tenant')),
             TextEntry::make('workSchedule.name')
-                ->label(traduct('fields.work_schedule')),
+                ->label(traduct('fields.schedule_name')),
             TextEntry::make('day_of_week')
                 ->label(traduct('fields.day_of_week'))
                 ->numeric(),
@@ -140,11 +151,8 @@ class WorkScheduleDayResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-            TextColumn::make('tenant.name')
-                ->label(traduct('fields.tenant'))
-                ->searchable(),
             TextColumn::make('workSchedule.name')
-                ->label(traduct('fields.work_schedule'))
+                ->label(traduct('fields.schedule_name'))
                 ->searchable(),
             TextColumn::make('day_of_week')
                 ->label(traduct('fields.day_of_week'))
@@ -155,27 +163,31 @@ class WorkScheduleDayResource extends Resource
                 ->boolean(),
             TextColumn::make('check_in_time')
                 ->label(traduct('fields.check_in_time'))
-                ->time()
+                ->time('g:i A')
                 ->sortable(),
             TextColumn::make('check_out_time')
                 ->label(traduct('fields.check_out_time'))
-                ->time()
+                ->time('g:i A')
                 ->sortable(),
             TextColumn::make('break_start_time')
                 ->label(traduct('fields.break_start_time'))
                 ->time()
+                ->toggleable(isToggledHiddenByDefault: true)
                 ->sortable(),
             TextColumn::make('break_end_time')
                 ->label(traduct('fields.break_end_time'))
                 ->time()
+                ->toggleable(isToggledHiddenByDefault: true)
                 ->sortable(),
             TextColumn::make('check_in_tolerance_minutes')
                 ->label(traduct('fields.check_in_tolerance'))
                 ->numeric()
+                ->toggleable(isToggledHiddenByDefault: true)
                 ->sortable(),
             TextColumn::make('check_out_tolerance_minutes')
                 ->label(traduct('fields.check_out_tolerance'))
                 ->numeric()
+                ->toggleable(isToggledHiddenByDefault: true)
                 ->sortable(),
             TextColumn::make('created_at')
                 ->label(traduct('fields.created_at'))
