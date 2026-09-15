@@ -32,18 +32,35 @@ class PlanResource extends Resource
 {
     protected static ?string $model = Plan::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSparkles;
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
+
+
+        public static function getNavigationGroup(): ?string
+    {
+        return traduct('navigation.multitenancy');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return traductModel('plan');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return traductModel('plan', plural: true);
+    }
+
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Section::make('Información Básica')
-                    ->description('Datos generales de la oferta del plan')
+                Section::make(__('sections.basic_information.title'))
+                    ->description(__('sections.basic_information.description'))
                     ->columns([
                         'default' => 1, // Pantallas muy pequeñas (móviles en vertical)
                         //'sm' => 2,      // Pantallas pequeñas (móviles en horizontal / tabletas pequeñas)
@@ -54,7 +71,7 @@ class PlanResource extends Resource
                     ])
                     ->schema([
                         TextInput::make('name')
-                            ->label('Nombre del Plan')
+                            ->label(traduct('fields.plan_name'))
                             ->maxLength(100)
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn (string $operation, $state, callable $set) => 
@@ -62,14 +79,17 @@ class PlanResource extends Resource
                                 )
                             ->required(),
                         TextInput::make('slug')
+                        ->label(traduct('fields.slug'))
                             ->maxLength(100)
                             ->unique(ignoreRecord:true),
                         Textarea::make('description')
+                            ->maxLength(1000)
                             ->rows(3)
+                            ->label(traduct('fields.description'))
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Precios y Facturación')
+                Section::make(__('sections.pricing_and_billing'))
                     ->columns([
                         'default' => 1, // Pantallas muy pequeñas (móviles en vertical)
                         'lg' => 3,      // Pantallas grandes (monitores de escritorio)
@@ -82,16 +102,19 @@ class PlanResource extends Resource
                             ->prefix('S/')
                             ->step(0.01)
                             ->minValue(0)
-                            ->maxValue(100000),
+                            ->maxValue(100000)
+                            ->label(traduct('fields.price')),
                         TextInput::make('currency')
                             ->required()
                             ->maxLength(3)
                             ->readOnly()
-                            ->default('PEN'),
+                            ->default('PEN')
+                            ->label(traduct('fields.currency')),
                         Select::make('billing_period')
                             ->options(['monthly' => 'Monthly', 'yearly' => 'Yearly'])
                             ->default('monthly')
-                            ->required(),
+                            ->required()
+                            ->label(traduct('fields.billing_cycle')),
                     ]),
                 
                     Section::make()
@@ -105,22 +128,25 @@ class PlanResource extends Resource
                             TextInput::make('max_employees')
                                 ->numeric()
                                 ->minValue(0)
-                                ->maxValue(1000),
+                                ->maxValue(1000)
+                                ->label(traduct('fields.max_employees')),
                             TextInput::make('max_users')
                                 ->numeric()
                                 ->minValue(0)
-                                ->maxValue(1000),
+                                ->maxValue(1000)
+                                ->label(traduct('fields.max_users')),
                             TextInput::make('max_branches')
                                 ->numeric()
                                 ->minValue(0)
-                                ->maxValue(1000),
+                                ->maxValue(1000)
+                                ->label(traduct('fields.max_branches')),
 
                     ]),
-                    Section::make('Estado del Plan')
+                    Section::make(traduct('fields.plan_status'))
                 ->schema([
                     Toggle::make('status')
-                        ->label('Plan Activo')
-                        ->helperText('Los planes inactivos no se mostrarán como opción de compra para nuevos Tenants')
+                        ->label(traduct('fields.status'))
+                        ->helperText(__('sections.helpers.status_plan_helper'))
                         ->default(true),
                 ]),
 
@@ -151,6 +177,7 @@ class PlanResource extends Resource
                 TextEntry::make('currency'),
                 TextEntry::make('billing_period')
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
                     ->color(fn (string $state)=> match ($state) {
                         'monthly' => Color::hex('#50c878'),
                         'yearly' => Color::hex('#D4AF37'),
@@ -192,6 +219,7 @@ class PlanResource extends Resource
                     ->searchable(),
                 TextColumn::make('billing_period')
                     ->badge()
+                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
                     ->color(fn (string $state)=> match ($state) {
                         'monthly' => Color::hex('#50c878'),
                         'yearly' => Color::hex('#D4AF37'),

@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\SetLocale;
 use Filament\Http\Middleware\Authenticate;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -21,6 +23,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+// Middleware para la autenticación de usuarios en Laravel
+use App\Http\Middleware\SetPermissionsTeamId;
+use Filament\Actions\Action;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -30,6 +35,15 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            //->brandName('Aplicación de Registro (SuperAdmin)')
+            ->brandLogoHeight('auto')
+            ->brandLogo(fn() => new HtmlString(
+                request()->routeIs('filament.admin.auth.*')
+                    ? '<img src="' . asset('img/admin_logo.png') . '" style="max-width: 260px; width: 100%; height: auto;" alt="Logo Login">'
+                    : '<img src="' . asset('img/admin_logo.png') . '" style="max-width: 120px; width: 100%;margin:auto; height: auto;" alt="Logo Panel">'
+            ))
+
+            ->globalSearch(false) // Provisionalmente deshabilita la búsqueda global
             ->login()
             ->colors([
                 'danger' => Color::Red,
@@ -44,10 +58,10 @@ class AdminPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
-                // Método que renderiza todos los widgets dentro de App\Filament\Widgets
+            // Método que renderiza todos los widgets dentro de App\Filament\Widgets
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-               // AccountWidget::class,
+                // AccountWidget::class,
             ])
             /*->renderHook(
                 PanelsRenderHook::PAGE_START, // Inyecta el HTML justo al inicio del contenido de la página
@@ -68,9 +82,36 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+
+                // Middleware de Cambio de Idioma
+                SetLocale::class,
+
             ])
             ->authMiddleware([
                 Authenticate::class,
+                // Agrega el middleware personalizado para establecer el team_id en los permisos del usuario
+                SetPermissionsTeamId::class,
+            ])
+
+
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label(traduct('navigation.multitenancy'))
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label(traduct('navigation.access_control'))
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label(traduct('navigation.administration'))
+                    ->collapsed(true),
+
+            ])
+
+            ->userMenuItems([
+                'toggle_lang' => Action::make('toggle_lang')
+                    ->label(fn() => app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español')
+                    ->icon('heroicon-o-language')
+                    ->url(fn() => route('lang.switch', app()->getLocale() === 'es' ? 'en' : 'es')),
             ]);
     }
 }
