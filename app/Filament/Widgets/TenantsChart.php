@@ -12,10 +12,8 @@ class TenantsChart extends ChartWidget
     // Comando para crear este widget 
 
     // protected ?string $heading = 'Tenants Chart';
-    public function getHeading(): string
-    {
-        return __('widgets.new_tenants_title');
-    }
+    protected ?string $heading = 'Nuevos Tenants (Últimos 6 Meses)'; 
+    protected static ?int $sort = 2;
 
     protected function getData(): array
     {
@@ -33,7 +31,7 @@ class TenantsChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => __('widgets.tenants_registered'),
+                    'label' => 'Tenants Registrados',
                     'data' => $data->pluck('count')->toArray(),
                     'borderColor' => '#3b82f6',
                     'fill' => true,

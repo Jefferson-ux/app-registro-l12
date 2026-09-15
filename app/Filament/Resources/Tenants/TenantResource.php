@@ -5,7 +5,6 @@ namespace App\Filament\Resources\Tenants;
 use App\Filament\Resources\Tenants\Pages\ManageTenants;
 use App\Models\Tenant;
 use BackedEnum;
-use UnitEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -38,29 +37,13 @@ class TenantResource extends Resource
 {
     protected static ?string $model = Tenant::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Multitenancy';
-
+    
     protected static ?int $navigationSort = 1;
 
-    public static function getNavigationGroup(): ?string
-    {
-        return traduct('navigation.multitenancy');
-    }
-
-    public static function getModelLabel(): string
-    {
-        return traductModel('tenant');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return traductModel('tenant',plural:true);
-    }
-    
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -70,48 +53,47 @@ class TenantResource extends Resource
                 TextInput::make('name')
                     ->label('Tenant Name')
                     ->required()
-                    ->maxLength(150)
-                    ->label(traduct('fields.name')),
+                    ->maxLength(150),
                 TextInput::make('business_name')
-                    ->label(traduct('fields.business_name'))
+                    ->label('Razón Social')
                     ->default(null)
                     ->maxLength(200),
                 TextInput::make('tax_id')
-                    ->label(traduct('fields.tax_id'))
+                    ->label('RUC / NIT')
                     ->default(null)
                     ->maxLength(50),
                 TextInput::make('email')
-                    ->label(traduct('fields.email'))
+                    ->label('Email address')
                     ->email()
                     ->maxLength(150)
                     ->default(null),
                 TextInput::make('phone')
-                    ->label(traduct('fields.phone'))
+                    ->label('Teléfono')
                     ->tel()
                     ->maxLength(50)
                     ->default(null),
                 TextInput::make('country')
-                    ->label(traduct('fields.country'))
+                    ->label('País')
                     ->maxLength(100)
                     ->readOnly() // TODO bloqueado por el momento
                     ->default('Perú'),
                 TextInput::make('timezone')
-                    ->label(traduct('fields.timezone'))
+                    ->label('Zona horaria')
                     ->maxLength(100)
                     ->default('America/Lima')
                     ->readOnly() 
                     ->required(),
                 FileUpload::make('logo')
-                    ->label(traduct('fields.logo'))
+                    ->label('Logo corporativo')
                     ->image()
                     ->directory('tenants/logos'),// notes: Directorio de almacenado
                 Select::make('status')
-                    ->label(traduct('fields.status'))
+                    ->label('Estado')
                     ->options([
-                        'trial' => traduct('status.trial'),
-                        'active' => traduct('status.active'),
-                        'suspended' => traduct('status.suspended'),
-                        'inactive' => traduct('status.inactive'),
+                        'trial' => 'Trial',
+                        'active' => 'Activo',
+                        'suspended' => 'Suspendido',
+                        'inactive' => 'Inactivo',
                     ])
                     ->live() 
                     ->afterStateUpdated(function (?string $state, $set) { // 🎯 Quitamos 'Set' de los parámetros. ¡Filament lo resuelve solo por llamarse $set!
@@ -124,7 +106,7 @@ class TenantResource extends Resource
                     ->default('trial'),
                 DateTimePicker::make('trial_ends_at')
                     ->default(now()->addDays(15)->toDateTimeString()) // Asociado por el "TRIAL" como default
-                    ->label(traduct('fields.trial_ends_at'))
+                    ->label('Fin del periodo de prueba')
                     ->hidden(fn ($get) => $get('status') !== 'trial'),
             ]);
     }
@@ -139,7 +121,7 @@ class TenantResource extends Resource
                 ])
             ->components([
                 ImageEntry::make('logo')
-                    ->label(traduct('fields.logo'))
+                    ->label('Logo')
                     ->placeholder('Sin logo')
                     ->imageSize(400)
                     ->alignCenter()
@@ -147,63 +129,52 @@ class TenantResource extends Resource
                     ->circular()
                     ->openUrlInNewTab(), // 👁️ Permite verla en tamaño completo al hacer click,
                 TextEntry::make('uuid')
-                    ->label(traduct('fields.uuid'))
+                    ->label('UUID')
                     ->icon('heroicon-m-identification')
                     ->columnSpanFull() // Ocupa toda la fila
                     ->copyable(),
                     
                 TextEntry::make('name')
-                    ->icon('heroicon-m-building-office')
-                    ->label(traduct('fields.name'))
-                    ->placeholder('-'),
+                    ->icon('heroicon-m-building-office'),
                 TextEntry::make('business_name')
                     ->icon('heroicon-m-briefcase')
-                    ->label(traduct('fields.business_name'))
                     ->placeholder('-'),
                 TextEntry::make('tax_id')
-                    ->label(traduct('fields.tax_id'))
+                    ->label('RUC / NIT')
                     ->placeholder('-'),
                 TextEntry::make('email')
-                    ->label(traduct('fields.email'))
+                    ->label('Email address')
                     ->icon('heroicon-m-envelope') // ✉️ Agrega el icono de correo
                     ->placeholder('-'),
                 TextEntry::make('phone')
                     ->icon('heroicon-m-phone')
-                    ->placeholder('-')
-                    ->label(traduct('fields.phone')),
+                    ->placeholder('-'),
                 TextEntry::make('country')
-                    ->label(traduct('fields.country'))
                     ->placeholder('-'),
                 TextEntry::make('timezone')
-                    ->icon('heroicon-m-globe-alt')
-                    ->label(traduct('fields.timezone')),
+                    ->icon('heroicon-m-globe-alt'),
                 TextEntry::make('status')
-                    ->label(traduct('fields.status'))
-                    ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
-                        'active' => 'success',
-                        'trial' => 'info',
-                        'suspended' => 'warning',
-                        'inactive' => 'danger',
-                        default => 'gray',
-                    }),
+                            ->label('Estado')
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                'active' => 'success',
+                                'trial' => 'info',
+                                'suspended'=>'warning', 
+                                'inactive' => 'danger',
+                                default => 'gray',
+                            }),
                 TextEntry::make('trial_ends_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.trial_ends_at')),
+                    ->placeholder('-'),
                 TextEntry::make('created_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.created_at')),
+                    ->placeholder('-'),
                 TextEntry::make('updated_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.updated_at')),
+                    ->placeholder('-'),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Tenant $record): bool => $record->trashed())
-                    ->label(traduct('fields.deleted_at')),
+                    ->visible(fn (Tenant $record): bool => $record->trashed()),
             ]);
     }
 
@@ -217,37 +188,31 @@ class TenantResource extends Resource
                 //TextColumn::make('uuid')
                 //    ->label('UUID'),
                 ImageColumn::make('logo')
-                    ->label(traduct('fields.logo'))
+                    ->label('Logo')
                     ->circular(),
                 TextColumn::make('name')
                     ->searchable()
                     ->color(fn ($record) => $record->trashed() ? 'gray' : 'default')
-                    ->sortable()
-                    ->label(traduct('fields.name')),
+                    ->sortable(),
                 TextColumn::make('business_name')
                     ->searchable()
                     ->sortable()
-                    ->toggleable()
-                    ->label(traduct('fields.business_name')),
+                    ->toggleable(),
                 TextColumn::make('tax_id')
-                    ->label(traduct('fields.tax_id')),
+                    ->label('RUC/DNI'),
                 TextColumn::make('email')
-                    ->label(traduct('fields.email'))
+                    ->label('Email address')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('phone')
-                    ->label(traduct('fields.phone'))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('country')
-                    ->label(traduct('fields.country'))
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('timezone')
-                    ->label(traduct('fields.timezone')),
+                TextColumn::make('timezone'),
                 TextColumn::make('status')
-                    ->label(traduct('fields.status'))
+                    ->label('Estado')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
                     ->color(fn (string $state): string => match ($state) {
                         'active' => 'success',
                         'trial' => 'info',
@@ -256,22 +221,18 @@ class TenantResource extends Resource
                         default => 'gray',
                     }),
                 TextColumn::make('trial_ends_at')
-                    ->label(traduct('fields.trial_ends_at'))
                     ->dateTime()
                     ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label(traduct('fields.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label(traduct('fields.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
-                    ->label(traduct('fields.deleted_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

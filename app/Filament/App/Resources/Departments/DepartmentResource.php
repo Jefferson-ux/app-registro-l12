@@ -34,26 +34,9 @@ class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
-
-    protected static ?int $navigationSort = 2;
-
-    public static function getNavigationGroup(): ?string
-    {
-        return traduct('navigation.business');
-    }
-
-    public static function getModelLabel(): string
-    {
-        return traductModel('department');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return traductModel('department', plural: true);
-    }
 
     public static function form(Schema $schema): Schema
     {
@@ -61,23 +44,17 @@ class DepartmentResource extends Resource
             ->components([
                 Select::make('tenant_id')
                     ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
+                    ->required(),
                 TextInput::make('name')
-                    ->required()
-                    ->maxLength(150)
-                    ->label(traduct("fields.department_name")),
+                    ->required(),
                 Select::make('parent_id')
                     ->relationship('parent', 'name')
-                    ->default(null)
-                    ->label(traduct("fields.parent_department")),
+                    ->default(null),
                 Textarea::make('description')
                     ->default(null)
-                    ->columnSpanFull()
-                    ->label(traduct("fields.description")),
+                    ->columnSpanFull(),
                 Toggle::make('status')
-                    ->required()
-                    ->label(traduct("fields.status")),
+                    ->required(),
             ]);
     }
 
@@ -88,7 +65,7 @@ class DepartmentResource extends Resource
                 TextEntry::make('tenant.name')
                     ->label('Tenant'),
                 TextEntry::make('name'),
-                TextEntry::make('parent.department_name')
+                TextEntry::make('parent.name')
                     ->label('Parent')
                     ->placeholder('-'),
                 TextEntry::make('description')
@@ -113,30 +90,26 @@ class DepartmentResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
+                TextColumn::make('tenant.name')
+                    ->searchable(),
                 TextColumn::make('name')
-                    ->searchable()
-                    ->label(traduct("fields.department_name")),
+                    ->searchable(),
                 TextColumn::make('parent.name')
-                    ->searchable()
-                    ->label(traduct("fields.parent_department")),
+                    ->searchable(),
                 IconColumn::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.created_at")),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.updated_at")),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.deleted_at")),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TrashedFilter::make(),

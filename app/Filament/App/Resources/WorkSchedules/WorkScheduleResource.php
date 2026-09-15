@@ -34,27 +34,9 @@ class WorkScheduleResource extends Resource
 {
     protected static ?string $model = WorkSchedule::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
-
-
-    protected static ?int $navigationSort = 1;
-
-    public static function getNavigationGroup(): ?string
-    {
-        return traduct('navigation.attendance');
-    }
-
-    public static function getModelLabel(): string
-    {
-        return traductModel('work_schedule');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return traductModel('work_schedule', plural: true);
-    }
 
     public static function form(Schema $schema): Schema
     {
@@ -62,28 +44,18 @@ class WorkScheduleResource extends Resource
             ->components([
                 Select::make('tenant_id')
                     ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
+                    ->required(),
                 TextInput::make('name')
-                    ->required()
-                    ->maxLength(150)
-                    ->label(traduct("fields.schedule_name")),
+                    ->required(),
                 Textarea::make('description')
                     ->default(null)
-                    ->columnSpanFull()
-                    ->label(traduct("fields.description")),
+                    ->columnSpanFull(),
                 Select::make('schedule_type')
-                        ->options([
-                            'fixed' => traduct('fields.schedule_fixed'),
-                            'flexible' => traduct('fields.schedule_flexible'),
-                            'rotating' => traduct('fields.schedule_rotating'),
-                        ])
+                    ->options(['fixed' => 'Fixed', 'flexible' => 'Flexible', 'rotating' => 'Rotating'])
                     ->default('fixed')
-                    ->required()
-                    ->label(traduct("fields.schedule_type")),
+                    ->required(),
                 Toggle::make('status')
-                    ->required()
-                    ->label(traduct("fields.status")),
+                    ->required(),
             ]);
     }
 
@@ -92,44 +64,24 @@ class WorkScheduleResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('tenant.name')
-                    ->label(traduct('fields.tenant')),
-                TextEntry::make('name')
-                    ->label(traduct('fields.name')),
+                    ->label('Tenant'),
+                TextEntry::make('name'),
                 TextEntry::make('description')
                     ->placeholder('-')
-                    ->columnSpanFull()
-                    ->label(traduct('fields.description')),
+                    ->columnSpanFull(),
                 TextEntry::make('schedule_type')
-                        ->label(traduct('fields.schedule_type'))
-                        ->badge()
-                        ->formatStateUsing(fn (string $state): string => match ($state) {
-                            'fixed' => traduct('fields.schedule_fixed'),
-                            'flexible' => traduct('fields.schedule_flexible'),
-                            'rotating' => traduct('fields.schedule_rotating'),
-                            default => $state,
-                        })
-                        ->color(fn (string $state): string => match ($state) {
-                            'fixed' => 'indigo',
-                            'flexible' => 'teal',
-                            'rotating' => 'success',
-                            default => 'gray',
-                        })
-                        ->label(traduct('fields.schedule_type')),
+                    ->badge(),
                 IconEntry::make('status')
-                    ->boolean()
-                    ->label(traduct('fields.status')),
+                    ->boolean(),
                 TextEntry::make('created_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.created_at')),
+                    ->placeholder('-'),
                 TextEntry::make('updated_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.updated_at')),
+                    ->placeholder('-'),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (WorkSchedule $record): bool => $record->trashed())
-                    ->label(traduct('fields.deleted_at')),
+                    ->visible(fn (WorkSchedule $record): bool => $record->trashed()),
             ]);
     }
 
@@ -138,43 +90,26 @@ class WorkScheduleResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
+                TextColumn::make('tenant.name')
+                    ->searchable(),
                 TextColumn::make('name')
-                    ->searchable()
-                    ->label(traduct('fields.schedule_name')),
+                    ->searchable(),
                 TextColumn::make('schedule_type')
-                        ->label(traduct('fields.schedule_type'))
-                        ->badge()
-                        ->formatStateUsing(fn (string $state): string => match ($state) {
-                            'fixed' => traduct('fields.schedule_fixed'),
-                            'flexible' => traduct('fields.schedule_flexible'),
-                            'rotating' => traduct('fields.schedule_rotating'),
-                            default => $state,
-                        })
-                        ->color(fn (string $state): string => match ($state) {
-                            'fixed' => 'indigo',
-                            'flexible' => 'teal',
-                            'rotating' => 'success',
-                            default => 'gray',
-                        })
-                        ->label(traduct('fields.schedule_type')),
+                    ->badge(),
                 IconColumn::make('status')
-                    ->boolean()
-                    ->label(traduct('fields.status')),
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct('fields.created_at')),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct('fields.updated_at')),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct('fields.deleted_at')),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TrashedFilter::make(),

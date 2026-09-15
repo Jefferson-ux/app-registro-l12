@@ -24,7 +24,7 @@ return new class extends Migration
                 ->constrained()
                 ->restrictOnDelete()
                 ->cascadeOnUpdate();
-            $table->tinyInteger('day_of_week'); 
+            $table->tinyInteger('day_of_week'); // 0 (Sunday) to 6 (Saturday)
             $table->boolean('is_working_day')->default(true);
 
             $table->time('check_in_time')->nullable();

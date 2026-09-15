@@ -3,7 +3,6 @@
 namespace App\Filament\App\Resources\EmployeeSchedules;
 
 use App\Filament\App\Resources\EmployeeSchedules\Pages\ManageEmployeeSchedules;
-use App\Models\Employee;
 use App\Models\EmployeeSchedule;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -27,26 +26,9 @@ class EmployeeScheduleResource extends Resource
 {
     protected static ?string $model = EmployeeSchedule::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'id';
-
-    protected static ?int $navigationSort = 3;
-
-    public static function getNavigationGroup(): ?string
-    {
-        return traduct('navigation.attendance');
-    }
-
-    public static function getModelLabel(): string
-    {
-        return traductModel('employee_schedule');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return traductModel('employee_schedule', plural: true);
-    }
 
     public static function form(Schema $schema): Schema
     {
@@ -54,33 +36,18 @@ class EmployeeScheduleResource extends Resource
             ->components([
                 Select::make('tenant_id')
                     ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct('fields.tenant')),
+                    ->required(),
                 Select::make('employee_id')
-                    ->relationship('employee','id')
-                    ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
-                    ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
-                    ->preload()
-                    ->required()
-                    ->label(traductModel('fields.employee')),
+                    ->relationship('employee', 'id')
+                    ->required(),
                 Select::make('work_schedule_id')
                     ->relationship('workSchedule', 'name')
-                    ->required()
-                    ->label(traduct("fields.schedule_name")),
+                    ->required(),
                 DatePicker::make('start_date')
-                    ->required()
-                    ->label(traduct("fields.resolved_at"))
-                    ->displayFormat('d/m/Y')
-                    ->native(false)
-                    ->label(traduct("fields.start_date")),
-                DatePicker::make('end_date')
-                    ->label(traduct("fields.resolved_at"))
-                    ->displayFormat('d/m/Y')
-                    ->native(false)
-                    ->label(traduct("fields.end_date")),
+                    ->required(),
+                DatePicker::make('end_date'),
                 Toggle::make('status')
-                    ->required()
-                    ->label(traduct("fields.status")),
+                    ->required(),
             ]);
     }
 
@@ -89,29 +56,24 @@ class EmployeeScheduleResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('tenant.name')
-                    ->label(traduct("fields.tenant")),
+                    ->label('Tenant'),
                 TextEntry::make('employee.id')
-                    ->label(traduct("fields.employee")),
+                    ->label('Employee'),
                 TextEntry::make('workSchedule.name')
-                    ->label(traduct("fields.schedule_name")),
+                    ->label('Work schedule'),
                 TextEntry::make('start_date')
-                    ->date()
-                    ->label(traduct("fields.start_date")),
+                    ->date(),
                 TextEntry::make('end_date')
                     ->date()
-                    ->placeholder('-')
-                    ->label(traduct("fields.end_date")),
+                    ->placeholder('-'),
                 IconEntry::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
+                    ->boolean(),
                 TextEntry::make('created_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.created_at")),
+                    ->placeholder('-'),
                 TextEntry::make('updated_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.updated_at")),
+                    ->placeholder('-'),
             ]);
     }
 
@@ -120,33 +82,28 @@ class EmployeeScheduleResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
+                TextColumn::make('tenant.name')
+                    ->searchable(),
                 TextColumn::make('employee.id')
-                    ->searchable()
-                    ->label(traduct("fields.employee")),
+                    ->searchable(),
                 TextColumn::make('workSchedule.name')
-                    ->searchable()
-                    ->label(traduct("fields.schedule_name")),
+                    ->searchable(),
                 TextColumn::make('start_date')
                     ->date()
-                    ->sortable()
-                    ->label(traduct("fields.start_date")),
+                    ->sortable(),
                 TextColumn::make('end_date')
                     ->date()
-                    ->sortable()
-                    ->label(traduct("fields.end_date")),
+                    ->sortable(),
                 IconColumn::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.created_at")),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.updated_at")),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

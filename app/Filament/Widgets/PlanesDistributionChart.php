@@ -8,11 +8,7 @@ use Filament\Widgets\ChartWidget;
 
 class PlanesDistributionChart extends ChartWidget
 {
-   
-    public function getHeading(): string
-    {
-        return __('widgets.active_plans_distribution');
-    }
+    protected ?string $heading = 'Distribución de Planes Activos';
     protected static ?int $sort = 3; // Aparece abajo de tus tarjetas
 
     protected function getData(): array
@@ -29,12 +25,11 @@ class PlanesDistributionChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => traduct('navigation.subscriptions'),
+                    'label' => 'Suscripciones',
                     'data' => $conteo->values()->toArray(),
                     'backgroundColor' => ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'], // Colores Tailwind
                 ],
             ],
-            
             'labels' => $planes->pluck('name')->toArray(),
         ];
     }

@@ -34,51 +34,27 @@ class PositionResource extends Resource
 {
     protected static ?string $model = Position::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?int $navigationSort = 4;
-
-    public static function getNavigationGroup(): ?string
-    {
-        return traduct('navigation.business');
-    }
-
-    public static function getModelLabel(): string
-    {
-        return traductModel('position');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return traductModel('position', plural: true);
-    }
-    
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('tenant_id')
                     ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
+                    ->required(),
                 Select::make('department_id')
                     ->relationship('department', 'name')
-                    ->default(null)
-                    ->label(traduct("fields.department")),
+                    ->default(null),
                 TextInput::make('name')
-                    ->required()
-                    ->maxLength(150)
-                    ->label(traduct("fields.position_name")),
+                    ->required(),
                 Textarea::make('description')
                     ->default(null)
-                    ->columnSpanFull()
-                    ->maxLength(65535)
-                    ->label(traduct("fields.description")),
+                    ->columnSpanFull(),
                 Toggle::make('status')
-                    ->required()
-                    ->label(traduct("fields.status")),
+                    ->required(),
             ]);
     }
 
@@ -87,31 +63,25 @@ class PositionResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('tenant.name')
-                    ->label(traduct("fields.tenant")),
+                    ->label('Tenant'),
                 TextEntry::make('department.name')
-                    ->placeholder('-')
-                    ->label(traduct("fields.department")),
-                TextEntry::make('name')
-                    ->label(traduct("fields.position_name")),
+                    ->label('Department')
+                    ->placeholder('-'),
+                TextEntry::make('name'),
                 TextEntry::make('description')
                     ->placeholder('-')
-                    ->columnSpanFull()
-                    ->label(traduct("fields.description")),
+                    ->columnSpanFull(),
                 IconEntry::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
+                    ->boolean(),
                 TextEntry::make('created_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.created_at")),
+                    ->placeholder('-'),
                 TextEntry::make('updated_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.updated_at")),
+                    ->placeholder('-'),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Position $record): bool => $record->trashed())
-                    ->label(traduct("fields.deleted_at")),
+                    ->visible(fn (Position $record): bool => $record->trashed()),
             ]);
     }
 
@@ -120,30 +90,26 @@ class PositionResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
+                TextColumn::make('tenant.name')
+                    ->searchable(),
                 TextColumn::make('department.name')
-                    ->searchable()
-                    ->label(traduct("fields.department")),
+                    ->searchable(),
                 TextColumn::make('name')
-                    ->searchable()
-                    ->label(traduct("fields.position_name")),
+                    ->searchable(),
                 IconColumn::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.created_at")),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.updated_at")),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.deleted_at")),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TrashedFilter::make(),

@@ -27,26 +27,9 @@ class HolidayResource extends Resource
 {
     protected static ?string $model = Holiday::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSun;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
-
-    protected static ?int $navigationSort = 1;
-
-    public static function getNavigationGroup(): ?string
-    {
-        return traduct('navigation.hr');
-    }
-
-    public static function getModelLabel(): string
-    {
-        return traductModel('holiday');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return traductModel('holiday', plural: true);
-    }
 
     public static function form(Schema $schema): Schema
     {
@@ -54,25 +37,16 @@ class HolidayResource extends Resource
             ->components([
                 Select::make('tenant_id')
                     ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct('fields.tenant')),
+                    ->required(),
                 Select::make('branch_id')
                     ->relationship('branch', 'name')
-                    ->default(null)
-                    ->label(traduct('fields.branch')),
+                    ->default(null),
                 TextInput::make('name')
-                    ->required()
-                    ->maxValue(150)
-                    ->label(traduct('fields.holiday_name')),
+                    ->required(),
                 DatePicker::make('holiday_date')
-                    ->required()
-                    ->label(traduct('fields.holiday_date'))
-                    ->displayFormat('d/m/Y')
-                    ->native(false),
+                    ->required(),
                 Toggle::make('is_paid')
-                    ->required()
-                    ->default(true)
-                    ->label(traduct('fields.is_paid')),
+                    ->required(),
             ]);
     }
 
@@ -81,26 +55,21 @@ class HolidayResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('tenant.name')
-                    ->label(traduct('fields.tenant')),
+                    ->label('Tenant'),
                 TextEntry::make('branch.name')
-                    ->placeholder('-')
-                    ->label(traduct('fields.branch')),
-                TextEntry::make('name')
-                    ->label(traduct('fields.holiday_name')),
+                    ->label('Branch')
+                    ->placeholder('-'),
+                TextEntry::make('name'),
                 TextEntry::make('holiday_date')
-                    ->date()
-                    ->label(traduct('fields.holiday_date')),
+                    ->date(),
                 IconEntry::make('is_paid')
-                    ->boolean()
-                    ->label(traduct('fields.is_paid')),
+                    ->boolean(),
                 TextEntry::make('created_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.created_at')),
+                    ->placeholder('-'),
                 TextEntry::make('updated_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.updated_at')),
+                    ->placeholder('-'),
             ]);
     }
 
@@ -109,30 +78,25 @@ class HolidayResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
+                TextColumn::make('tenant.name')
+                    ->searchable(),
                 TextColumn::make('branch.name')
-                    ->searchable()
-                    ->placeholder('-')
-                    ->label(traduct('fields.branch')),
+                    ->searchable(),
                 TextColumn::make('name')
-                    ->searchable()
-                    ->label(traduct('fields.holiday_name')),
+                    ->searchable(),
                 TextColumn::make('holiday_date')
                     ->date()
-                    ->sortable()
-                    ->label(traduct('fields.holiday_date')),
+                    ->sortable(),
                 IconColumn::make('is_paid')
-                    ->boolean()
-                    ->label(traduct('fields.is_paid')),
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct('fields.created_at')),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct('fields.updated_at')),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

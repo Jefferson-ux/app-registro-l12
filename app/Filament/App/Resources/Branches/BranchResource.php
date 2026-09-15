@@ -33,66 +33,32 @@ class BranchResource extends Resource
 {
     protected static ?string $model = Branch::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'name';
-
-    protected static ?int $navigationSort = 1;
-
-    public static function getNavigationGroup(): ?string
-    {
-        return traduct('navigation.business');
-    }
-
-    public static function getModelLabel(): string
-    {
-        return traductModel('branch');
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return traductModel('branch', plural: true);
-    }
-
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('tenant_id')
-                    ->label(traduct("fields.tenant"))
                     ->relationship('tenant', 'name')
                     ->required(),
                 TextInput::make('name')
-                    ->required()
-                    ->maxLength(150)
-                    ->label(traduct("fields.branch_name")),
+                    ->required(),
                 TextInput::make('address')
-                    ->default(null)
-                    ->maxLength(255)
-                    ->label(traduct("fields.address")),
+                    ->default(null),
                 TextInput::make('latitude')
                     ->numeric()
-                    ->step(0.0000001)
-                    ->minValue(-90)
-                    ->maxValue(90)
-                    ->nullable()
-                    ->label(traduct("fields.latitude")),
+                    ->default(null),
                 TextInput::make('longitude')
                     ->numeric()
-                    ->step(0.0000001)
-                    ->minValue(-180)
-                    ->maxValue(180)
-                    ->nullable()
-                    ->label(traduct("fields.longitude")),
+                    ->default(null),
                 TextInput::make('allowed_radius')
                     ->numeric()
-                    ->default(null)
-                    ->maxValue(10000000)
-                    ->label(traduct("fields.allowed_radius")),
+                    ->default(null),
                 Toggle::make('status')
-                    ->required()
-                    ->label(traduct("fields.status")),
+                    ->required(),
             ]);
     }
 
@@ -101,40 +67,30 @@ class BranchResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('tenant.name')
-                    ->label('Tenant')
-                    ->label(traduct("fields.tenant")),
-                TextEntry::make('name')
-                    ->label(traduct("fields.branch_name")),
+                    ->label('Tenant'),
+                TextEntry::make('name'),
                 TextEntry::make('address')
-                    ->placeholder('-')
-                    ->label(traduct("fields.adress")),
+                    ->placeholder('-'),
                 TextEntry::make('latitude')
                     ->numeric()
-                    ->placeholder('-')
-                    ->label(traduct("fields.latitude")),
+                    ->placeholder('-'),
                 TextEntry::make('longitude')
                     ->numeric()
-                    ->placeholder('-')
-                    ->label(traduct("fields.longitude")),
+                    ->placeholder('-'),
                 TextEntry::make('allowed_radius')
                     ->numeric()
-                    ->placeholder('-')
-                    ->label(traduct("fields.allowed_radius")),
+                    ->placeholder('-'),
                 IconEntry::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
+                    ->boolean(),
                 TextEntry::make('created_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.created_at")),
+                    ->placeholder('-'),
                 TextEntry::make('updated_at')
                     ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.updated_at")),
+                    ->placeholder('-'),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Branch $record): bool => $record->trashed())
-                    ->label(traduct("fields.deleted_at")),
+                    ->visible(fn (Branch $record): bool => $record->trashed()),
             ]);
     }
 
@@ -143,43 +99,35 @@ class BranchResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
+                TextColumn::make('tenant.name')
+                    ->searchable(),
                 TextColumn::make('name')
-                    ->searchable()
-                    ->sortable()
-                    ->label(traduct("fields.branch_name")),
+                    ->searchable(),
                 TextColumn::make('address')
-                    ->searchable()
-                    ->label(traduct("fields.address")),
+                    ->searchable(),
                 TextColumn::make('latitude')
                     ->numeric()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.latitude")),
+                    ->sortable(),
                 TextColumn::make('longitude')
                     ->numeric()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.longitude")),
+                    ->sortable(),
                 TextColumn::make('allowed_radius')
                     ->numeric()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.allowed_radius")),
+                    ->sortable(),
                 IconColumn::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
+                    ->boolean(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.created")),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.updated_at")),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label(traduct("fields.deleted_at")),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 TrashedFilter::make(),
