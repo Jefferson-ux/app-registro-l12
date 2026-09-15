@@ -39,6 +39,8 @@ class AppPanelProvider extends PanelProvider
                 'info' => Color::Blue,
                 'success' => Color::Green,
                 'warning' => Color::Amber,
+                'indigo' => Color::Indigo,
+                'teal' => Color::Teal
             ])
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
@@ -50,6 +52,18 @@ class AppPanelProvider extends PanelProvider
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,
+            ])
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label(traduct('navigation.business'))
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label(traduct('navigation.attendance'))
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label(traduct('navigation.hr'))
+                    ->collapsed(true),
+
             ])
             ->middleware([
                 EncryptCookies::class,

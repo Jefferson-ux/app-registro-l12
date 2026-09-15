@@ -31,3 +31,16 @@ if (!function_exists('traductModel')) {
         return $translation;
     }
 }
+
+if (!function_exists('traductShort')) {
+    function traductShort(string $key): string 
+    {
+        $translation = __($key);
+        
+        if ($translation === $key) {
+            return Str::headline(Str::afterLast($key, '.'));
+        }
+        
+        return $translation;
+    }
+}

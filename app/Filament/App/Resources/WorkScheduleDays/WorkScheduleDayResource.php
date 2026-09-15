@@ -27,9 +27,26 @@ class WorkScheduleDayResource extends Resource
 {
     protected static ?string $model = WorkScheduleDay::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAdjustmentsHorizontal;
 
-    protected static ?string $recordTitleAttribute = 'id';
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return traduct('navigation.attendance');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return traductModel('work_schedule_day');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return traductModel('work_schedule_day', plural: true);
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -37,64 +54,84 @@ class WorkScheduleDayResource extends Resource
             ->components([
                 Select::make('tenant_id')
                     ->relationship('tenant', 'name')
-                    ->required(),
+                    ->required()
+                    ->label(traduct('fields.tenant')),
                 Select::make('work_schedule_id')
                     ->relationship('workSchedule', 'name')
-                    ->required(),
+                    ->required()
+                    ->label(traduct('fields.work_schedule')),
                 TextInput::make('day_of_week')
                     ->required()
-                    ->numeric(),
+                    ->numeric()
+                    ->label(traduct('fields.day_of_week')),
                 Toggle::make('is_working_day')
-                    ->required(),
-                TimePicker::make('check_in_time'),
-                TimePicker::make('check_out_time'),
-                TimePicker::make('break_start_time'),
-                TimePicker::make('break_end_time'),
+                    ->required()
+                    ->label(traduct('fields.is_working_day')),
+                TimePicker::make('check_in_time')
+                    ->label(traduct('fields.check_in_time')),
+                TimePicker::make('check_out_time')
+                    ->label(traduct('fields.check_out_time')),
+                TimePicker::make('break_start_time')
+                    ->label(traduct('fields.break_start_time')),
+                TimePicker::make('break_end_time')
+                    ->label(traduct('fields.break_end_time')),
                 TextInput::make('check_in_tolerance_minutes')
                     ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(0)
+                    ->label(traduct('fields.check_in_tolerance')),
                 TextInput::make('check_out_tolerance_minutes')
                     ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(0)
+                    ->label(traduct('fields.check_out_tolerance')),
             ]);
     }
 
     public static function infolist(Schema $schema): Schema
     {
         return $schema
-            ->components([
-                TextEntry::make('tenant.name')
-                    ->label('Tenant'),
-                TextEntry::make('workSchedule.name')
-                    ->label('Work schedule'),
-                TextEntry::make('day_of_week')
-                    ->numeric(),
-                IconEntry::make('is_working_day')
-                    ->boolean(),
-                TextEntry::make('check_in_time')
-                    ->time()
-                    ->placeholder('-'),
-                TextEntry::make('check_out_time')
-                    ->time()
-                    ->placeholder('-'),
-                TextEntry::make('break_start_time')
-                    ->time()
-                    ->placeholder('-'),
-                TextEntry::make('break_end_time')
-                    ->time()
-                    ->placeholder('-'),
-                TextEntry::make('check_in_tolerance_minutes')
-                    ->numeric(),
-                TextEntry::make('check_out_tolerance_minutes')
-                    ->numeric(),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-'),
+        ->components([
+            TextEntry::make('tenant.name')
+                ->label(traduct('fields.tenant')),
+            TextEntry::make('workSchedule.name')
+                ->label(traduct('fields.work_schedule')),
+            TextEntry::make('day_of_week')
+                ->label(traduct('fields.day_of_week'))
+                ->numeric(),
+            IconEntry::make('is_working_day')
+                ->label(traduct('fields.is_working_day'))
+                ->boolean(),
+            TextEntry::make('check_in_time')
+                ->label(traduct('fields.check_in_time'))
+                ->time()
+                ->placeholder('-'),
+            TextEntry::make('check_out_time')
+                ->label(traduct('fields.check_out_time'))
+                ->time()
+                ->placeholder('-'),
+            TextEntry::make('break_start_time')
+                ->label(traduct('fields.break_start_time'))
+                ->time()
+                ->placeholder('-'),
+            TextEntry::make('break_end_time')
+                ->label(traduct('fields.break_end_time'))
+                ->time()
+                ->placeholder('-'),
+            TextEntry::make('check_in_tolerance_minutes')
+                ->label(traduct('fields.check_in_tolerance'))
+                ->numeric(),
+            TextEntry::make('check_out_tolerance_minutes')
+                ->label(traduct('fields.check_out_tolerance'))
+                ->numeric(),
+            TextEntry::make('created_at')
+                ->label(traduct('fields.created_at'))
+                ->dateTime()
+                ->placeholder('-'),
+            TextEntry::make('updated_at')
+                ->label(traduct('fields.updated_at'))
+                ->dateTime()
+                ->placeholder('-'),
             ]);
     }
 
@@ -103,41 +140,53 @@ class WorkScheduleDayResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                TextColumn::make('tenant.name')
-                    ->searchable(),
-                TextColumn::make('workSchedule.name')
-                    ->searchable(),
-                TextColumn::make('day_of_week')
-                    ->numeric()
-                    ->sortable(),
-                IconColumn::make('is_working_day')
-                    ->boolean(),
-                TextColumn::make('check_in_time')
-                    ->time()
-                    ->sortable(),
-                TextColumn::make('check_out_time')
-                    ->time()
-                    ->sortable(),
-                TextColumn::make('break_start_time')
-                    ->time()
-                    ->sortable(),
-                TextColumn::make('break_end_time')
-                    ->time()
-                    ->sortable(),
-                TextColumn::make('check_in_tolerance_minutes')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('check_out_tolerance_minutes')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+            TextColumn::make('tenant.name')
+                ->label(traduct('fields.tenant'))
+                ->searchable(),
+            TextColumn::make('workSchedule.name')
+                ->label(traduct('fields.work_schedule'))
+                ->searchable(),
+            TextColumn::make('day_of_week')
+                ->label(traduct('fields.day_of_week'))
+                ->numeric()
+                ->sortable(),
+            IconColumn::make('is_working_day')
+                ->label(traduct('fields.is_working_day'))
+                ->boolean(),
+            TextColumn::make('check_in_time')
+                ->label(traduct('fields.check_in_time'))
+                ->time()
+                ->sortable(),
+            TextColumn::make('check_out_time')
+                ->label(traduct('fields.check_out_time'))
+                ->time()
+                ->sortable(),
+            TextColumn::make('break_start_time')
+                ->label(traduct('fields.break_start_time'))
+                ->time()
+                ->sortable(),
+            TextColumn::make('break_end_time')
+                ->label(traduct('fields.break_end_time'))
+                ->time()
+                ->sortable(),
+            TextColumn::make('check_in_tolerance_minutes')
+                ->label(traduct('fields.check_in_tolerance'))
+                ->numeric()
+                ->sortable(),
+            TextColumn::make('check_out_tolerance_minutes')
+                ->label(traduct('fields.check_out_tolerance'))
+                ->numeric()
+                ->sortable(),
+            TextColumn::make('created_at')
+                ->label(traduct('fields.created_at'))
+                ->dateTime()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+            TextColumn::make('updated_at')
+                ->label(traduct('fields.updated_at'))
+                ->dateTime()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

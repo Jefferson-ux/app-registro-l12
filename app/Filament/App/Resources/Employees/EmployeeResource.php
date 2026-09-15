@@ -31,9 +31,26 @@ class EmployeeResource extends Resource
 {
     protected static ?string $model = Employee::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
     protected static ?string $recordTitleAttribute = 'first_name';
+
+        protected static ?int $navigationSort = 3;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return traduct('navigation.business');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return traductModel('employee');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return traductModel('employee', plural: true);
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -41,52 +58,73 @@ class EmployeeResource extends Resource
             ->components([
                 Select::make('tenant_id')
                     ->relationship('tenant', 'name')
-                    ->required(),
+                    ->required()
+                    ->label(traduct("fields.tenant")),
                 Select::make('user_id')
                     ->relationship('user', 'name')
-                    ->default(null),
+                    ->default(null)
+                    ->label(traduct("fields.user")),
                 Select::make('branch_id')
                     ->relationship('branch', 'name')
-                    ->default(null),
+                    ->default(null)
+                    ->label(traduct("fields.branch")),
                 Select::make('department_id')
                     ->relationship('department', 'name')
-                    ->default(null),
+                    ->default(null)
+                    ->label(traduct("fields.department")),
                 Select::make('position_id')
                     ->relationship('position', 'name')
-                    ->default(null),
+                    ->default(null)
+                    ->label(traduct("fields.position")),
                 Select::make('supervisor_id')
                     ->relationship('supervisor', 'id')
-                    ->default(null),
+                    ->default(null)
+                    ->label(traduct("fields.supervisor")),
                 TextInput::make('employee_code')
-                    ->required(),
+                    ->required()
+                    ->label(traduct("fields.employee_code")),
                 TextInput::make('document_type')
-                    ->default(null),
+                    ->default(null)
+                    ->label(traduct("fields.document_type")),
                 TextInput::make('document_number')
-                    ->default(null),
+                    ->default(null)
+                    ->label(traduct("fields.document_number")),
                 TextInput::make('first_name')
-                    ->required(),
+                    ->required()
+                    ->label(traduct("fields.first_name")),
                 TextInput::make('last_name')
-                    ->required(),
+                    ->required()
+                    ->label(traduct("fields.last_name")),
                 TextInput::make('personal_email')
                     ->email()
-                    ->default(null),
+                    ->default(null)
+                    ->label(traduct("fields.personal_email")),
                 TextInput::make('work_email')
                     ->email()
-                    ->default(null),
+                    ->default(null)
+                    ->label(traduct("fields.work_email")),
                 TextInput::make('phone')
                     ->tel()
-                    ->default(null),
-                DatePicker::make('hire_date'),
-                DatePicker::make('termination_date'),
+                    ->default(null)
+                    ->label(traduct("fields.phone")),
+                DatePicker::make('hire_date')
+                    ->displayFormat('d/m/Y')
+                    ->native(false)
+                    ->label(traduct("fields.hire_date")),
+                DatePicker::make('termination_date')
+                    ->displayFormat('d/m/Y')
+                    ->native(false)
+                    ->label(traduct("fields.termination_date")),
                 Select::make('employment_status')
                     ->options([
-            'active' => 'Active',
-            'inactive' => 'Inactive',
-            'suspended' => 'Suspended',
-            'terminated' => 'Terminated',
-        ])
+                        'active' => traduct('status.active'),
+                        'inactive' => traduct('status.inactive'),
+                        'suspended' => traduct('status.suspended'),
+                        'terminated' => traduct('status.terminated'),
+                    ])
                     ->default('active')
-                    ->required(),
+                    ->required()
+                    ->label(traduct("fields.employment_status")),
             ]);
     }
 
@@ -95,52 +133,80 @@ class EmployeeResource extends Resource
         return $schema
             ->components([
                 TextEntry::make('tenant.name')
-                    ->label('Tenant'),
+                    ->label('Tenant')
+                    ->label(traduct("fields.tenant")),
                 TextEntry::make('user.name')
                     ->label('User')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.user")),
                 TextEntry::make('branch.name')
                     ->label('Branch')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.branch")),
                 TextEntry::make('department.name')
                     ->label('Department')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.department")),
                 TextEntry::make('position.name')
                     ->label('Position')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.position")),
                 TextEntry::make('supervisor.id')
                     ->label('Supervisor')
-                    ->placeholder('-'),
-                TextEntry::make('employee_code'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.supervisor")),
+                TextEntry::make('employee_code')
+                    ->label(traduct("fields.employee_code")),
                 TextEntry::make('document_type')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.document_type")),
                 TextEntry::make('document_number')
-                    ->placeholder('-'),
-                TextEntry::make('first_name'),
-                TextEntry::make('last_name'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.document_number")),
+                TextEntry::make('first_name')
+                    ->label(traduct("fields.first_name")),
+                TextEntry::make('last_name')
+                    ->label(traduct("fields.last_name")),
                 TextEntry::make('personal_email')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.personal_email")),
                 TextEntry::make('work_email')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.work_email")),
                 TextEntry::make('phone')
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.phone")),
                 TextEntry::make('hire_date')
                     ->date()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.hire_date")),
                 TextEntry::make('termination_date')
                     ->date()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.termination_date")),
                 TextEntry::make('employment_status')
-                    ->badge(),
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
+                    ->color(fn (string $state): string => match ($state) {
+                        'active' => 'success',
+                        'inactive' => 'warning',
+                        'suspended' => 'warning',
+                        'terminated' => 'danger',
+                        default => 'gray',
+                    })
+                    ->label(traduct("fields.employment_status")),
                 TextEntry::make('created_at')
                     ->dateTime()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.created_at")),
                 TextEntry::make('updated_at')
                     ->dateTime()
-                    ->placeholder('-'),
+                    ->placeholder('-')
+                    ->label(traduct("fields.updated_at")),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Employee $record): bool => $record->trashed()),
+                    ->visible(fn (Employee $record): bool => $record->trashed())
+                    ->label(traduct("fields.deleted_at")),
             ]);
     }
 
@@ -150,53 +216,81 @@ class EmployeeResource extends Resource
             ->recordTitleAttribute('first_name')
             ->columns([
                 TextColumn::make('tenant.name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.tenant")),
                 TextColumn::make('user.name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.name")),
                 TextColumn::make('branch.name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.branch")),
                 TextColumn::make('department.name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.department")),
                 TextColumn::make('position.name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.position")),
                 TextColumn::make('supervisor.id')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.supervisor")),
                 TextColumn::make('employee_code')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.employee_code")),
                 TextColumn::make('document_type')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.document_type")),
                 TextColumn::make('document_number')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.document_number")),
                 TextColumn::make('first_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.first_name")),
                 TextColumn::make('last_name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.last_name")),
                 TextColumn::make('personal_email')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.personal_email")),
                 TextColumn::make('work_email')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.work_email")),
                 TextColumn::make('phone')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.phone")),
                 TextColumn::make('hire_date')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->label(traduct("fields.hire_date")),
                 TextColumn::make('termination_date')
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->label(traduct("fields.termination_date")),
                 TextColumn::make('employment_status')
-                    ->badge(),
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
+                    ->color(fn (string $state): string => match ($state) {
+                        'active' => 'success',
+                        'inactive' => 'warning',
+                        'suspended' => 'warning',
+                        'terminated' => 'danger',
+                        default => 'gray',
+                    })
+                    ->label(traduct("fields.employment_status")),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label(traduct("fields.created_at")),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label(traduct("fields.updated_at")),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label(traduct("fields.deleted_at")),
             ])
             ->filters([
                 TrashedFilter::make(),

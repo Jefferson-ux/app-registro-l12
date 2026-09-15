@@ -34,6 +34,7 @@ return [
     'latitude' => 'Latitud',
     'longitude' => 'Longitud',
     'geofence_radius' => 'Radio de geocerca',
+    'allowed_radius' => "Radio permitido",
 
     // ===== Identificación / negocio (Perú) =====
     'ruc' => 'RUC',
@@ -126,11 +127,15 @@ return [
     'position' => 'Cargo',
     'supervisor' => 'Supervisor',
     'salary' => 'Salario',
+    'personal_email' => 'Correo Personal',
+    'work_email' => 'Correo de Trabajo',
     'contract_type' => 'Tipo de contrato',
     'gender' => 'Género',
     'marital_status' => 'Estado civil',
     'emergency_contact' => 'Contacto de emergencia',
     'emergency_phone' => 'Teléfono de emergencia',
+    'employment_status' => 'Situación Laboral',
+    
 
     // ===== Branch (Sucursal) =====
     'branch_name' => 'Nombre de sucursal',
@@ -149,10 +154,18 @@ return [
 
     // ===== WorkSchedule / WorkScheduleDay (Turnos) =====
     'schedule_name' => 'Nombre del turno',
+    'schedule_type' => 'Tipo de turno',
+        'schedule_fixed' => 'Turno Fijo',
+        'schedule_flexible' => 'Turno Flexible',
+        'schedule_rotating' => 'Turno Rotativo',
     'shift_start' => 'Hora de inicio',
     'shift_end' => 'Hora de fin',
     'break_start' => 'Inicio de descanso',
     'break_end' => 'Fin de descanso',
+    'break_start_time' => 'Inicio de Descanso',
+    'break_end_time' => 'Fin de Descanso',
+    'check_in_tolerance' => 'Tolerancia de Entrada (min)',
+    'check_out_tolerance' => 'Tolerancia de Salida (min)',
     'tolerance_minutes' => 'Minutos de tolerancia',
     'day_of_week' => 'Día de la semana',
     'is_working_day' => 'Es día laborable',
@@ -165,22 +178,33 @@ return [
     'sunday' => 'Domingo',
 
     // ===== EmployeeSchedule (asignación de turno a empleado) =====
+    'employee' => 'Empleado',
     'assigned_schedule' => 'Turno asignado',
     'effective_from' => 'Vigente desde',
     'effective_to' => 'Vigente hasta',
 
     // ===== AttendanceSession / AttendanceRecord (Asistencia) =====
+    'attendance_date' => 'Fecha de Asistencia',
     'check_in_time' => 'Hora de entrada',
     'check_out_time' => 'Hora de salida',
+    'check_in_at' => 'Hora de Entrada',
+    'check_out_at' => 'Hora de Salida',
+    'recorded_at' => 'Fecha de Registro',
+    'scheduled_minutes' => 'Minutos Programados',
     'worked_hours' => 'Horas trabajadas',
+    'worked_minutes' => 'Minutos Trabajados',
     'overtime_hours' => 'Horas extra',
     'late_minutes' => 'Minutos de tardanza',
     'early_leave_minutes' => 'Minutos de salida anticipada',
+    'overtime_minutes' => 'Minutos Extra',
     'session_type' => 'Tipo de sesión',
+    'record_type' => 'Tipo de registro',
     'device' => 'Dispositivo',
     'ip_address' => 'Dirección IP',
     'photo' => 'Fotografía',
     'location' => 'Ubicación',
+    'method'=>"Método",
+    'device_identifier'=>'Identificador de Dispositivo',
 
     // ===== AttendanceIncident (Incidencias) =====
     'incident_type' => 'Tipo de incidencia',
@@ -189,12 +213,23 @@ return [
     'evidence' => 'Evidencia',
     'reviewed_by' => 'Revisado por',
     'reviewed_at' => 'Fecha de revisión',
+    'resolved_by' => 'Resuelto por',
+    'resolved_at' => 'Fecha de resolución',
+    'resolution_notes' => 'Notas de Resolución',
+
+    'incident_late' => 'Tardanza',
+    'incident_absence' => 'Falta',
+    'incident_early_leave' => 'Salida Anticipada',
+    'incident_missing_check_in' => 'Entrada No Marcada',
+    'incident_missing_check_out' => 'Salida No Marcada',
+    'incident_manual' => 'Incidente Manual',
 
     // ===== Holiday (Feriados) =====
     'holiday_name' => 'Nombre del feriado',
     'holiday_date' => 'Fecha del feriado',
     'is_recurring' => 'Es recurrente',
     'applies_to_all_branches' => 'Aplica a todas las sucursales',
+    'is_paid' => 'Es Pagado',
 
     // ===== AuditLog (Auditoría) =====
     'audit_log' => 'Registro de auditoría',

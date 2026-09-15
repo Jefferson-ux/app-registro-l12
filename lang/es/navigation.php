@@ -21,6 +21,7 @@ return [
     'administration'=>'Administración',
     'access_control'=>'Control de acceso',
 
+
     // Labels de Resources — RRHH / estructura
     'dashboard' => 'Dashboard',
     'employees' => 'Empleados',
