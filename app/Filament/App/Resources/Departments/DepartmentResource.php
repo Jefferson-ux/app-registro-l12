@@ -34,9 +34,26 @@ class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return traduct('navigation.business');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return traductModel('department');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return traductModel('department', plural: true);
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -44,17 +61,23 @@ class DepartmentResource extends Resource
             ->components([
                 Select::make('tenant_id')
                     ->relationship('tenant', 'name')
-                    ->required(),
+                    ->required()
+                    ->label(traduct("fields.tenant")),
                 TextInput::make('name')
-                    ->required(),
+                    ->required()
+                    ->maxLength(150)
+                    ->label(traduct("fields.department_name")),
                 Select::make('parent_id')
                     ->relationship('parent', 'name')
-                    ->default(null),
+                    ->default(null)
+                    ->label(traduct("fields.parent_department")),
                 Textarea::make('description')
                     ->default(null)
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->label(traduct("fields.description")),
                 Toggle::make('status')
-                    ->required(),
+                    ->required()
+                    ->label(traduct("fields.status")),
             ]);
     }
 
@@ -65,7 +88,7 @@ class DepartmentResource extends Resource
                 TextEntry::make('tenant.name')
                     ->label('Tenant'),
                 TextEntry::make('name'),
-                TextEntry::make('parent.name')
+                TextEntry::make('parent.department_name')
                     ->label('Parent')
                     ->placeholder('-'),
                 TextEntry::make('description')
@@ -90,26 +113,30 @@ class DepartmentResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('tenant.name')
-                    ->searchable(),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.department_name")),
                 TextColumn::make('parent.name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label(traduct("fields.parent_department")),
                 IconColumn::make('status')
-                    ->boolean(),
+                    ->boolean()
+                    ->label(traduct("fields.status")),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label(traduct("fields.created_at")),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label(traduct("fields.updated_at")),
                 TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label(traduct("fields.deleted_at")),
             ])
             ->filters([
                 TrashedFilter::make(),

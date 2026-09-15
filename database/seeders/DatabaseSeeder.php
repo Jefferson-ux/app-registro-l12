@@ -2,9 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use Illuminate\Database\Seeder; // Corregido: punto y coma agregado
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,12 +11,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // 1. Seeders de Datos de Dominio (Estructura base/necesaria)
         $this->call([
-            TenantSeeder::class,
-            UserSeeder::class,
-            PlanSeeder::class,
-            SubscriptionSeeder::class,
-            AuditLogSeeder::class
+            PermissionsSeeder::class, // Debe ir primero para poder asignar roles en UserSeeder
+            PlanSeeder::class,        // Los planes son datos maestros del sistema
         ]);
+
+        // 2. Seeders de Datos Dummy (Solo para desarrollo/pruebas)
+        if (app()->environment('local', 'testing')) {
+            $this->call([
+                TenantSeeder::class,
+                UserSeeder::class,
+                SubscriptionSeeder::class,
+                AuditLogSeeder::class,
+            ]);
+        }
     }
 }

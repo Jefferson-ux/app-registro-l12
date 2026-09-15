@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\SetPermissionsTeamId;
 use Filament\Http\Middleware\Authenticate;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -27,8 +29,18 @@ class AppPanelProvider extends PanelProvider
         return $panel
             ->id('app')
             ->path('app')
+            ->login()
+            ->registration()
+            ->brandName("Panel Empresarial")
             ->colors([
-                'primary' => '#2ec411',
+                'primary' => "#2ec411",
+                'danger' => Color::Red,
+                'gray' => Color::Zinc,
+                'info' => Color::Blue,
+                'success' => Color::Green,
+                'warning' => Color::Amber,
+                'indigo' => Color::Indigo,
+                'teal' => Color::Teal
             ])
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
@@ -39,7 +51,18 @@ class AppPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\Filament\App\Widgets')
             ->widgets([
                 AccountWidget::class,
-                FilamentInfoWidget::class,
+            ])
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label(traduct('navigation.business'))
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label(traduct('navigation.attendance'))
+                    ->collapsed(true),
+                NavigationGroup::make()
+                    ->label(traduct('navigation.hr'))
+                    ->collapsed(true),
+
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -54,6 +77,7 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                SetPermissionsTeamId::class,
             ]);
     }
 }
