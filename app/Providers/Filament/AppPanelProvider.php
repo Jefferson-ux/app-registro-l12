@@ -62,6 +62,9 @@ class AppPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label(traduct('navigation.hr'))
                     ->collapsed(true),
+                NavigationGroup::make()
+                    ->label(traduct('navigation.access_control'))
+                    ->collapsed(true),
 
             ])
             ->middleware([
