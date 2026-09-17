@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Employees;
 
 use App\Filament\App\Resources\Employees\Pages\ManageEmployees;
 use App\Models\Employee;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -29,6 +30,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EmployeeResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = Employee::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
@@ -56,10 +59,6 @@ class EmployeeResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
                 Select::make('user_id')
                     ->relationship('user', 'name')
                     ->default(null)

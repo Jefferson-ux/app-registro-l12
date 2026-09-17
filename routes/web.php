@@ -14,3 +14,8 @@ Route::get('/lang/{locale}', function (Request $request, string $locale) {
 
     return redirect()->back();
 })->name('lang.switch');
+
+
+Route::get('/thank-you', function () {
+    return view('pages.thank-you');
+})->name('thank-you');

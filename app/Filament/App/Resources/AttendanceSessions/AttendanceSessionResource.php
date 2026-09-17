@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources\AttendanceSessions;
 use App\Filament\App\Resources\AttendanceSessions\Pages\ManageAttendanceSessions;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -24,6 +25,8 @@ use Filament\Tables\Table;
 
 class AttendanceSessionResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = AttendanceSession::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
@@ -52,10 +55,6 @@ class AttendanceSessionResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
                 Select::make('employee_id')
                     ->relationship('employee','id')
                     ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")

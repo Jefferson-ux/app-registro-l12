@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Departments;
 
 use App\Filament\App\Resources\Departments\Pages\ManageDepartments;
 use App\Models\Department;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -32,6 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class DepartmentResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = Department::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice;
@@ -59,10 +62,6 @@ class DepartmentResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
                 TextInput::make('name')
                     ->required()
                     ->maxLength(150)

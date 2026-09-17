@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Positions;
 
 use App\Filament\App\Resources\Positions\Pages\ManagePositions;
 use App\Models\Position;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -32,6 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PositionResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = Position::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
@@ -59,10 +62,6 @@ class PositionResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
                 Select::make('department_id')
                     ->relationship('department', 'name')
                     ->default(null)

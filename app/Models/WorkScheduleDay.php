@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WorkScheduleDay extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'tenant_id',
         'work_schedule_id',

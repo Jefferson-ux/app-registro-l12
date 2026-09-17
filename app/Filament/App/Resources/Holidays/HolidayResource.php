@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Holidays;
 
 use App\Filament\App\Resources\Holidays\Pages\ManageHolidays;
 use App\Models\Holiday;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -25,6 +26,8 @@ use Filament\Tables\Table;
 
 class HolidayResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = Holiday::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSun;
@@ -52,10 +55,6 @@ class HolidayResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct('fields.tenant')),
                 Select::make('branch_id')
                     ->relationship('branch', 'name')
                     ->default(null)

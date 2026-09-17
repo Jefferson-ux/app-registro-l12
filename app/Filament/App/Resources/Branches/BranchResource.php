@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Branches;
 
 use App\Filament\App\Resources\Branches\Pages\ManageBranches;
 use App\Models\Branch;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -31,6 +32,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BranchResource extends Resource
 {
+
+    use ScopesTenantResource;
+
     protected static ?string $model = Branch::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
@@ -59,10 +63,6 @@ class BranchResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->label(traduct("fields.tenant"))
-                    ->relationship('tenant', 'name')
-                    ->required(),
                 TextInput::make('name')
                     ->required()
                     ->maxLength(150)
