@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\WorkSchedules;
 
 use App\Filament\App\Resources\WorkSchedules\Pages\ManageWorkSchedules;
 use App\Models\WorkSchedule;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -32,6 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class WorkScheduleResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = WorkSchedule::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
@@ -60,10 +63,6 @@ class WorkScheduleResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
                 TextInput::make('name')
                     ->required()
                     ->maxLength(150)

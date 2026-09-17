@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\WorkScheduleDays;
 
 use App\Filament\App\Resources\WorkScheduleDays\Pages\ManageWorkScheduleDays;
 use App\Models\WorkScheduleDay;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -25,6 +26,8 @@ use Filament\Tables\Table;
 
 class WorkScheduleDayResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = WorkScheduleDay::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAdjustmentsHorizontal;
@@ -52,10 +55,6 @@ class WorkScheduleDayResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct('fields.tenant')),
                 Select::make('work_schedule_id')
                     ->relationship('workSchedule', 'name')
                     ->required()
