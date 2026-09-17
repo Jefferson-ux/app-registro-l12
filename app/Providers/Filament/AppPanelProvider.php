@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Pages\Auth\RegisterTenant;
 use App\Http\Middleware\SetPermissionsTeamId;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -30,7 +31,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
-            ->registration()
+            ->registration(RegisterTenant::class)
             ->brandName("Panel Empresarial")
             ->colors([
                 'primary' => "#2ec411",
