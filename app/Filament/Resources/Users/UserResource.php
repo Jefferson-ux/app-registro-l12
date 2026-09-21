@@ -96,7 +96,8 @@ class UserResource extends Resource
                         'blocked' => traduct('status.blocked')
                     ])
                     ->default('active')
-                    ->required(),
+                    ->required()
+                    ->label(traduct('fields.status')),
                 Select::make('roles')
                     ->label('Roles')
                     ->multiple()
@@ -110,7 +111,8 @@ class UserResource extends Resource
                     ->saveRelationshipsUsing(null)
                     ->dehydrated(true)
                     ->required()
-                    ->label(traduct('fields.status')),
+                    ->label(traduct('fields.roles')),
+                    
             ]);
     }
 
