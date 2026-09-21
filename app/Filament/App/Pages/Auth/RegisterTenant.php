@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Filament\App\Pages\Auth;
 
+use App\Actions\RegisterTenantAction;
 use App\Models\Tenant;
 use App\Models\User;
 use Filament\Forms\Components\Select;
@@ -9,7 +11,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\HasMaxWidth;
-use Filament\Schemas\Schema; 
+use Filament\Schemas\Schema;
 use Filament\Pages\SimplePage;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Enums\Width;
@@ -43,9 +45,9 @@ class RegisterTenant extends SimplePage implements HasForms
     {
         return $schema
             ->columns([
-                'md'=> 2
+                'md' => 2
             ])
-            ->components([ 
+            ->components([
                 TextInput::make('name')
                     ->label('Tenant Name')
                     ->required()
@@ -86,68 +88,47 @@ class RegisterTenant extends SimplePage implements HasForms
                     ->maxLength(50)
                     ->default(null),
 
-Select::make('country')
-    ->label('País')
-    ->options([
-        'PE' => 'Perú',
-        'ES' => 'España',
-    ])
-    ->live(), // Hace que el formulario reaccione al cambio
+                Select::make('country')
+                    ->label('País')
+                    ->options([
+                        'PE' => 'Perú',
+                        'ES' => 'España',
+                    ])
+                    ->live(), // Hace que el formulario reaccione al cambio
 
-Select::make('timezone')
-    ->label('Zona Horaria')
-    ->options(fn (Get $get) => match ($get('country')) {
-        'PE' => ['America/Lima' => 'Lima (GMT-5)'],
-        'ES' => ['Europe/Madrid' => 'Madrid (GMT+1)', 'Atlantic/Canary' => 'Canarias (GMT+0)'],
-        default => ['UTC' => 'UTC'],
-    })
+                Select::make('timezone')
+                    ->label('Zona Horaria')
+                    ->options(fn(Get $get) => match ($get('country')) {
+                        'PE' => ['America/Lima' => 'Lima (GMT-5)'],
+                        'ES' => ['Europe/Madrid' => 'Madrid (GMT+1)', 'Atlantic/Canary' => 'Canarias (GMT+0)'],
+                        default => ['UTC' => 'UTC'],
+                    })
 
 
             ])
             ->statePath('data');
     }
 
-public function register(): void
-{
-    $data = $this->form->getState();
+    public function register(RegisterTenantAction $action): void
+    {
+        $data = $this->form->getState();
 
-    try {
-        DB::transaction(function () use ($data) {
-            
-            $tenant = Tenant::create([
-                'name'          => $data['name'], 
-                'business_name' => $data['business_name'] ?? null,
-                'tax_id'        => $data['tax_id'] ?? null,
-                'email'         => $data['email'] ?? null,
-                'phone'         => $data['phone'] ?? null,
-                'country'       => $data['country'] ?? null,
-                'timezone'      => $data['timezone'] ?? null,
-            ]);
+        try {
 
-            // 2. Vincular al usuario autenticado actual con su nuevo Tenant
-            $user = Auth::user();
-            
-            if ($user) {
-                $user->update([
-                    'tenant_id' => $tenant->id,
-                ]);
-            }
-        });
+            $action->execute($data);
 
-        //Notification::make()
-        //    ->title('Empresa registrada con éxito')
-        //    ->success()
-        //    ->send();
-
-        $this->redirect(route('thank-you'));
-        //$this->redirect(filament()->getUrl());
-
-    } catch (\Throwable $th) {
-        Notification::make()
-            ->title('Error al registrar la empresa')
-            ->body('Ocurrió un problema durante el registro. Por favor, intenta de nuevo.')
-            ->danger()
-            ->send();
+            $this->redirect(route('thank-you'));
+        } catch (\Throwable $th) {
+            /*Notification::make()
+                ->title('Error al registrar la empresa')
+                ->body('Ocurrió un problema durante el registro. Por favor, intenta de nuevo.')
+                ->danger()
+                ->send();*/
+            Notification::make()
+                ->title('Error al registrar la empresa')
+                ->body("Error: {$th->getMessage()} en {$th->getFile()}:{$th->getLine()}")
+                ->danger()
+                ->send();
+        }
     }
-}
 }
