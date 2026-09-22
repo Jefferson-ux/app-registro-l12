@@ -24,6 +24,7 @@ class RegisterTenantAction
                 'phone'         => $data['phone'] ?? null,
                 'country'       => $data['country'] ?? null,
                 'timezone'      => $data['timezone'] ?? null,
+                'logo'           => $data['logo'] ?? null,
             ]);
 
             // 2. Generar usuario

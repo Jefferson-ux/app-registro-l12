@@ -5,6 +5,7 @@ namespace App\Filament\App\Pages\Auth;
 use App\Actions\RegisterTenantAction;
 use App\Models\Tenant;
 use App\Models\User;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -13,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\HasMaxWidth;
 use Filament\Schemas\Schema;
 use Filament\Pages\SimplePage;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
@@ -43,70 +45,82 @@ class RegisterTenant extends SimplePage implements HasForms
 
     public function form(Schema $schema): Schema
     {
-        return $schema
-            ->columns([
-                'md' => 2
-            ])
-            ->components([
-                TextInput::make('name')
-                    ->label('Tenant Name')
-                    ->required()
-                    ->hint('(Obligatorio)')
-                    ->hintIcon(Heroicon::ExclamationTriangle)
-                    ->prefixIcon('heroicon-m-building-office')
-                    ->maxLength(150)
-                    ->label(traduct('fields.name'))
-                    ->autofocus(),
-                TextInput::make('business_name')
-                    ->label(traduct('fields.business_name'))
-                    ->default(null)
-                    ->suffixIcon('heroicon-m-building-office-2')
-                    ->hint('(Opcional)')
-                    ->hintIcon(Heroicon::QuestionMarkCircle)
-                    ->maxLength(200),
-                TextInput::make('tax_id')
-                    ->label(traduct('fields.tax_id'))
-                    ->default(null)
-                    ->prefixIcon('heroicon-m-identification')
-                    ->hint('(Opcional)')
-                    ->hintIcon(Heroicon::QuestionMarkCircle)
-                    ->maxLength(50),
-                TextInput::make('email')
-                    ->label(traduct('fields.email'))
-                    ->email()
-                    ->suffixIcon('heroicon-m-envelope')
-                    ->hint('(Opcional)')
-                    ->hintIcon(Heroicon::QuestionMarkCircle)
-                    ->maxLength(150)
-                    ->default(null),
-                TextInput::make('phone')
-                    ->label(traduct('fields.phone'))
-                    ->tel()
-                    ->suffixIcon('heroicon-m-phone')
-                    ->hint('(Opcional)')
-                    ->hintIcon(Heroicon::QuestionMarkCircle)
-                    ->maxLength(50)
-                    ->default(null),
+return $schema
+        ->columns([
+            'default' => 1,
+            'md'      => 2,
+        ])
+        ->components([
+            // 1. Nombre Comercial (Obligatorio - Ocupa ancho completo)
+            TextInput::make('name')
+                ->label(traduct('fields.name'))
+                ->required()
+                ->prefixIcon('heroicon-m-building-office')
+                ->maxLength(150)
+                ->autofocus()
+                ->columnSpanFull(),
 
+            // 2. Razon Social y RUC/TaxID (Lado a lado en MD)
+            TextInput::make('business_name')
+                ->label(traduct('fields.business_name'))
+                ->suffixIcon('heroicon-m-building-office-2')
+                ->maxLength(200)
+                ->default(null),
+
+            TextInput::make('tax_id')
+                ->label(traduct('fields.tax_id'))
+                ->prefixIcon('heroicon-m-identification')
+                ->maxLength(50)
+                ->default(null),
+
+            // 3. Email y Teléfono (Lado a lado en MD)
+            TextInput::make('email')
+                ->label(traduct('fields.email'))
+                ->email()
+                ->prefixIcon('heroicon-m-envelope')
+                ->maxLength(150)
+                ->default(null),
+
+            TextInput::make('phone')
+                ->label(traduct('fields.phone'))
+                ->tel()
+                ->prefixIcon('heroicon-m-phone')
+                ->maxLength(50)
+                ->default(null),
+
+            // 4. Logo a la izquierda (ocupa 1 columna)
+                FileUpload::make('logo')
+                ->label(traduct('fields.logo'))
+                ->image()
+                ->imageEditor()
+                ->directory('tenants/logos')
+                ->columnSpan(1),
+
+            // 5. Grupo a la derecha apilando País y Zona Horaria en 2 filas
+            Group::make([
                 Select::make('country')
-                    ->label('País')
+                    ->label(traduct('fields.country'))
+                    ->prefixIcon('heroicon-m-globe-americas')
                     ->options([
                         'PE' => 'Perú',
                         'ES' => 'España',
                     ])
-                    ->live(), // Hace que el formulario reaccione al cambio
+                    ->live()
+                    ->afterStateUpdated(fn (callable $set) => $set('timezone', null)),
 
                 Select::make('timezone')
-                    ->label('Zona Horaria')
-                    ->options(fn(Get $get) => match ($get('country')) {
+                    ->label(traduct('fields.timezone'))
+                    ->prefixIcon('heroicon-m-clock')
+                    ->options(fn (Get $get) => match ($get('country')) {
                         'PE' => ['America/Lima' => 'Lima (GMT-5)'],
                         'ES' => ['Europe/Madrid' => 'Madrid (GMT+1)', 'Atlantic/Canary' => 'Canarias (GMT+0)'],
                         default => ['UTC' => 'UTC'],
-                    })
-
-
-            ])
-            ->statePath('data');
+                    }),
+])
+->columns(1)
+->columnSpan(1),
+        ])
+        ->statePath('data');
     }
 
     public function register(RegisterTenantAction $action): void
