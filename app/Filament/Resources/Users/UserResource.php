@@ -219,7 +219,8 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->native(false),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -241,15 +242,38 @@ class UserResource extends Resource
                         $roleNames = Role::whereIn('id', $data['roles'] ?? [])->pluck('name');
                         $record->syncRoles($roleNames);
                     }),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
+                DeleteAction::make()
+                        ->label(__('actions.archive'))
+                        ->modalHeading(__('modals.trash.heading'))
+                        ->modalDescription(__('modals.trash.description'))
+                        ->icon('heroicon-m-archive-box'),
+
+                RestoreAction::make()
+                        ->label(__('actions.restore'))
+                        ->modalHeading(__('modals.restore.heading'))
+                        ->modalDescription(__('modals.restore.description'))
+                        ->color('info')
+                        ->icon('heroicon-m-arrow-path'),
+
+                ForceDeleteAction::make()
+                        ->label(__('actions.delete'))
+                        ->modalHeading(__('modals.force_delete.heading'))
+                        ->modalDescription(__('modals.force_delete.description'))
+                        ->color('danger'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.trash.heading'))
+                        ->modalDescription(__('modals.bulk.trash.description')),
+
+                    RestoreBulkAction::make()
+                        ->modalHeading(__('modals.bulk.restore.heading'))
+                        ->modalDescription(__('modals.bulk.restore.description')),
+
+                    ForceDeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description')),
                 ]),
             ]);
     }

@@ -12,6 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -205,9 +206,15 @@ class AttendanceRecordResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-             TextColumn::make('employee.id')
+            TextColumn::make('employee_full_name')
                 ->label(traduct('fields.employee'))
-                ->searchable(),
+                ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('employee', function (Builder $q) use ($search) {
+                        $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+                }),
             TextColumn::make('type')
                 ->label(traduct('fields.record_type'))
                 ->badge()
@@ -289,12 +296,18 @@ class AttendanceRecordResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                DeleteAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger'),
+                ])
+                ->toolbarActions([
+                    BulkActionGroup::make([
+                        DeleteBulkAction::make()
+                            ->modalHeading(__('modals.bulk.force_delete.heading'))
+                            ->modalDescription(__('modals.bulk.force_delete.description')),
+                    ]),
             ]);
     }
 

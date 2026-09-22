@@ -201,11 +201,16 @@ class SubscriptionResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description')),
                 ]),
             ]);
     }

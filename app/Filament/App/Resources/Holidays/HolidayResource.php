@@ -139,12 +139,18 @@ class HolidayResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                DeleteAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger'),
+                ])
+                ->toolbarActions([
+                    BulkActionGroup::make([
+                        DeleteBulkAction::make()
+                            ->modalHeading(__('modals.bulk.force_delete.heading'))
+                            ->modalDescription(__('modals.bulk.force_delete.description')),
+                    ]),
             ]);
     }
 
