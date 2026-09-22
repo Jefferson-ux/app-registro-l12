@@ -62,14 +62,14 @@ class AttendanceIncidentPolicy
         return $authUser->can('RestoreAny:AttendanceIncident');
     }
 
-    public function replicate(AuthUser $authUser, AttendanceIncident $attendanceIncident): bool
-    {
-        return $authUser->can('Replicate:AttendanceIncident');
-    }
+    // public function replicate(AuthUser $authUser, AttendanceIncident $attendanceIncident): bool
+    // {
+    //     return $authUser->can('Replicate:AttendanceIncident');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:AttendanceIncident');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:AttendanceIncident');
+    // }
 
 }

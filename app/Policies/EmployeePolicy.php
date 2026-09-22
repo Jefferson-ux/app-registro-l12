@@ -62,14 +62,14 @@ class EmployeePolicy
         return $authUser->can('RestoreAny:Employee');
     }
 
-    public function replicate(AuthUser $authUser, Employee $employee): bool
-    {
-        return $authUser->can('Replicate:Employee');
-    }
+    // public function replicate(AuthUser $authUser, Employee $employee): bool
+    // {
+    //     return $authUser->can('Replicate:Employee');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Employee');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:Employee');
+    // }
 
 }
