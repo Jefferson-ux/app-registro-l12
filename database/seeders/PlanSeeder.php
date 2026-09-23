@@ -18,7 +18,7 @@ class PlanSeeder extends Seeder
                 'name' => 'Plan Gratis (Trial)',
                 'slug' => Str::slug('Plan Gratis Trial'),
                 'description' => 'Ideal para probar la plataforma con funciones básicas.',
-                'max_employees' => 5,
+                'max_employees' => 10,
                 'max_users' => 2,
                 'max_branches' => 1,
                 'price' => 0.00,
