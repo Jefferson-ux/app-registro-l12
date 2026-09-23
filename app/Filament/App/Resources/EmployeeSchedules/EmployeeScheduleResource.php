@@ -5,12 +5,14 @@ namespace App\Filament\App\Resources\EmployeeSchedules;
 use App\Filament\App\Resources\EmployeeSchedules\Pages\ManageEmployeeSchedules;
 use App\Models\Employee;
 use App\Models\EmployeeSchedule;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -25,6 +27,9 @@ use Filament\Tables\Table;
 
 class EmployeeScheduleResource extends Resource
 {
+
+    use ScopesTenantResource;
+
     protected static ?string $model = EmployeeSchedule::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
@@ -52,17 +57,13 @@ class EmployeeScheduleResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct('fields.tenant')),
                 Select::make('employee_id')
                     ->relationship('employee','id')
                     ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
                     ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
                     ->preload()
                     ->required()
-                    ->label(traductModel('fields.employee')),
+                    ->label(traductModel('employee')),
                 Select::make('work_schedule_id')
                     ->relationship('workSchedule', 'name')
                     ->required()
@@ -90,8 +91,9 @@ class EmployeeScheduleResource extends Resource
             ->components([
                 TextEntry::make('tenant.name')
                     ->label(traduct("fields.tenant")),
-                TextEntry::make('employee.id')
-                    ->label(traduct("fields.employee")),
+                TextEntry::make('employee_full_name')
+                    ->label(traduct('fields.employee'))
+                    ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? ''))),
                 TextEntry::make('workSchedule.name')
                     ->label(traduct("fields.schedule_name")),
                 TextEntry::make('start_date')
@@ -120,9 +122,15 @@ class EmployeeScheduleResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                TextColumn::make('employee.id')
-                    ->searchable()
-                    ->label(traduct("fields.employee")),
+            TextColumn::make('employee_full_name')
+                ->label(traduct('fields.employee'))
+                ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('employee', function (Builder $q) use ($search) {
+                        $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+                }),
                 TextColumn::make('workSchedule.name')
                     ->searchable()
                     ->label(traduct("fields.schedule_name")),
@@ -154,12 +162,18 @@ class EmployeeScheduleResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+                DeleteAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger'),
+                ])
+                ->toolbarActions([
+                    BulkActionGroup::make([
+                        DeleteBulkAction::make()
+                            ->modalHeading(__('modals.bulk.force_delete.heading'))
+                            ->modalDescription(__('modals.bulk.force_delete.description')),
+                    ]),
             ]);
     }
 

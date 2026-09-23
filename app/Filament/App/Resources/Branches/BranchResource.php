@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Branches;
 
 use App\Filament\App\Resources\Branches\Pages\ManageBranches;
 use App\Models\Branch;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -31,6 +32,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class BranchResource extends Resource
 {
+
+    use ScopesTenantResource;
+
     protected static ?string $model = Branch::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
@@ -59,10 +63,6 @@ class BranchResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->label(traduct("fields.tenant"))
-                    ->relationship('tenant', 'name')
-                    ->required(),
                 TextInput::make('name')
                     ->required()
                     ->maxLength(150)
@@ -182,20 +182,43 @@ class BranchResource extends Resource
                     ->label(traduct("fields.deleted_at")),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->native(false),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
+                DeleteAction::make()
+                        ->label(__('actions.soft_delete'))
+                        ->modalHeading(__('modals.trash.heading'))
+                        ->modalDescription(__('modals.trash.description'))
+                        ->icon('heroicon-m-archive-box'),
+
+                RestoreAction::make()
+                        ->label(__('actions.restore'))
+                        ->modalHeading(__('modals.restore.heading'))
+                        ->modalDescription(__('modals.restore.description'))
+                        ->color('info'),
+
+                ForceDeleteAction::make()
+                        ->label(__('actions.delete'))
+                        ->modalHeading(__('modals.force_delete.heading'))
+                        ->modalDescription(__('modals.force_delete.description'))
+                        ->color('danger'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.trash.heading'))
+                        ->modalDescription(__('modals.bulk.trash.description')),
+
+                    RestoreBulkAction::make()
+                        ->modalHeading(__('modals.bulk.restore.heading'))
+                        ->modalDescription(__('modals.bulk.restore.description')),
+
+                    ForceDeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description')),
                 ]),
             ]);
     }

@@ -16,6 +16,14 @@ class UserSeeder extends Seeder
     {
         User::create([
 
+            'name' => 'SuperAdmin',
+            'email' => 'admin@gmail.com',
+            'password' => Hash::make('123456'),
+            'status' => 'active',
+            'tenant_id' => null
+        ]);
+        User::create([
+
             'name' => fake()->name(),
             'email' => fake()->email(),
             'password' => Hash::make('contraseña_1'),

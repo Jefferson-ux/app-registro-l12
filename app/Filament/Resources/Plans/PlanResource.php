@@ -243,7 +243,11 @@ class PlanResource extends Resource
                 ViewAction::make(),
                 EditAction::make()
                     ->modalWidth('6xl'),
-                DeleteAction::make()])
+                DeleteAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description')),
+                ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

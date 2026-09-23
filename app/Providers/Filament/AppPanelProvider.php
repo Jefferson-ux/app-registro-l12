@@ -2,9 +2,12 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Pages\Auth\RegisterTenant;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetPermissionsTeamId;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -30,7 +33,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
-            ->registration()
+            ->registration(RegisterTenant::class)
             ->brandName("Panel Empresarial")
             ->colors([
                 'primary' => "#2ec411",
@@ -62,6 +65,9 @@ class AppPanelProvider extends PanelProvider
                 NavigationGroup::make()
                     ->label(traduct('navigation.hr'))
                     ->collapsed(true),
+                NavigationGroup::make()
+                    ->label(traduct('navigation.access_control'))
+                    ->collapsed(true),
 
             ])
             ->middleware([
@@ -74,10 +80,19 @@ class AppPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+
+                // Middleware de Cambio de Idioma
+                SetLocale::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
                 SetPermissionsTeamId::class,
+            ])
+            ->userMenuItems([
+                'toggle_lang' => Action::make('toggle_lang')
+                    ->label(fn() => app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español')
+                    ->icon('heroicon-o-language')
+                    ->url(fn() => route('lang.switch', app()->getLocale() === 'es' ? 'en' : 'es')),
             ]);
     }
 }

@@ -6,6 +6,7 @@ use App\Filament\App\Resources\AttendanceIncidents\Pages\ManageAttendanceInciden
 use App\Models\AttendanceIncident;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -35,6 +36,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class AttendanceIncidentResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = AttendanceIncident::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedExclamationTriangle;
@@ -62,10 +65,6 @@ class AttendanceIncidentResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
                 Select::make('employee_id')
                     ->relationship('employee','id')
                     ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
@@ -219,9 +218,15 @@ class AttendanceIncidentResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                TextColumn::make('employee.id')
-                    ->label(traduct('fields.employee'))
-                    ->searchable(),
+            TextColumn::make('employee_full_name')
+                ->label(traduct('fields.employee'))
+                ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('employee', function (Builder $q) use ($search) {
+                        $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+                }),
                 TextColumn::make('attendanceSession.id')
                     ->label(traduct('fields.attendance_session'))
                     ->searchable(),
@@ -292,20 +297,43 @@ class AttendanceIncidentResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->native(false),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
+                DeleteAction::make()
+                        ->label(__('actions.soft_delete'))
+                        ->modalHeading(__('modals.trash.heading'))
+                        ->modalDescription(__('modals.trash.description'))
+                        ->icon('heroicon-m-archive-box'),
+
+                RestoreAction::make()
+                        ->label(__('actions.restore'))
+                        ->modalHeading(__('modals.restore.heading'))
+                        ->modalDescription(__('modals.restore.description'))
+                        ->color('info'),
+
+                ForceDeleteAction::make()
+                        ->label(__('actions.delete'))
+                        ->modalHeading(__('modals.force_delete.heading'))
+                        ->modalDescription(__('modals.force_delete.description'))
+                        ->color('danger'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.trash.heading'))
+                        ->modalDescription(__('modals.bulk.trash.description')),
+
+                    RestoreBulkAction::make()
+                        ->modalHeading(__('modals.bulk.restore.heading'))
+                        ->modalDescription(__('modals.bulk.restore.description')),
+
+                    ForceDeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description')),
                 ]),
             ]);
     }

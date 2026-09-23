@@ -42,34 +42,34 @@ class EmployeeSchedulePolicy
         return $authUser->can('DeleteAny:EmployeeSchedule');
     }
 
-    public function restore(AuthUser $authUser, EmployeeSchedule $employeeSchedule): bool
-    {
-        return $authUser->can('Restore:EmployeeSchedule');
-    }
+    // public function restore(AuthUser $authUser, EmployeeSchedule $employeeSchedule): bool
+    // {
+    //     return $authUser->can('Restore:EmployeeSchedule');
+    // }
 
-    public function forceDelete(AuthUser $authUser, EmployeeSchedule $employeeSchedule): bool
-    {
-        return $authUser->can('ForceDelete:EmployeeSchedule');
-    }
+    // public function forceDelete(AuthUser $authUser, EmployeeSchedule $employeeSchedule): bool
+    // {
+    //     return $authUser->can('ForceDelete:EmployeeSchedule');
+    // }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:EmployeeSchedule');
-    }
+    // public function forceDeleteAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('ForceDeleteAny:EmployeeSchedule');
+    // }
 
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:EmployeeSchedule');
-    }
+    // public function restoreAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('RestoreAny:EmployeeSchedule');
+    // }
 
-    public function replicate(AuthUser $authUser, EmployeeSchedule $employeeSchedule): bool
-    {
-        return $authUser->can('Replicate:EmployeeSchedule');
-    }
+    // public function replicate(AuthUser $authUser, EmployeeSchedule $employeeSchedule): bool
+    // {
+    //     return $authUser->can('Replicate:EmployeeSchedule');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:EmployeeSchedule');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:EmployeeSchedule');
+    // }
 
 }

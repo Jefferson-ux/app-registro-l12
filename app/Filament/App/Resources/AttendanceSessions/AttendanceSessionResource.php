@@ -5,12 +5,14 @@ namespace App\Filament\App\Resources\AttendanceSessions;
 use App\Filament\App\Resources\AttendanceSessions\Pages\ManageAttendanceSessions;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -24,6 +26,8 @@ use Filament\Tables\Table;
 
 class AttendanceSessionResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = AttendanceSession::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
@@ -52,10 +56,6 @@ class AttendanceSessionResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
                 Select::make('employee_id')
                     ->relationship('employee','id')
                     ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
@@ -191,9 +191,15 @@ class AttendanceSessionResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-                TextColumn::make('employee.id')
-                    ->label(traductModel('employee'))
-                    ->searchable(),
+            TextColumn::make('employee_full_name')
+                ->label(traduct('fields.employee'))
+                ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('employee', function (Builder $q) use ($search) {
+                        $q->where('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%");
+                    });
+                }),
                 TextColumn::make('attendance_date')
                     ->label(traduct('fields.attendance_date'))
                     ->date()

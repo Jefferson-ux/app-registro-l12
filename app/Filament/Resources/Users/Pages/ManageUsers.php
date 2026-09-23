@@ -27,12 +27,3 @@ class ManageUsers extends ManageRecords
                 ];
     }
 }
-
-
-
-
-
-// toni92@yahoo.com UserCreator
-// chelsie.walter@feeney.com Variable Plan1
-// pwalker@gmail.com Superadmin
-// bernadette.ferry@gmail.com Superadmin error

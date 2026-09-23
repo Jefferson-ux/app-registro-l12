@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Employees;
 
 use App\Filament\App\Resources\Employees\Pages\ManageEmployees;
 use App\Models\Employee;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -29,6 +30,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EmployeeResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = Employee::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
@@ -56,10 +59,6 @@ class EmployeeResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
                 Select::make('user_id')
                     ->relationship('user', 'name')
                     ->default(null)
@@ -236,19 +235,16 @@ class EmployeeResource extends Resource
 
                 TextColumn::make('user.name')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.user")),
                 TextColumn::make('branch.name')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.branch")),
                 TextColumn::make('department.name')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.department")),
-                TextColumn::make('position.name')
-                    ->searchable()
-                    ->label(traduct("fields.position")),
-                TextColumn::make('supervisor.id')
-                    ->searchable()
-                    ->label(traduct("fields.supervisor")),
                 TextColumn::make('employee_code')
                     ->searchable()
                     ->label(traduct("fields.employee_code")),
@@ -264,6 +260,13 @@ class EmployeeResource extends Resource
                 TextColumn::make('last_name')
                     ->searchable()
                     ->label(traduct("fields.last_name")),
+                TextColumn::make('position.name')
+                    ->searchable()
+                    ->label(traduct("fields.position")),
+                TextColumn::make('supervisor.id')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label(traduct("fields.supervisor")),
                 TextColumn::make('personal_email')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
@@ -314,20 +317,43 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.deleted_at")),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->native(false),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
+                DeleteAction::make()
+                        ->label(__('actions.soft_delete'))
+                        ->modalHeading(__('modals.trash.heading'))
+                        ->modalDescription(__('modals.trash.description'))
+                        ->icon('heroicon-m-archive-box'),
+
+                RestoreAction::make()
+                        ->label(__('actions.restore'))
+                        ->modalHeading(__('modals.restore.heading'))
+                        ->modalDescription(__('modals.restore.description'))
+                        ->color('info'),
+
+                ForceDeleteAction::make()
+                        ->label(__('actions.delete'))
+                        ->modalHeading(__('modals.force_delete.heading'))
+                        ->modalDescription(__('modals.force_delete.description'))
+                        ->color('danger'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.trash.heading'))
+                        ->modalDescription(__('modals.bulk.trash.description')),
+
+                    RestoreBulkAction::make()
+                        ->modalHeading(__('modals.bulk.restore.heading'))
+                        ->modalDescription(__('modals.bulk.restore.description')),
+
+                    ForceDeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description')),
                 ]),
             ]);
     }

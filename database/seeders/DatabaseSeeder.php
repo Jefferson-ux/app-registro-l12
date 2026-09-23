@@ -24,6 +24,9 @@ class DatabaseSeeder extends Seeder
                 UserSeeder::class,
                 SubscriptionSeeder::class,
                 AuditLogSeeder::class,
+                BranchSeeder::class,
+                DepartmentSeeder::class,
+                PositionSeeder::class,
             ]);
         }
     }

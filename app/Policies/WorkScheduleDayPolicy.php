@@ -42,34 +42,34 @@ class WorkScheduleDayPolicy
         return $authUser->can('DeleteAny:WorkScheduleDay');
     }
 
-    public function restore(AuthUser $authUser, WorkScheduleDay $workScheduleDay): bool
-    {
-        return $authUser->can('Restore:WorkScheduleDay');
-    }
+    // public function restore(AuthUser $authUser, WorkScheduleDay $workScheduleDay): bool
+    // {
+    //     return $authUser->can('Restore:WorkScheduleDay');
+    // }
 
-    public function forceDelete(AuthUser $authUser, WorkScheduleDay $workScheduleDay): bool
-    {
-        return $authUser->can('ForceDelete:WorkScheduleDay');
-    }
+    // public function forceDelete(AuthUser $authUser, WorkScheduleDay $workScheduleDay): bool
+    // {
+    //     return $authUser->can('ForceDelete:WorkScheduleDay');
+    // }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:WorkScheduleDay');
-    }
+    // public function forceDeleteAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('ForceDeleteAny:WorkScheduleDay');
+    // }
 
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:WorkScheduleDay');
-    }
+    // public function restoreAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('RestoreAny:WorkScheduleDay');
+    // }
 
-    public function replicate(AuthUser $authUser, WorkScheduleDay $workScheduleDay): bool
-    {
-        return $authUser->can('Replicate:WorkScheduleDay');
-    }
+    // public function replicate(AuthUser $authUser, WorkScheduleDay $workScheduleDay): bool
+    // {
+    //     return $authUser->can('Replicate:WorkScheduleDay');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:WorkScheduleDay');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:WorkScheduleDay');
+    // }
 
 }

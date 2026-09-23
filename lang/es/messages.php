@@ -31,5 +31,6 @@ return [
 
     'empty_state_title' => 'No hay registros todavía',
     'empty_state_description' => 'Cuando agregues información, aparecerá aquí',
+    'empty_value' => 'No registrado'
 
 ];

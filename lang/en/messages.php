@@ -26,5 +26,6 @@ return [
 
     'empty_state_title' => 'No records yet',
     'empty_state_description' => 'When you add information, it will appear here',
+    'empty_value' => 'Not recorded'
 
 ];

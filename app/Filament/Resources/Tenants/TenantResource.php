@@ -277,7 +277,10 @@ class TenantResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->native(false)
+                    // Oculta la opción de mostrar registros eliminados y activos juntos
+                    ->placeholder('Registros activos'),
                 // TODO -> Filtro opcional
                 /*
                 SelectFilter::make('status')
@@ -302,16 +305,21 @@ class TenantResource extends Resource
                 ViewAction::make(),
                 EditAction::make()
                     ->hidden(fn ($record) => method_exists($record, 'trashed') && $record->trashed()),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
+                DeleteAction::make()
+                    ->label(__('actions.soft_delete'))
+                    ->modalHeading(__('modals.trash.heading'))
+                    ->modalDescription(__('modals.trash.description'))
+                    ->icon('heroicon-m-inbox-arrow-down'),
+                ForceDeleteAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description')),
+                RestoreAction::make()
+                    ->label(__('actions.restore'))
+                    ->modalHeading(__('modals.restore.heading'))
+                    ->modalDescription(__('modals.restore.description'))
+                    ->color('info'),
+            
             ]);
     }
 

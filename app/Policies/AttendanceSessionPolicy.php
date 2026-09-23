@@ -42,34 +42,34 @@ class AttendanceSessionPolicy
         return $authUser->can('DeleteAny:AttendanceSession');
     }
 
-    public function restore(AuthUser $authUser, AttendanceSession $attendanceSession): bool
-    {
-        return $authUser->can('Restore:AttendanceSession');
-    }
+    // public function restore(AuthUser $authUser, AttendanceSession $attendanceSession): bool
+    // {
+    //     return $authUser->can('Restore:AttendanceSession');
+    // }
 
-    public function forceDelete(AuthUser $authUser, AttendanceSession $attendanceSession): bool
-    {
-        return $authUser->can('ForceDelete:AttendanceSession');
-    }
+    // public function forceDelete(AuthUser $authUser, AttendanceSession $attendanceSession): bool
+    // {
+    //     return $authUser->can('ForceDelete:AttendanceSession');
+    // }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:AttendanceSession');
-    }
+    // public function forceDeleteAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('ForceDeleteAny:AttendanceSession');
+    // }
 
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:AttendanceSession');
-    }
+    // public function restoreAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('RestoreAny:AttendanceSession');
+    // }
 
-    public function replicate(AuthUser $authUser, AttendanceSession $attendanceSession): bool
-    {
-        return $authUser->can('Replicate:AttendanceSession');
-    }
+    // public function replicate(AuthUser $authUser, AttendanceSession $attendanceSession): bool
+    // {
+    //     return $authUser->can('Replicate:AttendanceSession');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:AttendanceSession');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:AttendanceSession');
+    // }
 
 }
