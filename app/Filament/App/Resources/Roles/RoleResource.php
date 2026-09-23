@@ -2,8 +2,10 @@
 
 namespace App\Filament\App\Resources\Roles;
 
+use App\Enums\RoleColor;
 use App\Filament\App\Resources\Roles\Pages\ManageRoles;
 use App\Models\Role;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -14,6 +16,7 @@ use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -22,6 +25,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\GridDirection;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Permission;
@@ -29,13 +33,15 @@ use Illuminate\Support\Str;
 
 class RoleResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = Role::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShieldCheck;
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     public static function getNavigationGroup(): ?string
     {
@@ -50,6 +56,27 @@ class RoleResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return traductModel('role', plural: true);
+    }
+
+    protected static function colorOptions(): array
+    {
+        return collect(RoleColor::cases())
+            ->mapWithKeys(fn (RoleColor $color): array => [
+                $color->value => $color->label(),
+            ])
+            ->all();
+    }
+
+    protected static function filamentColor(?RoleColor $color): string
+    {
+        return match ($color) {
+            RoleColor::Red => 'danger',
+            RoleColor::Blue => 'info',
+            RoleColor::Green => 'success',
+            RoleColor::Amber => 'warning',
+            RoleColor::Indigo => 'primary',
+            RoleColor::Gray, null => 'gray',
+        };
     }
 
     protected static function allowedModels(): array
@@ -81,12 +108,28 @@ class RoleResource extends Resource
                     ->schema([
                         TextInput::make('name')
                             ->required()
-                            ->label(traduct('fields.role_name')),
+                            ->label(traduct('fields.role_name'))
+                            ->disabled(fn ($record) => $record?->is_protected ?? false),
+                        
+                        TextInput::make('label')
+                        ->label(traduct('fields.label'))
+                        ->maxLength(255),
+
+                        Select::make('color')
+                            ->label(traduct('fields.color'))
+                            ->options(static::colorOptions())
+                            ->default(RoleColor::Gray->value)
+                            ->native(false),
+
                         TextInput::make('guard_name')
+                            ->readOnly()
+                            ->hidden(fn ($record) => $record?->is_protected ?? false)
+                            ->label(traduct('fields.guard_name'))
                             ->default('web')
                             ->required(),
 
                         Toggle::make('select_all_global')
+                            ->hidden(fn ($record) => $record?->is_protected ?? false)
                             ->label(__('sections.helpers.select_all_global'))
                             ->onIcon('heroicon-o-shield-check')
                             ->offIcon('heroicon-o-shield-exclamation')
@@ -98,12 +141,17 @@ class RoleResource extends Resource
                                 }
                             })
                             ->dehydrated(false),
+                        
+                        TextInput::make('description')
+                            ->label(traduct('fields.description'))
+                            ->columnSpanFull(),
 
                     ])
                     ->columnSpanFull(),
 
 
                 Tabs::make('Permisos')
+                    ->hidden(fn ($record) => $record?->is_protected ?? false)
                     ->tabs(
                         Permission::all()
                             ->filter(fn($p) => in_array(explode(':', $p->name)[1] ?? '', static::allowedModels()))
@@ -180,11 +228,11 @@ class RoleResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('tenant_id')
-                    ->numeric()
-                    ->placeholder('-'),
                 TextEntry::make('name'),
+                TextEntry::make('label')->placeholder('----'),
+                TextEntry::make('color')->placeholder('----'),
                 TextEntry::make('guard_name'),
+                TextEntry::make('description')->columnSpanFull(),
                 TextEntry::make('created_at')
                     ->dateTime()
                     ->placeholder('-'),
@@ -199,10 +247,17 @@ class RoleResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('tenant_id')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('name')
+                    ->label(traduct('fields.role_name'))
+                    ->badge()
+                    ->color(
+                        fn (Role $record): string => static::filamentColor($record->color)
+                    )
+                    ->size('4xl')
+                    ->weight('bold')
+                    ->searchable(),
+                TextColumn::make('label')
+                    ->placeholder('sin etiqueta')
                     ->searchable(),
                 TextColumn::make('guard_name')
                     ->searchable(),
@@ -221,12 +276,14 @@ class RoleResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()->visible(fn ($record) => !$record->is_protected),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+            DeleteBulkAction::make()
+                ->action(function ($records) {
+                    $records->filter(fn ($r) => !$r->is_protected)
+                        ->each(fn ($r) => $r->delete());
+                }),
             ]);
     }
 

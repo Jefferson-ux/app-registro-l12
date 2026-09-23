@@ -12,6 +12,11 @@ use Illuminate\Support\Str;
 
 class RegisterTenantAction
 {
+    public function __construct(
+        private CreateTenantAdminRoleAction $createAdminRole,
+        private AssignRoleToUserAction $assignRole,
+    ) {}
+
     public function execute(array $data): Tenant
     {
         return DB::transaction(function () use ($data) {
@@ -37,6 +42,9 @@ class RegisterTenantAction
                 'email'     => $data['email'],
                 'password'  => Hash::make($plainPassword),
             ]);
+
+            $this->createAdminRole->execute($tenant->id);
+            $this->assignRole->execute($user, 'admin');
 
             // 3. Enviar Correo
             Mail::to($user->email)
