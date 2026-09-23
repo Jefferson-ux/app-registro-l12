@@ -110,7 +110,6 @@ class UserResource extends Resource
                     ->searchable()
                     ->saveRelationshipsUsing(null)
                     ->dehydrated(true)
-                    ->required()
                     ->label(traduct('fields.roles')),
                     
             ]);

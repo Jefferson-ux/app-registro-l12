@@ -10,26 +10,27 @@ trait BelongsToTenant
 {
     protected static function bootBelongsToTenant(): void
     {
-        // 1. FILTRO AUTOMÁTICO PARA SELECTS Y CONSULTAS
         static::addGlobalScope('tenant_id', function (Builder $builder) {
-            $user = Auth::user();
+            if (Auth::hasUser()) {
+                $user = Auth::user();
 
-            if ($user && $user->tenant_id) {
-                $builder->where($builder->getModel()->getTable() . '.tenant_id', $user->tenant_id);
+                if ($user && $user->tenant_id !== null) {
+                    $builder->where($builder->getModel()->getTable() . '.tenant_id', $user->tenant_id);
+                }
             }
         });
 
-        // 2. ASIGNACIÓN AUTOMÁTICA AL CREAR REGISTROS
         static::creating(function (Model $model) {
-            $user = Auth::user();
+            if (is_null($model->tenant_id) && Auth::hasUser()) {
+                $user = Auth::user();
 
-            if ($user && $user->tenant_id && is_null($model->tenant_id)) {
-                $model->tenant_id = $user->tenant_id;
+                if ($user && $user->tenant_id !== null) {
+                    $model->tenant_id = $user->tenant_id;
+                }
             }
         });
     }
 
-    // Relación
     public function tenant()
     {
         return $this->belongsTo(\App\Models\Tenant::class);

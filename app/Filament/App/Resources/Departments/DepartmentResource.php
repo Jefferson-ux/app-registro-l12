@@ -117,6 +117,7 @@ class DepartmentResource extends Resource
                     ->label(traduct("fields.department_name")),
                 TextColumn::make('parent.name')
                     ->searchable()
+                    ->placeholder(__('messages.empty_value'))
                     ->label(traduct("fields.parent_department")),
                 IconColumn::make('status')
                     ->boolean()

@@ -16,9 +16,9 @@ trait ScopesTenantResource
             return $query->whereNull('tenant_id');
         }
 
-        /*if ($user?->isSuperAdmin()) {
+        if ($user->email === config('app.super_admin_email')) {
             return $query;
-        }*/
+        }
 
         return $query->where('tenant_id', $user?->tenant_id);
     }
