@@ -14,6 +14,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
@@ -102,7 +103,7 @@ class RoleResource extends Resource
     {
         return $schema
             ->components([
-                Section::make('Información del Rol')
+                Section::make(__('sections.role_form.title'))
                     ->columns([
                         'default' => 1,
                         'sm'      => 2,
@@ -139,13 +140,25 @@ class RoleResource extends Resource
                             ->inline(false)
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set) {
-                                foreach (Permission::all()->groupBy(fn($p) => explode(':', $p->name)[1] ?? 'Otros') as $resourceName => $group) {
+                                // Obtenemos los modelos permitidos
+                                $allowedModels = static::allowedModels();
+
+                                // 1. Agrupamos los permisos igual que en las pestañas
+                                $groupedPermissions = Permission::all()
+                                    ->filter(fn($p) => in_array(explode(':', $p->name)[1] ?? '', $allowedModels))
+                                    ->groupBy(fn($p) => explode(':', $p->name)[1] ?? traduct('permissions.others'));
+
+                                foreach ($groupedPermissions as $resourceName => $group) {
+                                    // Activa/Desactiva el Toggle individual de cada pestaña ("Dar todo" del recurso)
+                                    $set("select_all_{$resourceName}", $state);
+
+                                    // Marca/Desmarca todos los CheckboxList de esa pestaña
                                     $set("permissions_{$resourceName}", $state ? $group->pluck('id')->toArray() : []);
                                 }
                             })
                             ->dehydrated(false),
 
-                        TextInput::make('description')
+                        Textarea::make('description')
                             ->label(traduct('fields.description'))
                             ->columnSpanFull(),
 
@@ -153,7 +166,7 @@ class RoleResource extends Resource
                     ->columnSpanFull(),
 
 
-                Tabs::make('Permisos')
+                Tabs::make(traduct('fields.permissions'))
                     ->hidden(fn($record) => $record?->is_protected ?? false)
                     ->tabs(
                         Permission::all()
@@ -283,10 +296,19 @@ class RoleResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make()->visible(fn($record) => !$record->is_protected),
+                DeleteAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger')
+                    ->visible(fn($record) => !$record->is_protected),
             ])
             ->toolbarActions([
                 DeleteBulkAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.bulk.force_delete.heading'))
+                    ->modalDescription(__('modals.bulk.force_delete.description'))
+                    ->color('danger')
                     ->action(function ($records) {
                         $records->filter(fn($r) => !$r->is_protected)
                             ->each(fn($r) => $r->delete());

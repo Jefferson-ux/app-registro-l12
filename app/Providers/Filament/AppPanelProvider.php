@@ -56,17 +56,13 @@ class AppPanelProvider extends PanelProvider
                 AccountWidget::class,
             ])
             ->navigationGroups([
-                NavigationGroup::make()
-                    ->label(traduct('navigation.business'))
+                NavigationGroup::make(fn() => traduct('navigation.business'))
                     ->collapsed(true),
-                NavigationGroup::make()
-                    ->label(traduct('navigation.attendance'))
+                NavigationGroup::make(fn() => traduct('navigation.attendance'))
                     ->collapsed(true),
-                NavigationGroup::make()
-                    ->label(traduct('navigation.hr'))
+                NavigationGroup::make(fn() => traduct('navigation.hr'))
                     ->collapsed(true),
-                NavigationGroup::make()
-                    ->label(traduct('navigation.access_control'))
+                NavigationGroup::make(fn() => traduct('navigation.access_control'))
                     ->collapsed(true),
 
             ])

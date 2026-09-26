@@ -95,14 +95,11 @@ class AdminPanelProvider extends PanelProvider
 
 
             ->navigationGroups([
-                NavigationGroup::make()
-                    ->label(traduct('navigation.multitenancy'))
+                NavigationGroup::make(fn() => traduct('navigation.multitenancy'))
                     ->collapsed(true),
-                NavigationGroup::make()
-                    ->label(traduct('navigation.access_control'))
+                NavigationGroup::make(fn() => traduct('navigation.access_control'))
                     ->collapsed(true),
-                NavigationGroup::make()
-                    ->label(traduct('navigation.administration'))
+                NavigationGroup::make(fn() => traduct('navigation.administration'))
                     ->collapsed(true),
 
             ])

@@ -93,7 +93,6 @@ class UserResource extends Resource
                     ->required()
                     ->label(traduct('fields.status')),
                 Select::make('roles')
-                    ->label('Roles')
                     ->multiple()
                     ->options(function ($record) {
                         $tenantId = $record?->tenant_id ?? 0;
@@ -105,7 +104,7 @@ class UserResource extends Resource
                     ->saveRelationshipsUsing(null)
                     ->dehydrated(true)
                     ->label(traduct('fields.roles')),
-                    
+
             ]);
     }
 
@@ -232,23 +231,23 @@ class UserResource extends Resource
                         $record->syncRoles($roleNames);
                     }),
                 DeleteAction::make()
-                        ->label(__('actions.archive'))
-                        ->modalHeading(__('modals.trash.heading'))
-                        ->modalDescription(__('modals.trash.description'))
-                        ->icon('heroicon-m-archive-box'),
+                    ->label(__('actions.archive'))
+                    ->modalHeading(__('modals.trash.heading'))
+                    ->modalDescription(__('modals.trash.description'))
+                    ->icon('heroicon-m-archive-box'),
 
                 RestoreAction::make()
-                        ->label(__('actions.restore'))
-                        ->modalHeading(__('modals.restore.heading'))
-                        ->modalDescription(__('modals.restore.description'))
-                        ->color('info')
-                        ->icon('heroicon-m-arrow-path'),
+                    ->label(__('actions.restore'))
+                    ->modalHeading(__('modals.restore.heading'))
+                    ->modalDescription(__('modals.restore.description'))
+                    ->color('info')
+                    ->icon('heroicon-m-arrow-path'),
 
                 ForceDeleteAction::make()
-                        ->label(__('actions.delete'))
-                        ->modalHeading(__('modals.force_delete.heading'))
-                        ->modalDescription(__('modals.force_delete.description'))
-                        ->color('danger'),
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
