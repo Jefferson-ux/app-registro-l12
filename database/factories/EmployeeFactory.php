@@ -16,7 +16,7 @@ class EmployeeFactory extends Factory
     public function definition(): array
     {
         return [
-            'tenant_id'         => fn () => Tenant::inRandomOrder()->value('id'),
+            'tenant_id'         => fn() => Tenant::inRandomOrder()->value('id'),
             'user_id'           => null, // Se asigna desde el seeder si el empleado tiene usuario
             'branch_id'         => null, // Asignado en el seeder según el tenant
             'department_id'     => null, // Asignado en el seeder según el tenant
@@ -32,7 +32,7 @@ class EmployeeFactory extends Factory
             'phone'             => fake()->phoneNumber(),
             'hire_date'         => fake()->dateTimeBetween('-3 years', 'now')->format('Y-m-d'),
             'termination_date'  => null,
-            'employment_status' => fake()->randomElement(['active', 'active', 'active', 'on_leave', 'terminated']),
+            'employment_status' => fake()->randomElement(['active', 'active', 'active', 'active', 'active', 'inactive', 'suspended', 'terminated']),
         ];
     }
 }
