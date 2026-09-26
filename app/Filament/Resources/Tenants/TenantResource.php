@@ -21,6 +21,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
@@ -33,6 +34,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
 
 class TenantResource extends Resource
 {
@@ -58,9 +60,9 @@ class TenantResource extends Resource
 
     public static function getPluralModelLabel(): string
     {
-        return traductModel('tenant',plural:true);
+        return traductModel('tenant', plural: true);
     }
-    
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -99,12 +101,12 @@ class TenantResource extends Resource
                     ->label(traduct('fields.timezone'))
                     ->maxLength(100)
                     ->default('America/Lima')
-                    ->readOnly() 
+                    ->readOnly()
                     ->required(),
                 FileUpload::make('logo')
                     ->label(traduct('fields.logo'))
                     ->image()
-                    ->directory('tenants/logos'),// notes: Directorio de almacenado
+                    ->directory('tenants/logos'), // notes: Directorio de almacenado
                 Select::make('status')
                     ->label(traduct('fields.status'))
                     ->options([
@@ -113,7 +115,7 @@ class TenantResource extends Resource
                         'suspended' => traduct('status.suspended'),
                         'inactive' => traduct('status.inactive'),
                     ])
-                    ->live() 
+                    ->live()
                     ->afterStateUpdated(function (?string $state, $set) { // 🎯 Quitamos 'Set' de los parámetros. ¡Filament lo resuelve solo por llamarse $set!
                         if ($state === 'trial') {
                             $set('trial_ends_at', now()->addDays(15)->toDateTimeString());
@@ -125,7 +127,7 @@ class TenantResource extends Resource
                 DateTimePicker::make('trial_ends_at')
                     ->default(now()->addDays(15)->toDateTimeString()) // Asociado por el "TRIAL" como default
                     ->label(traduct('fields.trial_ends_at'))
-                    ->hidden(fn ($get) => $get('status') !== 'trial'),
+                    ->hidden(fn($get) => $get('status') !== 'trial'),
             ]);
     }
 
@@ -133,10 +135,10 @@ class TenantResource extends Resource
     {
         return $schema
             ->columns([
-                    'default' => 1, // Celular
-                    'sm' => 2,      // Tablets (pantallas pequeñas)
-                    'lg' => 3,      // Computadoras (pantallas grandes)
-                ])
+                'default' => 1, // Celular
+                'sm' => 2,      // Tablets (pantallas pequeñas)
+                'lg' => 3,      // Computadoras (pantallas grandes)
+            ])
             ->components([
                 ImageEntry::make('logo')
                     ->label(traduct('fields.logo'))
@@ -151,7 +153,7 @@ class TenantResource extends Resource
                     ->icon('heroicon-m-identification')
                     ->columnSpanFull() // Ocupa toda la fila
                     ->copyable(),
-                    
+
                 TextEntry::make('name')
                     ->icon('heroicon-m-building-office')
                     ->label(traduct('fields.name'))
@@ -180,8 +182,8 @@ class TenantResource extends Resource
                 TextEntry::make('status')
                     ->label(traduct('fields.status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                    ->color(fn(string $state): string => match ($state) {
                         'active' => 'success',
                         'trial' => 'info',
                         'suspended' => 'warning',
@@ -202,7 +204,7 @@ class TenantResource extends Resource
                     ->label(traduct('fields.updated_at')),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Tenant $record): bool => $record->trashed())
+                    ->visible(fn(Tenant $record): bool => $record->trashed())
                     ->label(traduct('fields.deleted_at')),
             ]);
     }
@@ -221,7 +223,7 @@ class TenantResource extends Resource
                     ->circular(),
                 TextColumn::make('name')
                     ->searchable()
-                    ->color(fn ($record) => $record->trashed() ? 'gray' : 'default')
+                    ->color(fn($record) => $record->trashed() ? 'gray' : 'default')
                     ->sortable()
                     ->label(traduct('fields.name')),
                 TextColumn::make('business_name')
@@ -247,11 +249,11 @@ class TenantResource extends Resource
                 TextColumn::make('status')
                     ->label(traduct('fields.status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                    ->color(fn(string $state): string => match ($state) {
                         'active' => 'success',
                         'trial' => 'info',
-                        'suspended'=>'warning', 
+                        'suspended' => 'warning',
                         'inactive' => 'danger',
                         default => 'gray',
                     }),
@@ -295,16 +297,17 @@ class TenantResource extends Resource
             ])
 
 
-            ->recordClasses(fn (Model $record): ?string => 
-                        method_exists($record, 'trashed') && $record->trashed() 
-                            ? 'opacity-60 line-through bg-red-50 dark:bg-red-950/30' 
-                            : null
-                    )
+            ->recordClasses(
+                fn(Model $record): ?string =>
+                method_exists($record, 'trashed') && $record->trashed()
+                    ? 'opacity-60 line-through bg-red-50 dark:bg-red-950/30'
+                    : null
+            )
 
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                    ->hidden(fn ($record) => method_exists($record, 'trashed') && $record->trashed()),
+                    ->hidden(fn($record) => method_exists($record, 'trashed') && $record->trashed()),
                 DeleteAction::make()
                     ->label(__('actions.soft_delete'))
                     ->modalHeading(__('modals.trash.heading'))
@@ -313,13 +316,47 @@ class TenantResource extends Resource
                 ForceDeleteAction::make()
                     ->label(__('actions.delete'))
                     ->modalHeading(__('modals.force_delete.heading'))
-                    ->modalDescription(__('modals.force_delete.description')),
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->before(function (ForceDeleteAction $action, Model $record) {
+                        $relations = [
+                            'users',
+                            'subscriptions',
+                            'branches',
+                            'departments',
+                            'positions',
+                            'employees',
+                            'workSchedules',
+                            'workScheduleDays',
+                            'employeeSchedules',
+                            'attendanceRecords',
+                            'attendanceSessions',
+                            'attendanceIncidents',
+                            'holidays',
+                            'auditLogs',
+                        ];
+
+                        $hasDependencies = collect($relations)->contains(fn($relation) => $record->{$relation}()->exists());
+
+                        if ($hasDependencies) {
+                            Notification::make()
+                                ->danger()
+                                ->title(__('messages.cannot_delete_title'))
+                                ->body(__('messages.restrict_delete_body', [
+                                    'entity' => traductModel('tenant'),
+                                    'name'   => $record->name,
+                                ]))
+                                ->persistent()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    }),
                 RestoreAction::make()
                     ->label(__('actions.restore'))
                     ->modalHeading(__('modals.restore.heading'))
                     ->modalDescription(__('modals.restore.description'))
                     ->color('info'),
-            
+
             ]);
     }
 

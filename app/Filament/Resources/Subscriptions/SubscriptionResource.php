@@ -13,12 +13,14 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
 class SubscriptionResource extends Resource
@@ -31,7 +33,7 @@ class SubscriptionResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
-        public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): ?string
     {
         return traduct('navigation.multitenancy');
     }
@@ -49,61 +51,61 @@ class SubscriptionResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
-->components([
-            Section::make(traduct('sections.subscription_info.title'))
-                ->description(traduct('sections.subscription_info.description'))
-                ->columns(3)
-                ->columnSpanFull()
-                ->schema([
-                    Select::make('tenant_id')
-                        ->label(traduct('fields.tenant'))
-                        ->relationship('tenant', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->required(),
+            ->components([
+                Section::make(traduct('sections.subscription_info.title'))
+                    ->description(traduct('sections.subscription_info.description'))
+                    ->columns(3)
+                    ->columnSpanFull()
+                    ->schema([
+                        Select::make('tenant_id')
+                            ->label(traduct('fields.tenant'))
+                            ->relationship('tenant', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
 
-                    Select::make('plan_id')
-                        ->label(traduct('fields.plan'))
-                        ->relationship('plan', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->required(),
+                        Select::make('plan_id')
+                            ->label(traduct('fields.plan'))
+                            ->relationship('plan', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
 
-                    Select::make('status')
-                        ->label(traduct('fields.plan_status'))
-                        ->options([
-                            'trial' => traduct('status.trial'),
-                            'active' => traduct('status.active'),
-                            'past_due' => traduct('status.past_due'),
-                            'cancelled' => traduct('status.cancelled'),
-                            'expired' => traduct('status.expired'),
-                        ])
-                        ->default('trial')
-                        ->required()
-                        ->native(false),
-                ]),
+                        Select::make('status')
+                            ->label(traduct('fields.plan_status'))
+                            ->options([
+                                'trial' => traduct('status.trial'),
+                                'active' => traduct('status.active'),
+                                'past_due' => traduct('status.past_due'),
+                                'cancelled' => traduct('status.cancelled'),
+                                'expired' => traduct('status.expired'),
+                            ])
+                            ->default('trial')
+                            ->required()
+                            ->native(false),
+                    ]),
 
-            Section::make(traduct('sections.validity_cancellation.title'))
-                ->description(traduct('sections.validity_cancellation.description'))
-                ->columns(3)
-                ->columnSpanFull()
-                ->schema([
-                    DateTimePicker::make('starts_at')
-                        ->label(traduct('fields.starts_at'))
-                        ->native(false)
-                        ->displayFormat('d/m/Y H:i'),
+                Section::make(traduct('sections.validity_cancellation.title'))
+                    ->description(traduct('sections.validity_cancellation.description'))
+                    ->columns(3)
+                    ->columnSpanFull()
+                    ->schema([
+                        DateTimePicker::make('starts_at')
+                            ->label(traduct('fields.starts_at'))
+                            ->native(false)
+                            ->displayFormat('d/m/Y H:i'),
 
-                    DateTimePicker::make('ends_at')
-                        ->label(traduct('fields.ends_at'))
-                        ->native(false)
-                        ->displayFormat('d/m/Y H:i'),
+                        DateTimePicker::make('ends_at')
+                            ->label(traduct('fields.ends_at'))
+                            ->native(false)
+                            ->displayFormat('d/m/Y H:i'),
 
-                    DateTimePicker::make('cancelled_at')
-                        ->label(traduct('fields.cancelled_at'))
-                        ->native(false)
-                        ->displayFormat('d/m/Y H:i'),
-                ]),
-        ]);
+                        DateTimePicker::make('cancelled_at')
+                            ->label(traduct('fields.cancelled_at'))
+                            ->native(false)
+                            ->displayFormat('d/m/Y H:i'),
+                    ]),
+            ]);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -117,14 +119,14 @@ class SubscriptionResource extends Resource
                 TextEntry::make('status')
                     ->label(traduct('fields.plan_status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                    ->color(fn(string $state): string => match ($state) {
                         'active' => 'success',
                         'trial' => 'info',
                         'past_due' => 'warning',
                         'cancelled', 'expired' => 'danger',
                         default => 'gray',
-                        }),
+                    }),
                 TextEntry::make('starts_at')
                     ->label(traduct('fields.starts_at'))
                     ->dateTime()
@@ -164,16 +166,16 @@ class SubscriptionResource extends Resource
                 TextColumn::make('status')
                     ->label(traduct('fields.plan_status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                    ->color(fn(string $state): string => match ($state) {
                         'active' => 'success',
                         'trial' => 'info',
                         'past_due' => 'warning',
                         'cancelled', 'expired' => 'danger',
                         default => 'gray',
-                        }),
+                    }),
                 TextColumn::make('starts_at')
-                    ->label(traduct('fields.starts_at'))    
+                    ->label(traduct('fields.starts_at'))
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('ends_at')
@@ -204,13 +206,42 @@ class SubscriptionResource extends Resource
                 DeleteAction::make()
                     ->label(__('actions.delete'))
                     ->modalHeading(__('modals.force_delete.heading'))
-                    ->modalDescription(__('modals.force_delete.description')),
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->before(function (DeleteAction $action, Model $record) {
+                        if ($record->status === 'active') {
+                            Notification::make()
+                                ->danger()
+                                ->title(__('messages.cannot_delete_title'))
+                                ->body(__('messages.cannot_delete_active_subscription', [
+                                    'name' => $record->id,
+                                ]))
+                                ->persistent()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->modalHeading(__('modals.bulk.force_delete.heading'))
-                        ->modalDescription(__('modals.bulk.force_delete.description')),
+                        ->modalDescription(__('modals.bulk.force_delete.description'))
+                        ->before(function (DeleteAction $action, Model $record) {
+                            // Ejemplo de regla de negocio (no de base de datos)
+                            if ($record->status === 'active') {
+                                Notification::make()
+                                    ->danger()
+                                    ->title(__('messages.cannot_delete_title'))
+                                    ->body(__('messages.cannot_delete_active_subscription', [
+                                        'name' => $record->id,
+                                    ]))
+                                    ->persistent()
+                                    ->send();
+
+                                $action->halt();
+                            }
+                        }),
                 ]),
             ]);
     }

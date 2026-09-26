@@ -31,6 +31,10 @@ return [
 
     'empty_state_title' => 'No hay registros todavía',
     'empty_state_description' => 'Cuando agregues información, aparecerá aquí',
-    'empty_value' => 'No registrado'
+    'empty_value' => 'No registrado',
+
+    'cannot_delete_title' => 'No se puede eliminar',
+    'restrict_delete_body' => ":entity ':name' tiene registros o dependencias asociadas.",
+    'cannot_delete_active_subscription' => "No se puede eliminar la suscripción ':name' porque se encuentra activa.",
 
 ];

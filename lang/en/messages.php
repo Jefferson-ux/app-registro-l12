@@ -26,6 +26,9 @@ return [
 
     'empty_state_title' => 'No records yet',
     'empty_state_description' => 'When you add information, it will appear here',
-    'empty_value' => 'Not recorded'
+    'empty_value' => 'Not recorded',
 
+    'cannot_delete_title' => 'Cannot be deleted',
+    'restrict_delete_body' => ":entity ':name' has associated records or dependencies.",
+    'cannot_delete_active_subscription' => "Cannot delete subscription ':name' because it is currently active.",
 ];
