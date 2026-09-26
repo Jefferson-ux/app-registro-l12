@@ -38,7 +38,7 @@ class RoleResource extends Resource
 
     protected static function allowedModels(): array
     {
-        return ['Role', 'Tenant', 'Subscription', 'Plan', 'User', 'AuditLog'];
+        return ['Role', 'User', 'Tenant', 'Plan', 'Subscription', 'AuditLog'];
     }
 
     public static function getNavigationGroup(): ?string
@@ -98,6 +98,10 @@ class RoleResource extends Resource
                         Permission::all()
                             ->filter(fn($p) => in_array(explode(':', $p->name)[1] ?? '', static::allowedModels()))
                             ->groupBy(fn($p) => explode(':', $p->name)[1] ?? traduct('permissions.others'))
+                            ->sortBy(function ($group, $resourceName) {
+                                $index = array_search($resourceName, static::allowedModels());
+                                return $index !== false ? $index : 999;
+                            })
                             ->map(function ($group, $resourceName) {
                                 $tabTitle = traductModel(Str::snake($resourceName));
                                 return Tab::make($resourceName)

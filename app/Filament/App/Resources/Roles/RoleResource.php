@@ -61,7 +61,7 @@ class RoleResource extends Resource
     protected static function colorOptions(): array
     {
         return collect(RoleColor::cases())
-            ->mapWithKeys(fn (RoleColor $color): array => [
+            ->mapWithKeys(fn(RoleColor $color): array => [
                 $color->value => $color->label(),
             ])
             ->all();
@@ -81,18 +81,21 @@ class RoleResource extends Resource
 
     protected static function allowedModels(): array
     {
-        return ['Role',
-            'AttendanceIncident',
-            'AttendanceRecord', 
-            'AttendanceSession', 
-            'Branche', 
+        return [
+            'Role',
+            'User',
+            'Branch',
             'Department',
             'Employee',
-            'EmployeeSchedule',
-            'Holiday',
             'Position',
             'WorkSchedule',
-            'WorkScheduleDay'];
+            'WorkScheduleDay',
+            'EmployeeSchedule',
+            'AttendanceRecord',
+            'AttendanceSession',
+            'AttendanceIncident',
+            'Holiday',
+        ];
     }
 
     public static function form(Schema $schema): Schema
@@ -109,11 +112,11 @@ class RoleResource extends Resource
                         TextInput::make('name')
                             ->required()
                             ->label(traduct('fields.role_name'))
-                            ->disabled(fn ($record) => $record?->is_protected ?? false),
-                        
+                            ->disabled(fn($record) => $record?->is_protected ?? false),
+
                         TextInput::make('label')
-                        ->label(traduct('fields.label'))
-                        ->maxLength(255),
+                            ->label(traduct('fields.label'))
+                            ->maxLength(255),
 
                         Select::make('color')
                             ->label(traduct('fields.color'))
@@ -123,13 +126,13 @@ class RoleResource extends Resource
 
                         TextInput::make('guard_name')
                             ->readOnly()
-                            ->hidden(fn ($record) => $record?->is_protected ?? false)
+                            ->hidden(fn($record) => $record?->is_protected ?? false)
                             ->label(traduct('fields.guard_name'))
                             ->default('web')
                             ->required(),
 
                         Toggle::make('select_all_global')
-                            ->hidden(fn ($record) => $record?->is_protected ?? false)
+                            ->hidden(fn($record) => $record?->is_protected ?? false)
                             ->label(__('sections.helpers.select_all_global'))
                             ->onIcon('heroicon-o-shield-check')
                             ->offIcon('heroicon-o-shield-exclamation')
@@ -141,7 +144,7 @@ class RoleResource extends Resource
                                 }
                             })
                             ->dehydrated(false),
-                        
+
                         TextInput::make('description')
                             ->label(traduct('fields.description'))
                             ->columnSpanFull(),
@@ -151,11 +154,15 @@ class RoleResource extends Resource
 
 
                 Tabs::make('Permisos')
-                    ->hidden(fn ($record) => $record?->is_protected ?? false)
+                    ->hidden(fn($record) => $record?->is_protected ?? false)
                     ->tabs(
                         Permission::all()
                             ->filter(fn($p) => in_array(explode(':', $p->name)[1] ?? '', static::allowedModels()))
                             ->groupBy(fn($p) => explode(':', $p->name)[1] ?? traduct('permissions.others'))
+                            ->sortBy(function ($group, $resourceName) {
+                                $index = array_search($resourceName, static::allowedModels());
+                                return $index !== false ? $index : 999;
+                            })
                             ->map(function ($group, $resourceName) {
                                 $tabTitle = traductModel(Str::snake($resourceName));
                                 return Tab::make($resourceName)
@@ -251,7 +258,7 @@ class RoleResource extends Resource
                     ->label(traduct('fields.role_name'))
                     ->badge()
                     ->color(
-                        fn (Role $record): string => static::filamentColor($record->color)
+                        fn(Role $record): string => static::filamentColor($record->color)
                     )
                     ->size('4xl')
                     ->weight('bold')
@@ -276,14 +283,14 @@ class RoleResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make()->visible(fn ($record) => !$record->is_protected),
+                DeleteAction::make()->visible(fn($record) => !$record->is_protected),
             ])
             ->toolbarActions([
-            DeleteBulkAction::make()
-                ->action(function ($records) {
-                    $records->filter(fn ($r) => !$r->is_protected)
-                        ->each(fn ($r) => $r->delete());
-                }),
+                DeleteBulkAction::make()
+                    ->action(function ($records) {
+                        $records->filter(fn($r) => !$r->is_protected)
+                            ->each(fn($r) => $r->delete());
+                    }),
             ]);
     }
 
