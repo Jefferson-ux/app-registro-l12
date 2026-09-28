@@ -14,10 +14,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements CanResetPassword
 {
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, BelongsToTenant;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, BelongsToTenant, HasApiTokens;
 
     protected $fillable = [
         'name',
