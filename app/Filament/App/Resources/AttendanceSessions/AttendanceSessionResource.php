@@ -23,6 +23,9 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class AttendanceSessionResource extends Resource
 {
@@ -50,15 +53,15 @@ class AttendanceSessionResource extends Resource
     {
         return traductModel('attendance_session', plural: true);
     }
-    
+
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('employee_id')
-                    ->relationship('employee','id')
-                    ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
+                    ->relationship('employee', 'id')
+                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}")
                     ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
                     ->preload()
                     ->required()
@@ -70,7 +73,7 @@ class AttendanceSessionResource extends Resource
                     ->label(traduct("fields.attendance_date")),
                 DateTimePicker::make('check_in_at')
                     ->native(false)
-                    ->displayFormat('d/m/Y H:i')    
+                    ->displayFormat('d/m/Y H:i')
                     ->label(traduct("fields.check_in_at")),
                 DateTimePicker::make('check_out_at')
                     ->native(false)
@@ -158,7 +161,7 @@ class AttendanceSessionResource extends Resource
                 TextEntry::make('status')
                     ->label(traduct('fields.status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'present' => traductShort('status.session.present'),
                         'late' => traductShort('status.session.late'),
                         'absent' => traductShort('status.session.absent'),
@@ -167,7 +170,7 @@ class AttendanceSessionResource extends Resource
                         'leave' => traductShort('status.session.leave'),
                         default => $state,
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'present' => 'success',
                         'late' => 'warning',
                         'absent' => 'danger',
@@ -183,7 +186,7 @@ class AttendanceSessionResource extends Resource
                     ->label(traduct('fields.updated_at'))
                     ->dateTime()
                     ->placeholder('-'),
-                ]);
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -191,15 +194,15 @@ class AttendanceSessionResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-            TextColumn::make('employee_full_name')
-                ->label(traduct('fields.employee'))
-                ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->whereHas('employee', function (Builder $q) use ($search) {
-                        $q->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
-                    });
-                }),
+                TextColumn::make('employee_full_name')
+                    ->label(traduct('fields.employee'))
+                    ->state(fn($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('employee', function (Builder $q) use ($search) {
+                            $q->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        });
+                    }),
                 TextColumn::make('attendance_date')
                     ->label(traduct('fields.attendance_date'))
                     ->date()
@@ -207,7 +210,7 @@ class AttendanceSessionResource extends Resource
                 TextColumn::make('status')
                     ->label(traduct('fields.status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'present' => traductShort('status.session.present'),
                         'late' => traductShort('status.session.late'),
                         'absent' => traductShort('status.session.absent'),
@@ -216,7 +219,7 @@ class AttendanceSessionResource extends Resource
                         'leave' => traductShort('status.session.leave'),
                         default => $state,
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'present' => 'success',
                         'late' => 'warning',
                         'absent' => 'danger',
@@ -276,11 +279,43 @@ class AttendanceSessionResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->before(function (DeleteAction $action, Model $record) {
+                        if ($record->incidents()->withTrashed()->exists()) {
+                            Notification::make()
+                                ->danger()
+                                ->title(__('messages.cannot_delete_title'))
+                                ->body(__('messages.restrict_delete_body', [
+                                    'entity' => traductModel('attendance_session'),
+                                    'name' => $record->getKey(),
+                                ]))
+                                ->persistent()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->before(function (DeleteBulkAction $action, Collection $records) {
+                            foreach ($records as $record) {
+                                if ($record->incidents()->withTrashed()->exists()) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title(__('messages.cannot_delete_title'))
+                                        ->body(__('messages.restrict_delete_body', [
+                                            'entity' => traductModel('attendance_session'),
+                                            'name' => $record->getKey(),
+                                        ]))
+                                        ->persistent()
+                                        ->send();
+
+                                    $action->halt();
+                                }
+                            }
+                        }),
                 ]),
             ]);
     }

@@ -21,6 +21,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -29,6 +30,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class DepartmentResource extends Resource
@@ -103,7 +106,7 @@ class DepartmentResource extends Resource
                     ->placeholder('-'),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Department $record): bool => $record->trashed()),
+                    ->visible(fn(Department $record): bool => $record->trashed()),
             ]);
     }
 
@@ -146,22 +149,41 @@ class DepartmentResource extends Resource
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
-                        ->label(__('actions.soft_delete'))
-                        ->modalHeading(__('modals.trash.heading'))
-                        ->modalDescription(__('modals.trash.description'))
-                        ->icon('heroicon-m-archive-box'),
+                    ->label(__('actions.soft_delete'))
+                    ->modalHeading(__('modals.trash.heading'))
+                    ->modalDescription(__('modals.trash.description'))
+                    ->icon('heroicon-m-archive-box'),
 
                 RestoreAction::make()
-                        ->label(__('actions.restore'))
-                        ->modalHeading(__('modals.restore.heading'))
-                        ->modalDescription(__('modals.restore.description'))
-                        ->color('info'),
+                    ->label(__('actions.restore'))
+                    ->modalHeading(__('modals.restore.heading'))
+                    ->modalDescription(__('modals.restore.description'))
+                    ->color('info'),
 
                 ForceDeleteAction::make()
-                        ->label(__('actions.delete'))
-                        ->modalHeading(__('modals.force_delete.heading'))
-                        ->modalDescription(__('modals.force_delete.description'))
-                        ->color('danger'),
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger')
+                    ->before(function (ForceDeleteAction $action, Model $record) {
+                        if (
+                            $record->children()->withTrashed()->exists() ||
+                            $record->positions()->withTrashed()->exists() ||
+                            $record->employees()->withTrashed()->exists()
+                        ) {
+                            Notification::make()
+                                ->danger()
+                                ->title(__('messages.cannot_delete_title'))
+                                ->body(__('messages.restrict_delete_body', [
+                                    'entity' => traductModel('department'),
+                                    'name' => $record->name,
+                                ]))
+                                ->persistent()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -175,7 +197,28 @@ class DepartmentResource extends Resource
 
                     ForceDeleteBulkAction::make()
                         ->modalHeading(__('modals.bulk.force_delete.heading'))
-                        ->modalDescription(__('modals.bulk.force_delete.description')),
+                        ->modalDescription(__('modals.bulk.force_delete.description'))
+                        ->before(function (ForceDeleteBulkAction $action, Collection $records) {
+                            foreach ($records as $record) {
+                                if (
+                                    $record->children()->withTrashed()->exists() ||
+                                    $record->positions()->withTrashed()->exists() ||
+                                    $record->employees()->withTrashed()->exists()
+                                ) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title(__('messages.cannot_delete_title'))
+                                        ->body(__('messages.restrict_delete_body', [
+                                            'entity' => traductModel('department'),
+                                            'name' => $record->name,
+                                        ]))
+                                        ->persistent()
+                                        ->send();
+
+                                    $action->halt();
+                                }
+                            }
+                        }),
                 ]),
             ]);
     }

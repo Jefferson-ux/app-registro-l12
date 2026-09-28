@@ -26,7 +26,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Notifications\Notification;
 
 class EmployeeResource extends Resource
 {
@@ -38,7 +41,7 @@ class EmployeeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'first_name';
 
-        protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationGroup(): ?string
     {
@@ -76,15 +79,15 @@ class EmployeeResource extends Resource
                     ->default(null)
                     ->label(traduct("fields.position")),
                 Select::make('supervisor_id')
-                        ->relationship(
-                            'supervisor',
-                            'id',
-                            modifyQueryUsing: fn (Builder $query, ?Employee $record) => $record
-                                ? $query->where('id', '!=', $record->id)
-                                : $query
-                        )
+                    ->relationship(
+                        'supervisor',
+                        'id',
+                        modifyQueryUsing: fn(Builder $query, ?Employee $record) => $record
+                            ? $query->where('id', '!=', $record->id)
+                            : $query
+                    )
                     ->default(null)
-                    ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
+                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}")
                     ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
                     ->preload()
                     ->label(traduct("fields.supervisor")),
@@ -203,8 +206,8 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.termination_date")),
                 TextEntry::make('employment_status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                    ->color(fn(string $state): string => match ($state) {
                         'active' => 'success',
                         'inactive' => 'warning',
                         'suspended' => 'warning',
@@ -222,7 +225,7 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.updated_at")),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Employee $record): bool => $record->trashed())
+                    ->visible(fn(Employee $record): bool => $record->trashed())
                     ->label(traduct("fields.deleted_at")),
             ]);
     }
@@ -291,8 +294,8 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.termination_date")),
                 TextColumn::make('employment_status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                    ->color(fn(string $state): string => match ($state) {
                         'active' => 'success',
                         'inactive' => 'warning',
                         'suspended' => 'warning',
@@ -324,22 +327,42 @@ class EmployeeResource extends Resource
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
-                        ->label(__('actions.soft_delete'))
-                        ->modalHeading(__('modals.trash.heading'))
-                        ->modalDescription(__('modals.trash.description'))
-                        ->icon('heroicon-m-archive-box'),
+                    ->label(__('actions.soft_delete'))
+                    ->modalHeading(__('modals.trash.heading'))
+                    ->modalDescription(__('modals.trash.description'))
+                    ->icon('heroicon-m-archive-box'),
 
                 RestoreAction::make()
-                        ->label(__('actions.restore'))
-                        ->modalHeading(__('modals.restore.heading'))
-                        ->modalDescription(__('modals.restore.description'))
-                        ->color('info'),
+                    ->label(__('actions.restore'))
+                    ->modalHeading(__('modals.restore.heading'))
+                    ->modalDescription(__('modals.restore.description'))
+                    ->color('info'),
 
                 ForceDeleteAction::make()
-                        ->label(__('actions.delete'))
-                        ->modalHeading(__('modals.force_delete.heading'))
-                        ->modalDescription(__('modals.force_delete.description'))
-                        ->color('danger'),
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger')
+                    ->before(function (ForceDeleteAction $action, Model $record) {
+                        if (
+                            $record->schedules()->exists() ||
+                            $record->attendanceRecords()->exists() ||
+                            $record->attendanceSessions()->exists() ||
+                            $record->attendanceIncidents()->withTrashed()->exists()
+                        ) {
+                            Notification::make()
+                                ->danger()
+                                ->title(__('messages.cannot_delete_title'))
+                                ->body(__('messages.restrict_delete_body', [
+                                    'entity' => traductModel('employee'),
+                                    'name' => $record->employee_code,
+                                ]))
+                                ->persistent()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -353,7 +376,29 @@ class EmployeeResource extends Resource
 
                     ForceDeleteBulkAction::make()
                         ->modalHeading(__('modals.bulk.force_delete.heading'))
-                        ->modalDescription(__('modals.bulk.force_delete.description')),
+                        ->modalDescription(__('modals.bulk.force_delete.description'))
+                        ->before(function (ForceDeleteBulkAction $action, Collection $records) {
+                            foreach ($records as $record) {
+                                if (
+                                    $record->schedules()->exists() ||
+                                    $record->attendanceRecords()->exists() ||
+                                    $record->attendanceSessions()->exists() ||
+                                    $record->attendanceIncidents()->withTrashed()->exists()
+                                ) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title(__('messages.cannot_delete_title'))
+                                        ->body(__('messages.restrict_delete_body', [
+                                            'entity' => traductModel('employee'),
+                                            'name' => $record->employee_code,
+                                        ]))
+                                        ->persistent()
+                                        ->send();
+
+                                    $action->halt();
+                                }
+                            }
+                        }),
                 ]),
             ]);
     }

@@ -25,7 +25,10 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Spatie\Permission\PermissionRegistrar;
 use UnitEnum;
@@ -247,7 +250,25 @@ class UserResource extends Resource
                     ->label(__('actions.delete'))
                     ->modalHeading(__('modals.force_delete.heading'))
                     ->modalDescription(__('modals.force_delete.description'))
-                    ->color('danger'),
+                    ->color('danger')
+                    ->before(function (ForceDeleteAction $action, Model $record) {
+                        if (
+                            $record->resolvedAttendanceIncidents()->withTrashed()->exists() ||
+                            $record->auditLogs()->exists()
+                        ) {
+                            Notification::make()
+                                ->danger()
+                                ->title(__('messages.cannot_delete_title'))
+                                ->body(__('messages.restrict_delete_body', [
+                                    'entity' => traductModel('user'),
+                                    'name' => $record->name,
+                                ]))
+                                ->persistent()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -261,7 +282,27 @@ class UserResource extends Resource
 
                     ForceDeleteBulkAction::make()
                         ->modalHeading(__('modals.bulk.force_delete.heading'))
-                        ->modalDescription(__('modals.bulk.force_delete.description')),
+                        ->modalDescription(__('modals.bulk.force_delete.description'))
+                        ->before(function (ForceDeleteBulkAction $action, Collection $records) {
+                            foreach ($records as $record) {
+                                if (
+                                    $record->resolvedAttendanceIncidents()->withTrashed()->exists() ||
+                                    $record->auditLogs()->exists()
+                                ) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title(__('messages.cannot_delete_title'))
+                                        ->body(__('messages.restrict_delete_body', [
+                                            'entity' => traductModel('user'),
+                                            'name' => $record->name,
+                                        ]))
+                                        ->persistent()
+                                        ->send();
+
+                                    $action->halt();
+                                }
+                            }
+                        }),
                 ]),
             ]);
     }
