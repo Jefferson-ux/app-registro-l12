@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Traits\BelongsToTenant;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -14,9 +15,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements CanResetPassword
 {
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, BelongsToTenant;   
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, BelongsToTenant;
 
     protected $fillable = [
         'name',
@@ -78,5 +79,4 @@ class User extends Authenticatable
         // Cambia la condición según cómo identifiques a tu superusuario
         return $this->is_superadmin === true || $this->hasRole('SuperAdmin');
     }*/
-
 }

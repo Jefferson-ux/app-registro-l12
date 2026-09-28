@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\App\Pages\Auth\RegisterTenant;
+use App\Filament\App\Pages\EditProfile;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetPermissionsTeamId;
 use Filament\Http\Middleware\Authenticate;
@@ -35,6 +36,8 @@ class AppPanelProvider extends PanelProvider
             ->login()
             ->registration(RegisterTenant::class)
             ->brandName("Panel Empresarial")
+            ->profile(EditProfile::class)
+            ->passwordReset()
             ->colors([
                 'primary' => "#2ec411",
                 'danger' => Color::Red,
