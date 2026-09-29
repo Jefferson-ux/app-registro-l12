@@ -31,7 +31,10 @@ class DatabaseSeeder extends Seeder
                 WorkScheduleSeeder::class,
                 WorkScheduleDaySeeder::class,
                 EmployeeScheduleSeeder::class,
-                HolidaySeeder::class
+                HolidaySeeder::class,
+                AttendanceSessionSeeder::class,
+                AttendanceRecordSeeder::class,
+                AttendanceIncidentSeeder::class,
             ]);
         }
     }
