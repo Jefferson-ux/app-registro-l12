@@ -12,13 +12,17 @@ class KioskController extends Controller
     // ? - Obtener el Status del Empleado según su propio código ...
     public function getEmployeeStatus(string $code)
     {
-        $employee = Employee::where('employee_code', $code)->first();
+        $tenantId = auth()->user()->tenant_id;
+
+        $employee = Employee::where('tenant_id', $tenantId)
+            ->where('employee_code', $code)
+            ->first();
 
         if (! $employee) {
             return response()->json([
                 'success' => false,
                 'status' => 404,
-                'message' => 'Empleado no encontrado',
+                'message' => 'Empleado no encontrado en esta empresa',
             ], 404);
         }
 
@@ -36,13 +40,14 @@ class KioskController extends Controller
     // ? - Identificar al Empleado Autenticado ...
     public function employeeIdentify(Request $request)
     {
+        $tenantId = auth()->user()->tenant_id;
 
         $validated = $request->validate([
             'employee_code' => 'required|string',
         ]);
 
         $employee = Employee::where('employee_code', $validated['employee_code'])
-            ->where('tenant_id', $request->user()->tenant_id)
+            ->where('tenant_id', $tenantId)
             ->first();
 
         if (! $employee) {
@@ -53,12 +58,16 @@ class KioskController extends Controller
         }
 
         return response()->json([
+            'status' => 201,
             'success' => true,
             'data' => [
                 'employee_code' => $employee->employee_code,
                 'name' => "{$employee->first_name} {$employee->last_name}",
                 'photo_url' => $employee->photo_url ?? null,
             ],
-        ]);
+            'meta' => [
+                'checked_at' => now()->toISOString(),
+            ],
+        ], 201);
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\KioskController;
@@ -20,6 +21,8 @@ Route::prefix('v1')->group(function () {
     //! APIs de Prueba
     // api ==> GET http::/api/v1/employees/{employee}
     Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('get-employee');
+    // api ==> GET http::/api/v1/employees/{employee}
+    Route::get('/attendance/{employee}', [EmployeeController::class, 'showAttendance'])->name('show-attendance');
 
     //! APIs Autenticadas
     // api ==> POST http::/api/v1/login
@@ -35,5 +38,9 @@ Route::prefix('v1')->group(function () {
 
         // api ==> POST http::/api/v1/kiosk/identify
         Route::post('/kiosk/identify', [KioskController::class, 'employeeIdentify'])->name('employee-identify');
+
+        //! APIs de Asistencia
+        // api ==> GET http::/api/v1/attendance/today/{code}
+        Route::get('/attendance/today/{code}', [AttendanceController::class, 'attendanceToday'])->name('get-attendance-today');
     });
 });
