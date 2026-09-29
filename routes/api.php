@@ -1,8 +1,39 @@
 <?php
 
+use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\KioskController;
+use App\Http\Controllers\EmployeeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+Route::prefix('v1')->group(function () {
+
+    //! API de entrada
+    // api ==> GET https::/api/v1/
+    Route::get('/', [HealthController::class, 'index'])->name('health-check');
+
+    //! APIs de Prueba
+    // api ==> GET http::/api/v1/employees/{employee}
+    Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('get-employee');
+
+    //! APIs Autenticadas
+    // api ==> POST http::/api/v1/login
+    Route::post('/login', [AuthController::class, 'login'])->name('api.login'); // Login de la API
+
+    Route::middleware('auth:sanctum')->group(function () {
+        // api ==> POST http::/api/v1/logout
+        Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
+
+        //! APIs de Negocio
+        // api ==> GET http::/api/v1/kiosk/employees/{code}/status
+        Route::get('/kiosk/employees/{code}/status', [KioskController::class, 'getEmployeeStatus'])->name('get-employee-status');
+
+        // api ==> POST http::/api/v1/kiosk/identify
+        Route::post('/kiosk/identify', [KioskController::class, 'employeeIdentify'])->name('employee-identify');
+    });
+});
