@@ -6,13 +6,15 @@ use App\Models\AttendanceSession;
 use App\Models\Employee;
 use App\Models\Tenant;
 use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceSessionSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::disableQueryLog();
+
         $tenants = Tenant::all();
 
         if ($tenants->isEmpty()) {
@@ -20,26 +22,40 @@ class AttendanceSessionSeeder extends Seeder
             return;
         }
 
-        // Últimos 15 días laborables (Lunes a Viernes)
+        // Últimos 15 días laborables (Lunes a Viernes) como array de strings 'Y-m-d'
         $period = collect(Carbon::parse('-15 days')->daysUntil(now()))
-            ->filter(fn(Carbon $date) => ! $date->isWeekend());
+            ->filter(fn(Carbon $date) => ! $date->isWeekend())
+            ->map(fn(Carbon $date) => $date->format('Y-m-d'))
+            ->values();
+
+        if ($period->isEmpty()) {
+            return;
+        }
+
+        $now = now()->toDateTimeString();
+
+        // Cargar todas las sesiones existentes de este período en memoria RAM [employee_id|date => true]
+        $existingSessions = AttendanceSession::whereIn('tenant_id', $tenants->pluck('id'))
+            ->whereIn('attendance_date', $period)
+            ->select('employee_id', 'attendance_date')
+            ->get()
+            ->mapWithKeys(fn($item) => ["{$item->employee_id}|{$item->attendance_date}" => true])
+            ->toArray();
+
+        $sessionsToInsert = [];
 
         foreach ($tenants as $tenant) {
-            $employees = Employee::where('tenant_id', $tenant->id)->get();
+            $employees = Employee::where('tenant_id', $tenant->id)->pluck('id');
 
             if ($employees->isEmpty()) {
                 continue;
             }
 
-            foreach ($employees as $employee) {
-                foreach ($period as $date) {
-                    $dateStr = $date->format('Y-m-d');
+            foreach ($employees as $employeeId) {
+                foreach ($period as $dateStr) {
+                    $key = "{$employeeId}|{$dateStr}";
 
-                    if (AttendanceSession::where('tenant_id', $tenant->id)
-                        ->where('employee_id', $employee->id)
-                        ->where('attendance_date', $dateStr)
-                        ->exists()
-                    ) {
+                    if (isset($existingSessions[$key])) {
                         continue;
                     }
 
@@ -56,7 +72,7 @@ class AttendanceSessionSeeder extends Seeder
                         // 12% Tardanza
                         $status = 'late';
                         $lateMinutes = rand(10, 40);
-                        $checkIn = Carbon::parse("{$dateStr} 08:00:00")->addMinutes($lateMinutes)->toDateTimeString();
+                        $checkIn = "{$dateStr} 08:" . str_pad((string) $lateMinutes, 2, '0', STR_PAD_LEFT) . ":00";
                         $checkOut = "{$dateStr} 17:00:00";
                         $workedMinutes = 480 - $lateMinutes;
                     } elseif ($rand <= 92) {
@@ -82,9 +98,9 @@ class AttendanceSessionSeeder extends Seeder
                         $workedMinutes = 0;
                     }
 
-                    AttendanceSession::create([
+                    $sessionsToInsert[] = [
                         'tenant_id'           => $tenant->id,
-                        'employee_id'         => $employee->id,
+                        'employee_id'         => $employeeId,
                         'attendance_date'     => $dateStr,
                         'check_in_at'         => $checkIn,
                         'check_out_at'        => $checkOut,
@@ -94,9 +110,19 @@ class AttendanceSessionSeeder extends Seeder
                         'early_leave_minutes' => 0,
                         'overtime_minutes'    => 0,
                         'status'              => $status,
-                    ]);
+                        'created_at'          => $now,
+                        'updated_at'          => $now,
+                    ];
                 }
             }
+        }
+
+        if (! empty($sessionsToInsert)) {
+            DB::transaction(function () use ($sessionsToInsert) {
+                foreach (array_chunk($sessionsToInsert, 500) as $chunk) {
+                    AttendanceSession::insert($chunk);
+                }
+            });
         }
     }
 }

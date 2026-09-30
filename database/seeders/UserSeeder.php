@@ -26,35 +26,35 @@ class UserSeeder extends Seeder
 
             'name' => fake()->name(),
             'email' => fake()->email(),
-            'password' => Hash::make('contraseña_1'),
+            'password' => Hash::make('password_1'),
             'status' => 'active',
             'tenant_id' => 1
         ]);
         User::create([
             'name' => fake()->name(),
             'email' => fake()->email(),
-            'password' => Hash::make('contraseña_2'),
+            'password' => Hash::make('password_2'),
             'status' => 'inactive',
             'tenant_id' => 2
         ]);
         User::create([
             'name' => fake()->name(),
             'email' => fake()->email(),
-            'password' => Hash::make('contraseña_3'),
+            'password' => Hash::make('password_3'),
             'status' => 'active',
             'tenant_id' => 3
         ]);
         User::create([
             'name' => fake()->name(),
             'email' => fake()->email(),
-            'password' => Hash::make('contraseña_3'),
+            'password' => Hash::make('password_4'),
             'status' => 'active',
             'tenant_id' => 4
         ]);
         User::create([
             'name' => fake()->name(),
             'email' => fake()->email(),
-            'password' => Hash::make('contraseña_5'),
+            'password' => Hash::make('password_5'),
             'status' => 'blocked',
         ]);
     }

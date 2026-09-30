@@ -3,35 +3,53 @@
 namespace Database\Seeders;
 
 use App\Models\Plan;
-use App\Models\Tenant;
-use App\Models\User;
 use App\Models\Subscription;
+use App\Models\Tenant;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class SubscriptionSeeder extends Seeder
 {
-
     public function run(): void
     {
-        // 1. Obtener la colección de IDs de planes disponibles (se pueden repetir entre suscripciones)
-        $plans = Plan::pluck('id');
+        DB::disableQueryLog();
 
-        // 2. Obtener solo los usuarios que pertenecen a un Tenant (excluye SuperAdmins huérfanos)
-        $usersWithTenant = User::whereNotNull('tenant_id')->get();
+        // 1. Obtener IDs necesarias en memoria en solo 2 consultas ligeras
+        $planIds   = Plan::pluck('id');
+        $tenantIds = Tenant::pluck('id');
 
-        // 3. Crear las suscripciones basadas en el tenant_id real de cada usuario
-        foreach ($usersWithTenant as $user) {
+        if ($planIds->isEmpty() || $tenantIds->isEmpty()) {
+            return;
+        }
 
-            Subscription::create([
-                'tenant_id'    => $user->tenant_id,
-                'plan_id'      => $plans->random(), 
-                'status'       => fake()->randomElement(['active', 'expired', 'cancelled', 'trial']),
-                'starts_at'    => now()->subMonths(rand(1, 6)),
-                'ends_at'      => now()->addMonths(rand(1, 12)),
-                'cancelled_at' => null,
-            ]);
+        $statuses = ['active', 'expired', 'cancelled', 'trial'];
+        $now = now()->toDateTimeString();
+        $subscriptionsToInsert = [];
+
+        // 2. Iterar sobre los Tenants (1 sola suscripción por empresa)
+        foreach ($tenantIds as $tenantId) {
+            $status   = $statuses[array_rand($statuses)];
+            $startsAt = now()->subMonths(rand(1, 6));
+
+            $subscriptionsToInsert[] = [
+                'tenant_id'    => $tenantId,
+                'plan_id'      => $planIds->random(),
+                'status'       => $status,
+                'starts_at'    => $startsAt->toDateTimeString(),
+                'ends_at'      => (clone $startsAt)->addMonths(rand(1, 12))->toDateTimeString(),
+                'cancelled_at' => $status === 'cancelled' ? now()->subDays(rand(1, 15))->toDateTimeString() : null,
+                'created_at'   => $now,
+                'updated_at'   => $now,
+            ];
+        }
+
+        // 3. Inserción masiva global
+        if (! empty($subscriptionsToInsert)) {
+            DB::transaction(function () use ($subscriptionsToInsert) {
+                foreach (array_chunk($subscriptionsToInsert, 500) as $chunk) {
+                    Subscription::insert($chunk);
+                }
+            });
         }
     }
 }

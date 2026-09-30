@@ -8,13 +8,15 @@ use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::disableQueryLog();
+
         $tenants = Tenant::all();
 
         if ($tenants->isEmpty()) {
@@ -22,8 +24,9 @@ class EmployeeSeeder extends Seeder
             return;
         }
 
+        $now = now()->toDateTimeString();
+
         foreach ($tenants as $tenant) {
-            // Cargar los registros existentes pertenecientes a este Tenant
             $branches    = Branch::where('tenant_id', $tenant->id)->pluck('id');
             $departments = Department::where('tenant_id', $tenant->id)->pluck('id');
             $positions   = Position::where('tenant_id', $tenant->id)->pluck('id');
@@ -33,38 +36,48 @@ class EmployeeSeeder extends Seeder
                 continue;
             }
 
-            // ETAPA 1: Crear entre 10 y 20 empleados para el Tenant
-            $employees = collect();
             $employeeCount = rand(10, 60);
+            $employeesData = [];
 
             for ($i = 0; $i < $employeeCount; $i++) {
-                // Asignar user_id solo a algunos empleados (no todos los empleados tienen acceso al sistema)
                 $userId = ($i < $users->count()) ? $users[$i] : null;
 
-                $employee = Employee::factory()->create([
+                $employeesData[] = Employee::factory()->raw([
                     'tenant_id'     => $tenant->id,
                     'user_id'       => $userId,
                     'branch_id'     => $branches->random(),
                     'department_id' => $departments->random(),
                     'position_id'   => $positions->random(),
-                    'supervisor_id' => null, // Se asigna en la Etapa 2
+                    'supervisor_id' => null,
+                    'created_at'    => $now,
+                    'updated_at'    => $now,
                 ]);
-
-                $employees->push($employee);
             }
 
-            // ETAPA 2: Asignar supervisores dentro del mismo Tenant
-            // Designamos al primer empleado creado como el líder/jefe principal
-            $topManager = $employees->first();
+            if (! empty($employeesData)) {
+                Employee::insert($employeesData);
 
-            foreach ($employees->slice(1) as $employee) {
-                // 70% de probabilidad de tener un supervisor (el topManager o cualquier otro empleado del tenant)
-                if (fake()->boolean(70)) {
-                    $possibleSupervisors = $employees->where('id', '!=', $employee->id)->pluck('id');
-                    
-                    $employee->update([
-                        'supervisor_id' => $possibleSupervisors->random() ?? $topManager->id,
-                    ]);
+                $insertedEmployees = Employee::where('tenant_id', $tenant->id)->pluck('id');
+                $topManagerId = $insertedEmployees->first();
+
+                if ($insertedEmployees->count() > 1 && $topManagerId) {
+                    $supervisorGroups = [];
+
+                    foreach ($insertedEmployees->slice(1) as $employeeId) {
+                        if (rand(1, 100) <= 70) {
+                            $possibleSupervisors = $insertedEmployees->reject(fn($id) => $id === $employeeId);
+
+                            $supervisorId = $possibleSupervisors->isNotEmpty()
+                                ? $possibleSupervisors->random()
+                                : $topManagerId;
+
+                            $supervisorGroups[$supervisorId][] = $employeeId;
+                        }
+                    }
+
+                    foreach ($supervisorGroups as $supervisorId => $employeeIds) {
+                        Employee::whereIn('id', $employeeIds)->update(['supervisor_id' => $supervisorId]);
+                    }
                 }
             }
         }

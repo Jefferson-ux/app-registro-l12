@@ -5,13 +5,15 @@ namespace Database\Seeders;
 use App\Models\Department;
 use App\Models\Position;
 use App\Models\Tenant;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class PositionSeeder extends Seeder
 {
     public function run(): void
     {
+        DB::disableQueryLog();
+
         $tenants = Tenant::all();
 
         if ($tenants->isEmpty()) {
@@ -19,23 +21,36 @@ class PositionSeeder extends Seeder
             return;
         }
 
+        $now = now()->toDateTimeString();
+        $positionsToInsert = [];
+
         foreach ($tenants as $tenant) {
-            // Obtenemos los departamentos pertenecientes a este tenant
-            $departments = Department::where('tenant_id', $tenant->id)->get();
+            $departments = Department::where('tenant_id', $tenant->id)->pluck('id');
 
             if ($departments->isEmpty()) {
                 continue;
             }
 
-            foreach ($departments as $department) {
-                // Creamos entre 1 y 4 cargos (positions) por cada departamento
-                Position::factory()
-                    ->count(rand(1, 4))
-                    ->create([
+            foreach ($departments as $departmentId) {
+                $count = rand(1, 4);
+
+                for ($i = 0; $i < $count; $i++) {
+                    $positionsToInsert[] = Position::factory()->raw([
                         'tenant_id'     => $tenant->id,
-                        'department_id' => $department->id,
+                        'department_id' => $departmentId,
+                        'created_at'    => $now,
+                        'updated_at'    => $now,
                     ]);
+                }
             }
+        }
+
+        if (! empty($positionsToInsert)) {
+            DB::transaction(function () use ($positionsToInsert) {
+                foreach (array_chunk($positionsToInsert, 500) as $chunk) {
+                    Position::insert($chunk);
+                }
+            });
         }
     }
 }
