@@ -38,7 +38,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/kiosk/employees/{code}/status', [KioskController::class, 'getEmployeeStatus'])->name('get-employee-status');
 
         // api ==> POST http::/api/v1/kiosk/identify
-        Route::post('/kiosk/identify', [KioskController::class, 'employeeIdentify'])->name('employee-identify');
+        Route::post('/kiosk/identify', [KioskController::class, 'identify'])->name('employee-identify');
 
         //! APIs de Asistencia
         // api ==> POST http::/api/v1/attendance/{id}/incidents

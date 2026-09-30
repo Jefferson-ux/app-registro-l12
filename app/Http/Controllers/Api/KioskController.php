@@ -38,7 +38,7 @@ class KioskController extends Controller
 
 
     // ? - Identificar al Empleado Autenticado ...
-    public function employeeIdentify(Request $request)
+    public function identify(Request $request)
     {
         $tenantId = auth()->user()->tenant_id;
 
