@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdminAttendanceController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\AuthController;
@@ -40,7 +41,22 @@ Route::prefix('v1')->group(function () {
         Route::post('/kiosk/identify', [KioskController::class, 'employeeIdentify'])->name('employee-identify');
 
         //! APIs de Asistencia
+        // api ==> POST http::/api/v1/attendance/{id}/incidents
+        Route::post('/attendance/{id}/incidents', [AttendanceController::class, 'storeIncident'])->name('store-attendance-incident');
+
         // api ==> GET http::/api/v1/attendance/today/{code}
         Route::get('/attendance/today/{code}', [AttendanceController::class, 'attendanceToday'])->name('get-attendance-today');
+
+        //! Admin Attendance APIs
+        // api ==> GET http::/api/v1/admin/attendance/summary
+        Route::get('/admin/attendance/summary', [AdminAttendanceController::class, 'summary'])->name('get-admin-attendance-summary');
+
+        // api ==> GET http::/api/v1/admin/attendance
+        Route::get('/admin/attendance', [AdminAttendanceController::class, 'index'])->name('get-admin-attendance');
+
+        // api ==> GET http::/api/v1/admin/attendance/{id}
+        Route::get('/admin/attendance/{id}', [AdminAttendanceController::class, 'show'])->name('get-admin-attendance-by-id');
+
+        //! Admin Kiosk APIs
     });
 });

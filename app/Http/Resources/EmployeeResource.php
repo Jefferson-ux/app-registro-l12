@@ -15,6 +15,7 @@ class EmployeeResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id'            => $this->id,
             'employee_code' => $this->employee_code,
             'full_name'     => trim("{$this->first_name} {$this->last_name}"),
         ];

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreAttendanceIncidentRequest;
 use App\Http\Resources\AttendanceTodayResource;
 use App\Http\Resources\EmployeeResource;
 use App\Models\AttendanceSession;
@@ -48,5 +49,32 @@ class AttendanceController extends Controller
                 'checked_at' => now()->toISOString(),
             ],
         ], 200);
+    }
+
+
+    public function storeIncident(StoreAttendanceIncidentRequest $request, string $id)
+    {
+        $validated = $request->validated();
+
+        $tenantId = auth()->user()->tenant_id;
+
+        $session = AttendanceSession::where('tenant_id', $tenantId)
+            ->findOrFail($id);
+
+        $incident = $session->incidents()->create([
+            'tenant_id'     => $session->tenant_id,
+            'employee_id'   => $session->employee_id,
+            'incident_type' => $validated['incident_type'],
+            'incident_date' => $session->attendance_date,
+            'description'   => $validated['description'] ?? null,
+            'status'        => 'pending',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'status'  => 201,
+            'message' => 'Incidencia registrada correctamente.',
+            'data'    => $incident,
+        ], 201);
     }
 }
