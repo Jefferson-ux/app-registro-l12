@@ -41,11 +41,14 @@ Route::prefix('v1')->group(function () {
         Route::post('/kiosk/identify', [KioskController::class, 'identify'])->name('employee-identify');
 
         //! APIs de Asistencia
-        // api ==> POST http::/api/v1/attendance/{id}/incidents
-        Route::post('/attendance/{id}/incidents', [AttendanceController::class, 'storeIncident'])->name('store-attendance-incident');
+        // api ==> GET http::/api/v1/attendance/mark
+        Route::post('/attendance/mark', [AttendanceController::class, 'mark'])->name('attendance-mark');
 
         // api ==> GET http::/api/v1/attendance/today/{code}
         Route::get('/attendance/today/{code}', [AttendanceController::class, 'attendanceToday'])->name('get-attendance-today');
+
+        // api ==> POST http::/api/v1/attendance/{id}/incidents
+        Route::post('/attendance/{id}/incidents', [AttendanceController::class, 'storeIncident'])->name('store-attendance-incident');
 
         //! Admin Attendance APIs
         // api ==> GET http::/api/v1/admin/attendance/summary
