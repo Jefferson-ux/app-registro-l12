@@ -9,12 +9,13 @@ class AdminAttendanceSessionResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-
         return [
             'id'                  => $this->id,
             'attendance_date'     => $this->attendance_date?->format('Y-m-d'),
             'check_in_at'         => $this->check_in_at?->toIso8601String(),
             'check_out_at'        => $this->check_out_at?->toIso8601String(),
+            'break_start_at'      => $this->break_start_at?->toIso8601String(),
+            'break_end_at'        => $this->break_end_at?->toIso8601String(),
             'scheduled_minutes'   => $this->scheduled_minutes,
             'worked_minutes'      => $this->worked_minutes,
             'late_minutes'        => $this->late_minutes,

@@ -23,7 +23,7 @@ class HealthController extends Controller
                 "sync" => "/api/v1/kiosk/sync"
             ],
             'version' => config('app.version', '1.0.0'),
-            'timestamp' => now()->toISOString(),
+            'timestamp' => now()->toIso8601String(),
         ]);
     }
 }
