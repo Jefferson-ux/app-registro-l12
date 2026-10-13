@@ -27,49 +27,49 @@ class AuditLogPolicy
         return $authUser->can('Create:AuditLog');
     }
 
-    public function update(AuthUser $authUser, AuditLog $auditLog): bool
-    {
-        return $authUser->can('Update:AuditLog');
-    }
+    // public function update(AuthUser $authUser, AuditLog $auditLog): bool
+    // {
+    //     return $authUser->can('Update:AuditLog');
+    // }
 
-    public function delete(AuthUser $authUser, AuditLog $auditLog): bool
-    {
-        return $authUser->can('Delete:AuditLog');
-    }
+    // public function delete(AuthUser $authUser, AuditLog $auditLog): bool
+    // {
+    //     return $authUser->can('Delete:AuditLog');
+    // }
 
-    public function deleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('DeleteAny:AuditLog');
-    }
+    // public function deleteAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('DeleteAny:AuditLog');
+    // }
 
-    public function restore(AuthUser $authUser, AuditLog $auditLog): bool
-    {
-        return $authUser->can('Restore:AuditLog');
-    }
+    // public function restore(AuthUser $authUser, AuditLog $auditLog): bool
+    // {
+    //     return $authUser->can('Restore:AuditLog');
+    // }
 
-    public function forceDelete(AuthUser $authUser, AuditLog $auditLog): bool
-    {
-        return $authUser->can('ForceDelete:AuditLog');
-    }
+    // public function forceDelete(AuthUser $authUser, AuditLog $auditLog): bool
+    // {
+    //     return $authUser->can('ForceDelete:AuditLog');
+    // }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:AuditLog');
-    }
+    // public function forceDeleteAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('ForceDeleteAny:AuditLog');
+    // }
 
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:AuditLog');
-    }
+    // public function restoreAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('RestoreAny:AuditLog');
+    // }
 
-    public function replicate(AuthUser $authUser, AuditLog $auditLog): bool
-    {
-        return $authUser->can('Replicate:AuditLog');
-    }
+    // public function replicate(AuthUser $authUser, AuditLog $auditLog): bool
+    // {
+    //     return $authUser->can('Replicate:AuditLog');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:AuditLog');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:AuditLog');
+    // }
 
 }

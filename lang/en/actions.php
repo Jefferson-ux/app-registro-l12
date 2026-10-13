@@ -91,6 +91,7 @@ return [
     'settings'        => 'Settings',
     'show'            => 'Show',
     'show_all'        => 'Show All',
+    'soft_delete'     => 'Soft Delete',
     'sign_in'         => 'Sign In',
     'solve'           => 'Solve',
     'start'           => 'Start',

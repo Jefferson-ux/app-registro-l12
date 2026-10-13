@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\WorkScheduleDays;
 
 use App\Filament\App\Resources\WorkScheduleDays\Pages\ManageWorkScheduleDays;
 use App\Models\WorkScheduleDay;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -21,10 +22,13 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class WorkScheduleDayResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = WorkScheduleDay::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAdjustmentsHorizontal;
@@ -52,10 +56,6 @@ class WorkScheduleDayResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct('fields.tenant')),
                 Select::make('work_schedule_id')
                     ->relationship('workSchedule', 'name')
                     ->required()
@@ -73,9 +73,6 @@ class WorkScheduleDayResource extends Resource
                     ->required()
                     ->native(false)
                     ->label(traduct('fields.day_of_week')),
-                Toggle::make('is_working_day')
-                    ->required()
-                    ->label(traduct('fields.is_working_day')),
                 TimePicker::make('check_in_time')
                     ->label(traduct('fields.check_in_time')),
                 TimePicker::make('check_out_time')
@@ -96,6 +93,10 @@ class WorkScheduleDayResource extends Resource
                     ->default(0)
                     ->maxValue(10000)
                     ->label(traduct('fields.check_out_tolerance')),
+                Toggle::make('is_working_day')
+                    ->required()
+                    ->default(true)
+                    ->label(traduct('fields.is_working_day')),
             ]);
     }
 
@@ -109,6 +110,22 @@ class WorkScheduleDayResource extends Resource
                 ->label(traduct('fields.schedule_name')),
             TextEntry::make('day_of_week')
                 ->label(traduct('fields.day_of_week'))
+                ->getStateUsing(function ($record): string {
+                    // 1. Obtenemos el valor crudo del registro numérico
+                    $value = (int) $record->day_of_week; 
+
+                    // 2. Mapeamos manualmente a la traducción
+                    return match ($value) {
+                        1 => traductShort('status.day_of_week.monday'),
+                        2 => traductShort('status.day_of_week.tuesday'),
+                        3 => traductShort('status.day_of_week.wednesday'),
+                        4 => traductShort('status.day_of_week.thursday'),
+                        5 => traductShort('status.day_of_week.friday'),
+                        6 => traductShort('status.day_of_week.saturday'),
+                        7 => traductShort('status.day_of_week.sunday'),
+                        default => '-',
+                    };
+                })
                 ->numeric(),
             IconEntry::make('is_working_day')
                 ->label(traduct('fields.is_working_day'))
@@ -157,6 +174,16 @@ class WorkScheduleDayResource extends Resource
             TextColumn::make('day_of_week')
                 ->label(traduct('fields.day_of_week'))
                 ->numeric()
+                ->formatStateUsing(fn (int $state): string => match ($state) {
+                    1 => traductShort('status.day_of_week.monday'),
+                    2 => traductShort('status.day_of_week.tuesday'),
+                    3 => traductShort('status.day_of_week.wednesday'),
+                    4 => traductShort('status.day_of_week.thursday'),
+                    5 => traductShort('status.day_of_week.friday'),
+                    6 => traductShort('status.day_of_week.saturday'),
+                    7 => traductShort('status.day_of_week.sunday'),
+                    default => (string) $state,
+                })
                 ->sortable(),
             IconColumn::make('is_working_day')
                 ->label(traduct('fields.is_working_day'))
@@ -200,17 +227,29 @@ class WorkScheduleDayResource extends Resource
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('work_schedule_id') // El campo de la llave foránea en tu tabla
+                ->relationship('workSchedule', 'name') // Nombre de la relación en tu Modelo y columna a mostrar
+                ->label('Turno')
+                ->placeholder('Todos los turnos')
+                ->searchable()
+                ->preload()
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description')),
                 ]),
             ]);
     }

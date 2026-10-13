@@ -62,14 +62,14 @@ class BranchPolicy
         return $authUser->can('RestoreAny:Branch');
     }
 
-    public function replicate(AuthUser $authUser, Branch $branch): bool
-    {
-        return $authUser->can('Replicate:Branch');
-    }
+    // public function replicate(AuthUser $authUser, Branch $branch): bool
+    // {
+    //     return $authUser->can('Replicate:Branch');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Branch');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:Branch');
+    // }
 
 }

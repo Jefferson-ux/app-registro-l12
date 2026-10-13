@@ -62,14 +62,14 @@ class DepartmentPolicy
         return $authUser->can('RestoreAny:Department');
     }
 
-    public function replicate(AuthUser $authUser, Department $department): bool
-    {
-        return $authUser->can('Replicate:Department');
-    }
+    // public function replicate(AuthUser $authUser, Department $department): bool
+    // {
+    //     return $authUser->can('Replicate:Department');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Department');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:Department');
+    // }
 
 }

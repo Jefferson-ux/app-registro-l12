@@ -2,9 +2,13 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Pages\Auth\RegisterTenant;
+use App\Filament\App\Pages\EditProfile;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\SetPermissionsTeamId;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -12,6 +16,7 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -30,8 +35,10 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
-            ->registration()
+            ->registration(RegisterTenant::class)
             ->brandName("Panel Empresarial")
+            ->profile(EditProfile::class)
+            ->passwordReset()
             ->colors([
                 'primary' => "#2ec411",
                 'danger' => Color::Red,
@@ -42,6 +49,11 @@ class AppPanelProvider extends PanelProvider
                 'indigo' => Color::Indigo,
                 'teal' => Color::Teal
             ])
+            ->assets([
+                // Registras tu archivo CSS plano directamente
+                Css::make('custom-table-styles', asset('css/app/custom/custom-table.css')),
+            ])
+
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
             ->pages([
@@ -53,14 +65,13 @@ class AppPanelProvider extends PanelProvider
                 AccountWidget::class,
             ])
             ->navigationGroups([
-                NavigationGroup::make()
-                    ->label(traduct('navigation.business'))
+                NavigationGroup::make(fn() => traduct('navigation.business'))
                     ->collapsed(true),
-                NavigationGroup::make()
-                    ->label(traduct('navigation.attendance'))
+                NavigationGroup::make(fn() => traduct('navigation.attendance'))
                     ->collapsed(true),
-                NavigationGroup::make()
-                    ->label(traduct('navigation.hr'))
+                NavigationGroup::make(fn() => traduct('navigation.hr'))
+                    ->collapsed(true),
+                NavigationGroup::make(fn() => traduct('navigation.access_control'))
                     ->collapsed(true),
 
             ])
@@ -74,10 +85,19 @@ class AppPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+
+                // Middleware de Cambio de Idioma
+                SetLocale::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
                 SetPermissionsTeamId::class,
+            ])
+            ->userMenuItems([
+                'toggle_lang' => Action::make('toggle_lang')
+                    ->label(fn() => app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español')
+                    ->icon('heroicon-o-language')
+                    ->url(fn() => route('lang.switch', app()->getLocale() === 'es' ? 'en' : 'es')),
             ]);
     }
 }

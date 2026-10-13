@@ -42,34 +42,34 @@ class PlanPolicy
         return $authUser->can('DeleteAny:Plan');
     }
 
-    public function restore(AuthUser $authUser, Plan $plan): bool
-    {
-        return $authUser->can('Restore:Plan');
-    }
+    // public function restore(AuthUser $authUser, Plan $plan): bool
+    // {
+    //     return $authUser->can('Restore:Plan');
+    // }
 
-    public function forceDelete(AuthUser $authUser, Plan $plan): bool
-    {
-        return $authUser->can('ForceDelete:Plan');
-    }
+    // public function forceDelete(AuthUser $authUser, Plan $plan): bool
+    // {
+    //     return $authUser->can('ForceDelete:Plan');
+    // }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Plan');
-    }
+    // public function forceDeleteAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('ForceDeleteAny:Plan');
+    // }
 
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Plan');
-    }
+    // public function restoreAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('RestoreAny:Plan');
+    // }
 
-    public function replicate(AuthUser $authUser, Plan $plan): bool
-    {
-        return $authUser->can('Replicate:Plan');
-    }
+    // public function replicate(AuthUser $authUser, Plan $plan): bool
+    // {
+    //     return $authUser->can('Replicate:Plan');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Plan');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:Plan');
+    // }
 
 }

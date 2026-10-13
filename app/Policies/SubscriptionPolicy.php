@@ -42,34 +42,34 @@ class SubscriptionPolicy
         return $authUser->can('DeleteAny:Subscription');
     }
 
-    public function restore(AuthUser $authUser, Subscription $subscription): bool
-    {
-        return $authUser->can('Restore:Subscription');
-    }
+    // public function restore(AuthUser $authUser, Subscription $subscription): bool
+    // {
+    //     return $authUser->can('Restore:Subscription');
+    // }
 
-    public function forceDelete(AuthUser $authUser, Subscription $subscription): bool
-    {
-        return $authUser->can('ForceDelete:Subscription');
-    }
+    // public function forceDelete(AuthUser $authUser, Subscription $subscription): bool
+    // {
+    //     return $authUser->can('ForceDelete:Subscription');
+    // }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Subscription');
-    }
+    // public function forceDeleteAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('ForceDeleteAny:Subscription');
+    // }
 
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Subscription');
-    }
+    // public function restoreAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('RestoreAny:Subscription');
+    // }
 
-    public function replicate(AuthUser $authUser, Subscription $subscription): bool
-    {
-        return $authUser->can('Replicate:Subscription');
-    }
+    // public function replicate(AuthUser $authUser, Subscription $subscription): bool
+    // {
+    //     return $authUser->can('Replicate:Subscription');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Subscription');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:Subscription');
+    // }
 
 }

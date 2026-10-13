@@ -2,18 +2,24 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AttendanceSession extends Model
 {
+    use BelongsToTenant, HasFactory;
+
     protected $fillable = [
         'tenant_id',
         'employee_id',
         'attendance_date',
         'check_in_at',
         'check_out_at',
+        'break_start_at', 
+        'break_end_at',   
         'scheduled_minutes',
         'worked_minutes',
         'late_minutes',
@@ -28,6 +34,8 @@ class AttendanceSession extends Model
             'attendance_date' => 'date',
             'check_in_at' => 'datetime',
             'check_out_at' => 'datetime',
+            'break_start_at' => 'datetime',
+            'break_end_at' => 'datetime',
             'scheduled_minutes' => 'integer',
             'worked_minutes' => 'integer',
             'late_minutes' => 'integer',

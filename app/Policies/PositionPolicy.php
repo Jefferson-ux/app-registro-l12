@@ -62,14 +62,14 @@ class PositionPolicy
         return $authUser->can('RestoreAny:Position');
     }
 
-    public function replicate(AuthUser $authUser, Position $position): bool
-    {
-        return $authUser->can('Replicate:Position');
-    }
+    // public function replicate(AuthUser $authUser, Position $position): bool
+    // {
+    //     return $authUser->can('Replicate:Position');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Position');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:Position');
+    // }
 
 }

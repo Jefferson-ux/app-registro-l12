@@ -4,6 +4,8 @@ namespace App\Filament\App\Resources\Employees;
 
 use App\Filament\App\Resources\Employees\Pages\ManageEmployees;
 use App\Models\Employee;
+use App\Models\Position;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -25,17 +27,25 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Set;
 
 class EmployeeResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = Employee::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
     protected static ?string $recordTitleAttribute = 'first_name';
 
-        protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 3;
+
+    
 
     public static function getNavigationGroup(): ?string
     {
@@ -56,10 +66,6 @@ class EmployeeResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
                 Select::make('user_id')
                     ->relationship('user', 'name')
                     ->default(null)
@@ -74,24 +80,87 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.department")),
                 Select::make('position_id')
                     ->relationship('position', 'name')
+                    ->reactive()
                     ->default(null)
-                    ->label(traduct("fields.position")),
+                    ->label(traduct("fields.position"))
+                    ->afterStateUpdated(function (mixed $state, Set $set, ?Employee $record) {
+                    // Si no hay cargo seleccionado, limpiamos el código
+                    if (!$state) {
+                        $set('employee_code', null);
+                        return;
+                    }
+
+                    $position = Position::find($state);
+
+                    // Si el cargo no tiene prefijo, dejamos el código vacío
+                    if (!$position || empty($position->prefix)) {
+                        $set('employee_code', null);
+                        return;
+                    }
+
+                    $prefix = strtoupper(trim($position->prefix));
+
+                    // Obtenemos el tenant actual (si manejas multi-tenant por sesión o auth)
+                    // Ajusta filament()->getTenant()?->id según cómo obtengas el tenant en tu app
+                    $tenantId = filament()->getTenant()?->id;
+
+                    // Buscamos el último correlativo para este prefijo en vivo
+                    $query = Employee::where('employee_code', 'like', "{$prefix}-%")
+                        ->withTrashed();
+
+                    if ($tenantId) {
+                        $query->where('tenant_id', $tenantId);
+                    }
+
+                    // Si estamos editando, nos excluimos a nosotros mismos
+                    if ($record && $record->exists) {
+                        $query->where('id', '!=', $record->id);
+                    }
+
+                    $existingCodes = $query->pluck('employee_code');
+
+                    $maxNumber = 0;
+                    foreach ($existingCodes as $code) {
+                        $parts = explode('-', $code);
+                        $number = intval(end($parts));
+                        if ($number > $maxNumber) {
+                            $maxNumber = $number;
+                        }
+                    }
+
+                    $sequence = $maxNumber + 1;
+
+                    // Asignamos el valor calculado al campo employee_code del formulario en tiempo real
+                    $set('employee_code', sprintf('%s-%03d', $prefix, $sequence));
+                })
+                    ,
                 Select::make('supervisor_id')
-                        ->relationship(
-                            'supervisor',
-                            'id',
-                            modifyQueryUsing: fn (Builder $query, ?Employee $record) => $record
-                                ? $query->where('id', '!=', $record->id)
-                                : $query
-                        )
+                    ->relationship(
+                        'supervisor',
+                        'id',
+                        modifyQueryUsing: fn(Builder $query, ?Employee $record) => $record
+                            ? $query->where('id', '!=', $record->id)
+                            : $query
+                    )
                     ->default(null)
-                    ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
+                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}")
                     ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
                     ->preload()
                     ->label(traduct("fields.supervisor")),
                 TextInput::make('employee_code')
                     ->required()
                     ->maxLength(50)
+                    ->unique(
+                        table: 'employees', 
+                        column: 'employee_code', 
+                        ignoreRecord: true,
+                        modifyRuleUsing: function ($rule, callable $get) {
+                            // Asegura que la unicidad aplique solo dentro del mismo tenant
+                            return $rule->where('tenant_id', $get('tenant_id') ?? auth()->user()->tenant_id);
+                        }
+                    )
+                    ->dehydrated() // Asegura que se envíe y guarde en la base de datos
+                    ->helperText('Se genera automáticamente según el prefijo del cargo seleccionado.')
                     ->label(traduct("fields.employee_code")),
                 TextInput::make('document_type')
                     ->default(null)
@@ -204,8 +273,8 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.termination_date")),
                 TextEntry::make('employment_status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                    ->color(fn(string $state): string => match ($state) {
                         'active' => 'success',
                         'inactive' => 'warning',
                         'suspended' => 'warning',
@@ -223,7 +292,7 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.updated_at")),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Employee $record): bool => $record->trashed())
+                    ->visible(fn(Employee $record): bool => $record->trashed())
                     ->label(traduct("fields.deleted_at")),
             ]);
     }
@@ -233,24 +302,21 @@ class EmployeeResource extends Resource
         return $table
             ->recordTitleAttribute('first_name')
             ->columns([
-
                 TextColumn::make('user.name')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.user")),
                 TextColumn::make('branch.name')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.branch")),
                 TextColumn::make('department.name')
                     ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.department")),
-                TextColumn::make('position.name')
-                    ->searchable()
-                    ->label(traduct("fields.position")),
-                TextColumn::make('supervisor.id')
-                    ->searchable()
-                    ->label(traduct("fields.supervisor")),
                 TextColumn::make('employee_code')
                     ->searchable()
+                    ->sortable()
                     ->label(traduct("fields.employee_code")),
                 TextColumn::make('document_type')
                     ->searchable()
@@ -264,6 +330,14 @@ class EmployeeResource extends Resource
                 TextColumn::make('last_name')
                     ->searchable()
                     ->label(traduct("fields.last_name")),
+                TextColumn::make('position.name')
+                    ->searchable()
+                    ->placeholder(traduct('messages.empty_value'))
+                    ->label(traduct("fields.position")),
+                TextColumn::make('supervisor.id')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label(traduct("fields.supervisor")),
                 TextColumn::make('personal_email')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
@@ -288,8 +362,8 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.termination_date")),
                 TextColumn::make('employment_status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => traduct('status.' . $state))
-                    ->color(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                    ->color(fn(string $state): string => match ($state) {
                         'active' => 'success',
                         'inactive' => 'warning',
                         'suspended' => 'warning',
@@ -313,21 +387,88 @@ class EmployeeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.deleted_at")),
             ])
+            ->recordClasses(fn (Employee $record) => $record->trashed() ? 'is-trashed' : null)
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->native(false),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
+                DeleteAction::make()
+                    ->label(__('actions.soft_delete'))
+                    ->modalHeading(__('modals.trash.heading'))
+                    ->modalDescription(__('modals.trash.description'))
+                    ->icon('heroicon-m-archive-box'),
+
+                RestoreAction::make()
+                    ->label(__('actions.restore'))
+                    ->modalHeading(__('modals.restore.heading'))
+                    ->modalDescription(__('modals.restore.description'))
+                    ->color('info'),
+
+                ForceDeleteAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger')
+                    ->before(function (ForceDeleteAction $action, Model $record) {
+                        if (
+                            $record->schedules()->exists() ||
+                            $record->attendanceRecords()->exists() ||
+                            $record->attendanceSessions()->exists() ||
+                            $record->attendanceIncidents()->withTrashed()->exists()
+                        ) {
+                            Notification::make()
+                                ->danger()
+                                ->title(__('messages.cannot_delete_title'))
+                                ->body(__('messages.restrict_delete_body', [
+                                    'entity' => traductModel('employee'),
+                                    'name' => $record->employee_code,
+                                ]))
+                                ->persistent()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.trash.heading'))
+                        ->modalDescription(__('modals.bulk.trash.description')),
+
+                    RestoreBulkAction::make()
+                        ->modalHeading(__('modals.bulk.restore.heading'))
+                        ->modalDescription(__('modals.bulk.restore.description')),
+
+                    ForceDeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description'))
+                        ->before(function (ForceDeleteBulkAction $action, Collection $records) {
+                            foreach ($records as $record) {
+                                if (
+                                    $record->schedules()->exists() ||
+                                    $record->attendanceRecords()->exists() ||
+                                    $record->attendanceSessions()->exists() ||
+                                    $record->attendanceIncidents()->withTrashed()->exists()
+                                ) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title(__('messages.cannot_delete_title'))
+                                        ->body(__('messages.restrict_delete_body', [
+                                            'entity' => traductModel('employee'),
+                                            'name' => $record->employee_code,
+                                        ]))
+                                        ->persistent()
+                                        ->send();
+
+                                    $action->halt();
+                                }
+                            }
+                        }),
                 ]),
             ]);
     }

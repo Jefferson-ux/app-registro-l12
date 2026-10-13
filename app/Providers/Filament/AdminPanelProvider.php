@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\EnsureUserIsSuperAdmin;
 use App\Http\Middleware\SetLocale;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -85,6 +86,7 @@ class AdminPanelProvider extends PanelProvider
 
                 // Middleware de Cambio de Idioma
                 SetLocale::class,
+                EnsureUserIsSuperAdmin::class,
 
             ])
             ->authMiddleware([
@@ -95,14 +97,11 @@ class AdminPanelProvider extends PanelProvider
 
 
             ->navigationGroups([
-                NavigationGroup::make()
-                    ->label(traduct('navigation.multitenancy'))
+                NavigationGroup::make(fn() => traduct('navigation.multitenancy'))
                     ->collapsed(true),
-                NavigationGroup::make()
-                    ->label(traduct('navigation.access_control'))
+                NavigationGroup::make(fn() => traduct('navigation.access_control'))
                     ->collapsed(true),
-                NavigationGroup::make()
-                    ->label(traduct('navigation.administration'))
+                NavigationGroup::make(fn() => traduct('navigation.administration'))
                     ->collapsed(true),
 
             ])

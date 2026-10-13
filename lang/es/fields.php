@@ -19,7 +19,7 @@ return [
     'username' => 'Usuario',
     'avatar' => 'Foto de perfil',
     'last_login_at' => 'Último acceso',
-    'user'=>'Usuario',
+    'user' => 'Usuario',
 
     // ===== Ubicación =====
     'country' => 'País',
@@ -116,6 +116,9 @@ return [
     // ===== Roles y permisos =====
     'role' => 'Rol',
     'roles' => 'Roles',
+    'role_name' => 'Nombre del rol',
+    'label' => 'Etiqueta',
+    'color' => 'Color',
     'permission' => 'Permiso',
     'permissions' => 'Permisos',
     'guard_name' => 'Tipo de acceso',
@@ -135,7 +138,7 @@ return [
     'emergency_contact' => 'Contacto de emergencia',
     'emergency_phone' => 'Teléfono de emergencia',
     'employment_status' => 'Situación Laboral',
-    
+
 
     // ===== Branch (Sucursal) =====
     'branch_name' => 'Nombre de sucursal',
@@ -155,9 +158,9 @@ return [
     // ===== WorkSchedule / WorkScheduleDay (Turnos) =====
     'schedule_name' => 'Nombre del turno',
     'schedule_type' => 'Tipo de turno',
-        'schedule_fixed' => 'Turno Fijo',
-        'schedule_flexible' => 'Turno Flexible',
-        'schedule_rotating' => 'Turno Rotativo',
+    'schedule_fixed' => 'Turno Fijo',
+    'schedule_flexible' => 'Turno Flexible',
+    'schedule_rotating' => 'Turno Rotativo',
     'shift_start' => 'Hora de inicio',
     'shift_end' => 'Hora de fin',
     'break_start' => 'Inicio de descanso',
@@ -203,8 +206,8 @@ return [
     'ip_address' => 'Dirección IP',
     'photo' => 'Fotografía',
     'location' => 'Ubicación',
-    'method'=>"Método",
-    'device_identifier'=>'Identificador de Dispositivo',
+    'method' => "Método",
+    'device_identifier' => 'Identificador de Dispositivo',
 
     // ===== AttendanceIncident (Incidencias) =====
     'incident_type' => 'Tipo de incidencia',

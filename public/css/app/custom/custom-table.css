@@ -1,0 +1,4 @@
+tr.is-trashed {
+    background-color: rgba(100, 116, 139, 0.12) !important; 
+    opacity: 0.65;
+}

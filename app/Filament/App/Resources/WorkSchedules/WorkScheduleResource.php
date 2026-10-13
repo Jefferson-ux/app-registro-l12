@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\WorkSchedules;
 
 use App\Filament\App\Resources\WorkSchedules\Pages\ManageWorkSchedules;
 use App\Models\WorkSchedule;
+use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -27,11 +28,16 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class WorkScheduleResource extends Resource
 {
+    use ScopesTenantResource;
+
     protected static ?string $model = WorkSchedule::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
@@ -60,10 +66,6 @@ class WorkScheduleResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('tenant_id')
-                    ->relationship('tenant', 'name')
-                    ->required()
-                    ->label(traduct("fields.tenant")),
                 TextInput::make('name')
                     ->required()
                     ->maxLength(150)
@@ -73,11 +75,11 @@ class WorkScheduleResource extends Resource
                     ->columnSpanFull()
                     ->label(traduct("fields.description")),
                 Select::make('schedule_type')
-                        ->options([
-                            'fixed' => traduct('fields.schedule_fixed'),
-                            'flexible' => traduct('fields.schedule_flexible'),
-                            'rotating' => traduct('fields.schedule_rotating'),
-                        ])
+                    ->options([
+                        'fixed' => traduct('fields.schedule_fixed'),
+                        'flexible' => traduct('fields.schedule_flexible'),
+                        'rotating' => traduct('fields.schedule_rotating'),
+                    ])
                     ->default('fixed')
                     ->required()
                     ->label(traduct("fields.schedule_type")),
@@ -100,21 +102,21 @@ class WorkScheduleResource extends Resource
                     ->columnSpanFull()
                     ->label(traduct('fields.description')),
                 TextEntry::make('schedule_type')
-                        ->label(traduct('fields.schedule_type'))
-                        ->badge()
-                        ->formatStateUsing(fn (string $state): string => match ($state) {
-                            'fixed' => traduct('fields.schedule_fixed'),
-                            'flexible' => traduct('fields.schedule_flexible'),
-                            'rotating' => traduct('fields.schedule_rotating'),
-                            default => $state,
-                        })
-                        ->color(fn (string $state): string => match ($state) {
-                            'fixed' => 'indigo',
-                            'flexible' => 'teal',
-                            'rotating' => 'success',
-                            default => 'gray',
-                        })
-                        ->label(traduct('fields.schedule_type')),
+                    ->label(traduct('fields.schedule_type'))
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'fixed' => traduct('fields.schedule_fixed'),
+                        'flexible' => traduct('fields.schedule_flexible'),
+                        'rotating' => traduct('fields.schedule_rotating'),
+                        default => $state,
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'fixed' => 'indigo',
+                        'flexible' => 'teal',
+                        'rotating' => 'success',
+                        default => 'gray',
+                    })
+                    ->label(traduct('fields.schedule_type')),
                 IconEntry::make('status')
                     ->boolean()
                     ->label(traduct('fields.status')),
@@ -128,7 +130,7 @@ class WorkScheduleResource extends Resource
                     ->label(traduct('fields.updated_at')),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (WorkSchedule $record): bool => $record->trashed())
+                    ->visible(fn(WorkSchedule $record): bool => $record->trashed())
                     ->label(traduct('fields.deleted_at')),
             ]);
     }
@@ -142,21 +144,21 @@ class WorkScheduleResource extends Resource
                     ->searchable()
                     ->label(traduct('fields.schedule_name')),
                 TextColumn::make('schedule_type')
-                        ->label(traduct('fields.schedule_type'))
-                        ->badge()
-                        ->formatStateUsing(fn (string $state): string => match ($state) {
-                            'fixed' => traduct('fields.schedule_fixed'),
-                            'flexible' => traduct('fields.schedule_flexible'),
-                            'rotating' => traduct('fields.schedule_rotating'),
-                            default => $state,
-                        })
-                        ->color(fn (string $state): string => match ($state) {
-                            'fixed' => 'indigo',
-                            'flexible' => 'teal',
-                            'rotating' => 'success',
-                            default => 'gray',
-                        })
-                        ->label(traduct('fields.schedule_type')),
+                    ->label(traduct('fields.schedule_type'))
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'fixed' => traduct('fields.schedule_fixed'),
+                        'flexible' => traduct('fields.schedule_flexible'),
+                        'rotating' => traduct('fields.schedule_rotating'),
+                        default => $state,
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'fixed' => 'indigo',
+                        'flexible' => 'teal',
+                        'rotating' => 'success',
+                        default => 'gray',
+                    })
+                    ->label(traduct('fields.schedule_type')),
                 IconColumn::make('status')
                     ->boolean()
                     ->label(traduct('fields.status')),
@@ -176,21 +178,83 @@ class WorkScheduleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct('fields.deleted_at')),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                TrashedFilter::make(),
+                TrashedFilter::make()
+                    ->native(false),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
+                DeleteAction::make()
+                    ->label(__('actions.soft_delete'))
+                    ->modalHeading(__('modals.trash.heading'))
+                    ->modalDescription(__('modals.trash.description'))
+                    ->icon('heroicon-m-archive-box'),
+
+                RestoreAction::make()
+                    ->label(__('actions.restore'))
+                    ->modalHeading(__('modals.restore.heading'))
+                    ->modalDescription(__('modals.restore.description'))
+                    ->color('info'),
+
+                ForceDeleteAction::make()
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger')
+                    ->before(function (ForceDeleteAction $action, Model $record) {
+                        if (
+                            $record->days()->exists() ||
+                            $record->employeeSchedules()->exists()
+                        ) {
+                            Notification::make()
+                                ->danger()
+                                ->title(__('messages.cannot_delete_title'))
+                                ->body(__('messages.restrict_delete_body', [
+                                    'entity' => traductModel('work_schedule'),
+                                    'name' => $record->name,
+                                ]))
+                                ->persistent()
+                                ->send();
+
+                            $action->halt();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.trash.heading'))
+                        ->modalDescription(__('modals.bulk.trash.description')),
+
+                    RestoreBulkAction::make()
+                        ->modalHeading(__('modals.bulk.restore.heading'))
+                        ->modalDescription(__('modals.bulk.restore.description')),
+
+                    ForceDeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description'))
+                        ->before(function (ForceDeleteBulkAction $action, Collection $records) {
+                            foreach ($records as $record) {
+                                if (
+                                    $record->days()->exists() ||
+                                    $record->employeeSchedules()->exists()
+                                ) {
+                                    Notification::make()
+                                        ->danger()
+                                        ->title(__('messages.cannot_delete_title'))
+                                        ->body(__('messages.restrict_delete_body', [
+                                            'entity' => traductModel('work_schedule'),
+                                            'name' => $record->name,
+                                        ]))
+                                        ->persistent()
+                                        ->send();
+
+                                    $action->halt();
+                                }
+                            }
+                        }),
                 ]),
             ]);
     }

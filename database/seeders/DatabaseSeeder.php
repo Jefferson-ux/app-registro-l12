@@ -24,6 +24,17 @@ class DatabaseSeeder extends Seeder
                 UserSeeder::class,
                 SubscriptionSeeder::class,
                 AuditLogSeeder::class,
+                BranchSeeder::class,
+                DepartmentSeeder::class,
+                PositionSeeder::class,
+                EmployeeSeeder::class,
+                WorkScheduleSeeder::class,
+                WorkScheduleDaySeeder::class,
+                EmployeeScheduleSeeder::class,
+                HolidaySeeder::class,
+                AttendanceSessionSeeder::class,
+                AttendanceRecordSeeder::class,
+                AttendanceIncidentSeeder::class,
             ]);
         }
     }

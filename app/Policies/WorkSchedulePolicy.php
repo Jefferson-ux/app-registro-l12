@@ -62,14 +62,14 @@ class WorkSchedulePolicy
         return $authUser->can('RestoreAny:WorkSchedule');
     }
 
-    public function replicate(AuthUser $authUser, WorkSchedule $workSchedule): bool
-    {
-        return $authUser->can('Replicate:WorkSchedule');
-    }
+    // public function replicate(AuthUser $authUser, WorkSchedule $workSchedule): bool
+    // {
+    //     return $authUser->can('Replicate:WorkSchedule');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:WorkSchedule');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:WorkSchedule');
+    // }
 
 }

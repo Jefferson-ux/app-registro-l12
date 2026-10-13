@@ -42,34 +42,34 @@ class AttendanceRecordPolicy
         return $authUser->can('DeleteAny:AttendanceRecord');
     }
 
-    public function restore(AuthUser $authUser, AttendanceRecord $attendanceRecord): bool
-    {
-        return $authUser->can('Restore:AttendanceRecord');
-    }
+    // public function restore(AuthUser $authUser, AttendanceRecord $attendanceRecord): bool
+    // {
+    //     return $authUser->can('Restore:AttendanceRecord');
+    // }
 
-    public function forceDelete(AuthUser $authUser, AttendanceRecord $attendanceRecord): bool
-    {
-        return $authUser->can('ForceDelete:AttendanceRecord');
-    }
+    // public function forceDelete(AuthUser $authUser, AttendanceRecord $attendanceRecord): bool
+    // {
+    //     return $authUser->can('ForceDelete:AttendanceRecord');
+    // }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:AttendanceRecord');
-    }
+    // public function forceDeleteAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('ForceDeleteAny:AttendanceRecord');
+    // }
 
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:AttendanceRecord');
-    }
+    // public function restoreAny(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('RestoreAny:AttendanceRecord');
+    // }
 
-    public function replicate(AuthUser $authUser, AttendanceRecord $attendanceRecord): bool
-    {
-        return $authUser->can('Replicate:AttendanceRecord');
-    }
+    // public function replicate(AuthUser $authUser, AttendanceRecord $attendanceRecord): bool
+    // {
+    //     return $authUser->can('Replicate:AttendanceRecord');
+    // }
 
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:AttendanceRecord');
-    }
+    // public function reorder(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Reorder:AttendanceRecord');
+    // }
 
 }

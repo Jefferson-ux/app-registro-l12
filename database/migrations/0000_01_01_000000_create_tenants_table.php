@@ -21,7 +21,7 @@ return new class extends Migration
             //
             $table->string('tax_id', 50)->nullable();
 
-            $table->string('email', 150)->nullable();
+            $table->string('email', 150)->unique();
             $table->string('phone', 50)->nullable();
 
             $table->string('country', 100)->nullable();
