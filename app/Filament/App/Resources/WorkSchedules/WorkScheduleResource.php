@@ -178,6 +178,7 @@ class WorkScheduleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct('fields.deleted_at')),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make()
                     ->native(false),

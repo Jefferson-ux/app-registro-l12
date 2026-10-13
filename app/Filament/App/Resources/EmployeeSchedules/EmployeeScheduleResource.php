@@ -156,6 +156,7 @@ class EmployeeScheduleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.updated_at")),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 //
             ])
