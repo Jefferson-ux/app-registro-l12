@@ -75,6 +75,11 @@ class PositionResource extends Resource
                     ->columnSpanFull()
                     ->maxLength(65535)
                     ->label(traduct("fields.description")),
+                TextInput::make('prefix')
+                    ->label('Prefijo de Código')
+                    ->maxLength(25)
+                    ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                    ->helperText('Ej: DEV para Desarrollador, GER para Gerente.'),
                 Toggle::make('status')
                     ->required()
                     ->label(traduct("fields.status")),

@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Employees;
 
 use App\Filament\App\Resources\Employees\Pages\ManageEmployees;
 use App\Models\Employee;
+use App\Models\Position;
 use App\Traits\ScopesTenantResource;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Set;
 
 class EmployeeResource extends Resource
 {
@@ -42,6 +44,8 @@ class EmployeeResource extends Resource
     protected static ?string $recordTitleAttribute = 'first_name';
 
     protected static ?int $navigationSort = 3;
+
+    
 
     public static function getNavigationGroup(): ?string
     {
@@ -76,8 +80,60 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.department")),
                 Select::make('position_id')
                     ->relationship('position', 'name')
+                    ->reactive()
                     ->default(null)
-                    ->label(traduct("fields.position")),
+                    ->label(traduct("fields.position"))
+                    ->afterStateUpdated(function (mixed $state, Set $set, ?Employee $record) {
+                    // Si no hay cargo seleccionado, limpiamos el código
+                    if (!$state) {
+                        $set('employee_code', null);
+                        return;
+                    }
+
+                    $position = Position::find($state);
+
+                    // Si el cargo no tiene prefijo, dejamos el código vacío
+                    if (!$position || empty($position->prefix)) {
+                        $set('employee_code', null);
+                        return;
+                    }
+
+                    $prefix = strtoupper(trim($position->prefix));
+
+                    // Obtenemos el tenant actual (si manejas multi-tenant por sesión o auth)
+                    // Ajusta filament()->getTenant()?->id según cómo obtengas el tenant en tu app
+                    $tenantId = filament()->getTenant()?->id;
+
+                    // Buscamos el último correlativo para este prefijo en vivo
+                    $query = Employee::where('employee_code', 'like', "{$prefix}-%")
+                        ->withTrashed();
+
+                    if ($tenantId) {
+                        $query->where('tenant_id', $tenantId);
+                    }
+
+                    // Si estamos editando, nos excluimos a nosotros mismos
+                    if ($record && $record->exists) {
+                        $query->where('id', '!=', $record->id);
+                    }
+
+                    $existingCodes = $query->pluck('employee_code');
+
+                    $maxNumber = 0;
+                    foreach ($existingCodes as $code) {
+                        $parts = explode('-', $code);
+                        $number = intval(end($parts));
+                        if ($number > $maxNumber) {
+                            $maxNumber = $number;
+                        }
+                    }
+
+                    $sequence = $maxNumber + 1;
+
+                    // Asignamos el valor calculado al campo employee_code del formulario en tiempo real
+                    $set('employee_code', sprintf('%s-%03d', $prefix, $sequence));
+                })
+                    ,
                 Select::make('supervisor_id')
                     ->relationship(
                         'supervisor',
@@ -94,6 +150,17 @@ class EmployeeResource extends Resource
                 TextInput::make('employee_code')
                     ->required()
                     ->maxLength(50)
+                    ->unique(
+                        table: 'employees', 
+                        column: 'employee_code', 
+                        ignoreRecord: true,
+                        modifyRuleUsing: function ($rule, callable $get) {
+                            // Asegura que la unicidad aplique solo dentro del mismo tenant
+                            return $rule->where('tenant_id', $get('tenant_id') ?? auth()->user()->tenant_id);
+                        }
+                    )
+                    ->dehydrated() // Asegura que se envíe y guarde en la base de datos
+                    ->helperText('Se genera automáticamente según el prefijo del cargo seleccionado.')
                     ->label(traduct("fields.employee_code")),
                 TextInput::make('document_type')
                     ->default(null)
@@ -235,7 +302,6 @@ class EmployeeResource extends Resource
         return $table
             ->recordTitleAttribute('first_name')
             ->columns([
-
                 TextColumn::make('user.name')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true)
@@ -250,6 +316,7 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.department")),
                 TextColumn::make('employee_code')
                     ->searchable()
+                    ->sortable()
                     ->label(traduct("fields.employee_code")),
                 TextColumn::make('document_type')
                     ->searchable()
@@ -265,6 +332,7 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.last_name")),
                 TextColumn::make('position.name')
                     ->searchable()
+                    ->placeholder(traduct('messages.empty_value'))
                     ->label(traduct("fields.position")),
                 TextColumn::make('supervisor.id')
                     ->searchable()
@@ -319,6 +387,8 @@ class EmployeeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.deleted_at")),
             ])
+            ->recordClasses(fn (Employee $record) => $record->trashed() ? 'is-trashed' : null)
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make()
                     ->native(false),

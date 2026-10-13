@@ -17,6 +17,7 @@ class Position extends Model
         'tenant_id',
         'department_id',
         'name',
+        'prefix',
         'description',
         'status',
     ];
