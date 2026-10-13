@@ -16,6 +16,7 @@ use Filament\Navigation\NavigationGroup;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -48,6 +49,11 @@ class AppPanelProvider extends PanelProvider
                 'indigo' => Color::Indigo,
                 'teal' => Color::Teal
             ])
+            ->assets([
+                // Registras tu archivo CSS plano directamente
+                Css::make('custom-table-styles', asset('css/app/custom/custom-table.css')),
+            ])
+
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
             ->pages([

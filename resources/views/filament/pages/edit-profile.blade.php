@@ -192,7 +192,7 @@ $pageComponent = static::isSimple() ? 'filament-panels::page.simple' : 'filament
     </style>
 
     <div class="profile-page">
-        <x-filament::button :href="url('/app')" icon="heroicon-o-arrow-left" color="gray" style="margin: 20px;" class="mb-4">
+        <x-filament::button tag="a" :href="url('/app')" icon="heroicon-o-arrow-left" color="gray" style="margin: 20px;" class="mb-4">
             {{ __('Volver al panel') }}
         </x-filament::button>
 
