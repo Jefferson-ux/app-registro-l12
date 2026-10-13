@@ -22,6 +22,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class WorkScheduleDayResource extends Resource
@@ -72,9 +73,6 @@ class WorkScheduleDayResource extends Resource
                     ->required()
                     ->native(false)
                     ->label(traduct('fields.day_of_week')),
-                Toggle::make('is_working_day')
-                    ->required()
-                    ->label(traduct('fields.is_working_day')),
                 TimePicker::make('check_in_time')
                     ->label(traduct('fields.check_in_time')),
                 TimePicker::make('check_out_time')
@@ -95,6 +93,10 @@ class WorkScheduleDayResource extends Resource
                     ->default(0)
                     ->maxValue(10000)
                     ->label(traduct('fields.check_out_tolerance')),
+                Toggle::make('is_working_day')
+                    ->required()
+                    ->default(true)
+                    ->label(traduct('fields.is_working_day')),
             ]);
     }
 
@@ -225,8 +227,14 @@ class WorkScheduleDayResource extends Resource
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                SelectFilter::make('work_schedule_id') // El campo de la llave foránea en tu tabla
+                ->relationship('workSchedule', 'name') // Nombre de la relación en tu Modelo y columna a mostrar
+                ->label('Turno')
+                ->placeholder('Todos los turnos')
+                ->searchable()
+                ->preload()
             ])
             ->recordActions([
                 ViewAction::make(),
