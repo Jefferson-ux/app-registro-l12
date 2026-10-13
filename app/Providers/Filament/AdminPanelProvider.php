@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Http\Middleware\EnsureUserIsSuperAdmin;
 use App\Http\Middleware\SetLocale;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -85,6 +86,7 @@ class AdminPanelProvider extends PanelProvider
 
                 // Middleware de Cambio de Idioma
                 SetLocale::class,
+                EnsureUserIsSuperAdmin::class,
 
             ])
             ->authMiddleware([
