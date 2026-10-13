@@ -29,7 +29,7 @@ class MarkRequest extends FormRequest
                 'string',
                 'in:ENTRY,EXIT,BREAK_START,BREAK_END',
             ],
-            #'request_id' => ['required', 'uuid'],
+            'request_id' => ['required', 'uuid'],
         ];
     }
 }

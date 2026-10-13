@@ -12,7 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Builder;
+
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -24,6 +24,9 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
@@ -239,13 +242,11 @@ class AttendanceSessionResource extends Resource
                 TextColumn::make('scheduled_minutes')
                     ->label(traduct('fields.scheduled_minutes'))
                     ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
                 TextColumn::make('worked_minutes')
                     ->label(traduct('fields.worked_minutes'))
                     ->numeric()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
                 TextColumn::make('late_minutes')
                     ->label(traduct('fields.late_minutes'))
                     ->numeric()
@@ -273,8 +274,22 @@ class AttendanceSessionResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                Filter::make('employee_code_filter')
+                    ->schema([
+                        TextInput::make('employee_code')
+                            ->label(traduct('fields.employee'))
+                            ->placeholder('Ej: EMP-001')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['employee_code'] ?? null, // <-- Usar la clave correcta del input
+                            fn (Builder $query, $code): Builder => $query->whereHas('employee', function (Builder $q) use ($code) {
+                                $q->where('employee_code', trim($code));
+                            })
+                        );
+                    })
             ])
             ->recordActions([
                 ViewAction::make(),

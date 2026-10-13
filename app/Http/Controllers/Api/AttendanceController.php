@@ -144,11 +144,14 @@ case 'ENTRY':
             $lateMinutes = 0;
             $status = 'present';
             $scheduledMinutes = 0;
+            $check_in_tolerance_minutes = 0;
 
             if ($scheduleDay && $scheduleDay->is_working_day) {
                 // Combinar la fecha de hoy con la hora de entrada y salida programada
                 $checkInTimeString = date('H:i:s', strtotime($scheduleDay->check_in_time));
                 $checkOutTimeString = date('H:i:s', strtotime($scheduleDay->check_out_time));
+                $check_in_tolerance_minutes = $scheduleDay->check_in_tolerance_minutes;
+                $check_out_tolerance_minutes = $scheduleDay->check_out_tolerance_minutes;
 
                 $scheduledCheckIn = Carbon::parse($today . ' ' . $checkInTimeString);
                 $scheduledCheckOut = Carbon::parse($today . ' ' . $checkOutTimeString);
@@ -174,10 +177,9 @@ case 'ENTRY':
                 // Descontamos el break del total de minutos laborables netos
                 $scheduledMinutes = max(0, $scheduledMinutes - $breakDuration);
 
-                $tolerance = $scheduleDay->check_in_tolerance_minutes ?? 0;
 
                 // Si llegó después de la hora programada + minutos de tolerancia
-                if ($now->gt($scheduledCheckIn->copy()->addMinutes($tolerance))) {
+                if ($now->gt($scheduledCheckIn->copy()->addMinutes($check_in_tolerance_minutes))) {
                     // Calculamos la tardanza exacta en minutos desde la hora programada
                     $lateMinutes = $scheduledCheckIn->diffInMinutes($now);
                     $status = 'late';
