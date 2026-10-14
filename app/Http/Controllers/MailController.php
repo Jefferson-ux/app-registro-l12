@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\ExampleMail;
+use App\Mail\RegisterMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -34,7 +34,7 @@ class MailController extends Controller
 
         // 4. Enviar el correo pasando el usuario y la clave en texto plano
         Mail::to($user->email)
-            ->send(new ExampleMail($user, $plainPassword));
+            ->send(new RegisterMail($user, $plainPassword));
 
         return redirect()
             ->route('thank-you')

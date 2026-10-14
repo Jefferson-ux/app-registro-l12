@@ -13,7 +13,7 @@ use Illuminate\Queue\SerializesModels;
 
 use Illuminate\Mail\Mailables\Address; // Address -->
 
-class ExampleMail extends Mailable
+class RegisterMail extends Mailable
 {
     use Queueable, SerializesModels;
 
