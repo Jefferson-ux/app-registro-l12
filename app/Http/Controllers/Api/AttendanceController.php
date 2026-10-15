@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Attendance\MarkAttendanceAction;
+use App\Exceptions\AttendanceException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreAttendanceIncidentRequest;
 use App\Http\Requests\Api\MarkRequest;
@@ -80,287 +82,25 @@ class AttendanceController extends Controller
         ], 201);
     }
 
+    // ! ===================== Marcaciones ===========================
+    public function mark(MarkRequest $request, MarkAttendanceAction $markAttendance)
+    {
+        try {
+            $result = $markAttendance->execute($request);
+        } catch (AttendanceException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], $e->status);
+        }
 
-
-
-// ! =============================================================
-// ! ===================== Marcaciones ===========================
-// ! =============================================================
-
-public function mark(MarkRequest $request){
-    $validated = $request->validated();
-    $tenantId = auth()->user()->tenant_id;
-
-    // 1. Buscar al empleado por su código en el tenant actual
-    $employee = Employee::where('tenant_id', $tenantId)
-        ->where('employee_code', $validated['employee_code'])
-        ->first();
-
-    if (!$employee) {
         return response()->json([
-            'success' => false,
-            'message' => 'El código de empleado no existe en este tenant.'
-        ], 404);
+            'success' => true,
+            'message' => $result['message'],
+            'data' => [
+                'employee' => new EmployeeResource($result['employee']),
+                'attendance' => new AttendanceTodayResource($result['session']),
+            ],
+        ]);
     }
-
-    $today = now()->toDateString(); // YYYY-MM-DD
-    $now = now();
-
-    // 2. Buscar la sesión de hoy o preparar una nueva instancia
-    $session = AttendanceSession::firstOrNew([
-        'tenant_id'       => $tenantId,
-        'employee_id'     => $employee->id,
-        'attendance_date' => $today,
-    ]);
-
-    $type = $validated['type'];
-    // 3. Evaluar el tipo de marcación
-    switch ($type) {
-case 'ENTRY':
-            // Evitar duplicado de Entrada si ya existe un check_in_at registrado
-            if ($session->exists && $session->check_in_at) {
-                return response()->json([
-                    'status' => 409,
-                    'success' => false,
-                    'message' => 'Ya registraste tu marcación de ENTRADA para el día de hoy.',
-                ], 409);
-            }
-
-            // 1. Obtener el número del día de la semana actual (1 = Lunes ... 7 = Domingo)
-            $dayOfWeek = $now->dayOfWeekIso;
-
-            $scheduleDay = EmployeeSchedule::where('employee_id', $employee->id)
-                ->where('status', true)
-                ->where('start_date', '<=', $today)
-                ->where(function ($query) use ($today) {
-                    $query->whereNull('end_date')
-                          ->orWhere('end_date', '>=', $today);
-                })
-                ->with(['workSchedule.days' => function ($query) use ($dayOfWeek) {
-                    $query->where('day_of_week', $dayOfWeek);
-                }])
-                ->first()?->workSchedule?->days->first();
-
-            $lateMinutes = 0;
-            $status = 'present';
-            $scheduledMinutes = 0;
-            $check_in_tolerance_minutes = 0;
-
-            if ($scheduleDay && $scheduleDay->is_working_day) {
-                // Combinar la fecha de hoy con la hora de entrada y salida programada
-                $checkInTimeString = date('H:i:s', strtotime($scheduleDay->check_in_time));
-                $checkOutTimeString = date('H:i:s', strtotime($scheduleDay->check_out_time));
-                $check_in_tolerance_minutes = $scheduleDay->check_in_tolerance_minutes;
-                $check_out_tolerance_minutes = $scheduleDay->check_out_tolerance_minutes;
-
-                $scheduledCheckIn = Carbon::parse($today . ' ' . $checkInTimeString);
-                $scheduledCheckOut = Carbon::parse($today . ' ' . $checkOutTimeString);
-
-                // Minutos brutos entre entrada y salida
-                $scheduledMinutes = $scheduledCheckIn->diffInMinutes($scheduledCheckOut);
-
-                // ==========================================
-                // RESTAR EL TIEMPO DE BREAK PROGRAMADO
-                // ==========================================
-                $breakDuration = $scheduleDay->break_duration_minutes ?? 0; 
-                
-                if (!empty($scheduleDay->break_start_time) && !empty($scheduleDay->break_end_time)) {
-                    $breakStartString = date('H:i:s', strtotime($scheduleDay->break_start_time));
-                    $breakEndString = date('H:i:s', strtotime($scheduleDay->break_end_time));
-
-                    $schBreakStart = Carbon::parse($today . ' ' . $breakStartString);
-                    $schBreakEnd = Carbon::parse($today . ' ' . $breakEndString);
-                    
-                    $breakDuration = $schBreakStart->diffInMinutes($schBreakEnd);
-                }
-
-                // Descontamos el break del total de minutos laborables netos
-                $scheduledMinutes = max(0, $scheduledMinutes - $breakDuration);
-
-
-                // Si llegó después de la hora programada + minutos de tolerancia
-                if ($now->gt($scheduledCheckIn->copy()->addMinutes($check_in_tolerance_minutes))) {
-                    // Calculamos la tardanza exacta en minutos desde la hora programada
-                    $lateMinutes = $scheduledCheckIn->diffInMinutes($now);
-                    $status = 'late';
-                }
-            }
-
-            if (!$session->exists) {
-                $session->check_in_at = $now;
-                $session->scheduled_minutes = $scheduledMinutes;
-                $session->late_minutes = $lateMinutes;
-                $session->status = $status;
-                $session->save();
-            } else {
-                $session->update([
-                    'check_in_at' => $now,
-                    'scheduled_minutes' => $scheduledMinutes,
-                    'late_minutes' => $lateMinutes,
-                    'status' => $status,
-                ]);
-            }
-            
-            $message = 'Marcación de ENTRADA registrada correctamente.';
-            break;
-        
-        case 'EXIT':
-            if (!$session->exists) {
-                return response()->json([
-                    'status' => 422,
-                    'success' => false,
-                    'message' => 'No existe una marcación de entrada previa para el día de hoy.'
-                ], 422);
-            }
-            // Evitar duplicado de Salida si ya fue registrada
-            if ($session->check_out_at) {
-                return response()->json([
-                    'status' => 409,
-                    'success' => false,
-                    'message' => 'Ya registraste tu marcación de SALIDA para el día de hoy.'
-                ], 409);
-            }
-
-            // 1. Obtener el horario programado del día para comparar con la salida
-            $dayOfWeek = $now->dayOfWeekIso;
-            $scheduleDay = \App\Models\EmployeeSchedule::where('employee_id', $employee->id)
-                ->where('status', 'active')
-                ->where('start_date', '<=', $today)
-                ->where(function ($query) use ($today) {
-                    $query->whereNull('end_date')
-                          ->orWhere('end_date', '>=', $today);
-                })
-                ->with(['workSchedule.days' => function ($query) use ($dayOfWeek) {
-                    $query->where('day_of_week', $dayOfWeek);
-                }])
-                ->first()?->workSchedule?->days->first();
-
-            $checkInTime = Carbon::parse($session->check_in_at);
-            
-            // 2. Calcular los minutos brutos desde la entrada hasta ahora
-            $workedMinutes = $checkInTime->diffInMinutes($now);
-
-            // 3. Descontar el tiempo de break si se registró
-            if ($session->break_start_at && $session->break_end_at) {
-                $breakStart = Carbon::parse($session->break_start_at);
-                $breakEnd = Carbon::parse($session->break_end_at);
-                $breakMinutes = $breakStart->diffInMinutes($breakEnd);
-                
-                // Restamos el break del tiempo total transcurrido
-                $workedMinutes = max(0, $workedMinutes - $breakMinutes);
-            }
-
-            $earlyLeaveMinutes = 0;
-            $overtimeMinutes = 0;
-            $exitStatus = $session->status; // Mantiene 'present' o 'late' previo
-
-            if ($scheduleDay && $scheduleDay->is_working_day) {
-                $scheduledCheckOut = Carbon::parse($today . ' ' . $scheduleDay->check_out_time);
-                $toleranceOut = $scheduleDay->check_out_tolerance_minutes ?? 0;
-
-                // Evaluación de Salida Temprana (Early Leave)
-                // Si sale antes de la hora programada menos su tolerancia
-                $limitEarlyLeave = $scheduledCheckOut->copy()->subMinutes($toleranceOut);
-                if ($now->lt($limitEarlyLeave)) {
-                    $earlyLeaveMinutes = $now->diffInMinutes($scheduledCheckOut);
-                    $exitStatus = 'incomplete';
-                } 
-                // Evaluación de Horas Extra (Overtime)
-                // Si sale después de la hora programada de salida
-                elseif ($now->gt($scheduledCheckOut)) {
-                    $overtimeMinutes = $scheduledCheckOut->diffInMinutes($now);
-                }
-            }
-
-            // Validar si laboró menos de lo programado globalmente
-            if ($workedMinutes < $session->scheduled_minutes && $earlyLeaveMinutes == 0) {
-                $exitStatus = 'incomplete';
-            }
-
-            $session->update([
-                'check_out_at'        => $now,
-                'worked_minutes'      => $workedMinutes,
-                'early_leave_minutes' => $earlyLeaveMinutes,
-                'overtime_minutes'    => $overtimeMinutes,
-                'status'              => $exitStatus
-            ]);
-
-            $message = 'Marcación de SALIDA registrada correctamente.';
-            break;
-
-        case 'BREAK_START':
-            if (!$session->exists) {
-                return response()->json([
-                    'status' => 422,
-                    'success' => false,
-                    'message' => 'Debe registrar su entrada antes de marcar el inicio de un descanso.'
-                ], 422);
-            }
-
-            // Evitar duplicado de inicio de descanso
-            if ($session->break_start_at) {
-                return response()->json([
-                    'status' => 409,
-                    'success' => false,
-                    'message' => 'Ya registraste el inicio de tu descanso anteriormente.'
-                ], 409);
-            }
-
-            // Aquí guardas el momento en que salió a descanso)
-            $session->update([
-                'break_start_at' => $now,
-            ]);
-
-            $message = 'Inicio de descanso registrado.';
-            break;
-
-        case 'BREAK_END':
-            if (!$session->exists) {
-                return response()->json([
-                    'status' => 422,
-                    'success' => false,
-                    'message' => 'No existe una sesión activa para registrar el fin de descanso.'
-                ], 422);
-            }
-
-            // Opcional: Validar que realmente haya salido a descanso antes
-            if (!$session->break_start_at) {                 
-                return response()->json([
-                    'status' => 422,
-                    'success' => false,
-                    'message' => 'El empleado no ha salido a su Break respectivo.'
-                ], 422); }
-            
-            // Evitar duplicado de fin de descanso si ya fue registrado
-            if ($session->break_end_at) {
-                return response()->json([
-                    'status' => 409,
-                    'success' => false,
-                    'message' => 'Ya registraste el fin de tu descanso anteriormente.'
-                ], 409);
-            }
-            
-            // Guardas el fin del descanso
-            $session->update([
-                'break_end_at' => $now,
-            ]);
-
-            $message = 'Fin de descanso registrado correctamente.';
-            break;
-
-        default:
-            return response()->json(['success' => false, 'message' => 'Tipo de marcación no válido.'], 400);
-    }
-
-    return response()->json([
-        'attendance'=>$session->id,
-        'success' => true,
-        'status'  => 200,
-        'message' => $message,       
-        'data'    => [
-            'employee'=> new EmployeeResource($employee),
-            'attendance' => new AttendanceTodayResource($session->fresh())]
-    ], 200);
-}
-
 }
