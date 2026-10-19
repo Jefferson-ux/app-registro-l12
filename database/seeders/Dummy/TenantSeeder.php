@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Dummy;
 
 use App\Models\Tenant;
 use Illuminate\Database\Seeder;
@@ -24,7 +24,7 @@ class TenantSeeder extends Seeder
                 'country' => 'Peru',
                 'timezone' => 'America/Lima',
                 'logo' => null, // Permite que Filament aplique defaultImageUrl()
-                'status' => fake()->randomElement(['trial','active','suspended','inactive']),
+                'status' => fake()->randomElement(['trial', 'active', 'suspended', 'inactive']),
                 'trial_ends_at' => now()->addDays(14),
             ]);
         }
