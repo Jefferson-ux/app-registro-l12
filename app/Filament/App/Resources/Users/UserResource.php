@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Spatie\Permission\PermissionRegistrar;
 use UnitEnum;
+use App\utils\Regex;
 
 class UserResource extends Resource
 {
@@ -67,6 +68,7 @@ class UserResource extends Resource
                 TextInput::make('name')
                     ->label(traduct('fields.name'))
                     ->maxLength(150)
+                    ->regex(Regex::PERSON_NAME)
                     ->required(),
                 TextInput::make('email')
                     ->label(traduct('fields.email'))
@@ -120,9 +122,6 @@ class UserResource extends Resource
                 'lg' => 3,      // Computadoras (pantallas grandes)
             ])
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label(traduct('fields.tenant'))
-                    ->placeholder(__('sections.placeholder.not_assigned')),
                 TextEntry::make('name')
                     ->label(traduct('fields.name')),
                 TextEntry::make('email')

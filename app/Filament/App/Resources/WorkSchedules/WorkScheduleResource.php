@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\utils\Regex;
 
 class WorkScheduleResource extends Resource
 {
@@ -69,6 +70,7 @@ class WorkScheduleResource extends Resource
                 TextInput::make('name')
                     ->required()
                     ->maxLength(150)
+                    ->regex(Regex::PHRASE)
                     ->label(traduct("fields.schedule_name")),
                 Textarea::make('description')
                     ->default(null)

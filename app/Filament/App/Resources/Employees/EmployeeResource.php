@@ -6,6 +6,7 @@ use App\Filament\App\Resources\Employees\Pages\ManageEmployees;
 use App\Models\Employee;
 use App\Models\Position;
 use App\Traits\ScopesTenantResource;
+use App\utils\Regex;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 
 class EmployeeResource extends Resource
@@ -45,7 +47,7 @@ class EmployeeResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
-    
+
 
     public static function getNavigationGroup(): ?string
     {
@@ -84,56 +86,55 @@ class EmployeeResource extends Resource
                     ->default(null)
                     ->label(traduct("fields.position"))
                     ->afterStateUpdated(function (mixed $state, Set $set, ?Employee $record) {
-                    // Si no hay cargo seleccionado, limpiamos el código
-                    if (!$state) {
-                        $set('employee_code', null);
-                        return;
-                    }
-
-                    $position = Position::find($state);
-
-                    // Si el cargo no tiene prefijo, dejamos el código vacío
-                    if (!$position || empty($position->prefix)) {
-                        $set('employee_code', null);
-                        return;
-                    }
-
-                    $prefix = strtoupper(trim($position->prefix));
-
-                    // Obtenemos el tenant actual (si manejas multi-tenant por sesión o auth)
-                    // Ajusta filament()->getTenant()?->id según cómo obtengas el tenant en tu app
-                    $tenantId = filament()->getTenant()?->id;
-
-                    // Buscamos el último correlativo para este prefijo en vivo
-                    $query = Employee::where('employee_code', 'like', "{$prefix}-%")
-                        ->withTrashed();
-
-                    if ($tenantId) {
-                        $query->where('tenant_id', $tenantId);
-                    }
-
-                    // Si estamos editando, nos excluimos a nosotros mismos
-                    if ($record && $record->exists) {
-                        $query->where('id', '!=', $record->id);
-                    }
-
-                    $existingCodes = $query->pluck('employee_code');
-
-                    $maxNumber = 0;
-                    foreach ($existingCodes as $code) {
-                        $parts = explode('-', $code);
-                        $number = intval(end($parts));
-                        if ($number > $maxNumber) {
-                            $maxNumber = $number;
+                        // Si no hay cargo seleccionado, limpiamos el código
+                        if (!$state) {
+                            $set('employee_code', null);
+                            return;
                         }
-                    }
 
-                    $sequence = $maxNumber + 1;
+                        $position = Position::find($state);
 
-                    // Asignamos el valor calculado al campo employee_code del formulario en tiempo real
-                    $set('employee_code', sprintf('%s-%03d', $prefix, $sequence));
-                })
-                    ,
+                        // Si el cargo no tiene prefijo, dejamos el código vacío
+                        if (!$position || empty($position->prefix)) {
+                            $set('employee_code', null);
+                            return;
+                        }
+
+                        $prefix = strtoupper(trim($position->prefix));
+
+                        // Obtenemos el tenant actual (si manejas multi-tenant por sesión o auth)
+                        // Ajusta filament()->getTenant()?->id según cómo obtengas el tenant en tu app
+                        $tenantId = filament()->getTenant()?->id;
+
+                        // Buscamos el último correlativo para este prefijo en vivo
+                        $query = Employee::where('employee_code', 'like', "{$prefix}-%")
+                            ->withTrashed();
+
+                        if ($tenantId) {
+                            $query->where('tenant_id', $tenantId);
+                        }
+
+                        // Si estamos editando, nos excluimos a nosotros mismos
+                        if ($record && $record->exists) {
+                            $query->where('id', '!=', $record->id);
+                        }
+
+                        $existingCodes = $query->pluck('employee_code');
+
+                        $maxNumber = 0;
+                        foreach ($existingCodes as $code) {
+                            $parts = explode('-', $code);
+                            $number = intval(end($parts));
+                            if ($number > $maxNumber) {
+                                $maxNumber = $number;
+                            }
+                        }
+
+                        $sequence = $maxNumber + 1;
+
+                        // Asignamos el valor calculado al campo employee_code del formulario en tiempo real
+                        $set('employee_code', sprintf('%s-%03d', $prefix, $sequence));
+                    }),
                 Select::make('supervisor_id')
                     ->relationship(
                         'supervisor',
@@ -150,9 +151,10 @@ class EmployeeResource extends Resource
                 TextInput::make('employee_code')
                     ->required()
                     ->maxLength(50)
+                    ->regex(Regex::CODE)
                     ->unique(
-                        table: 'employees', 
-                        column: 'employee_code', 
+                        table: 'employees',
+                        column: 'employee_code',
                         ignoreRecord: true,
                         modifyRuleUsing: function ($rule, callable $get) {
                             // Asegura que la unicidad aplique solo dentro del mismo tenant
@@ -162,21 +164,49 @@ class EmployeeResource extends Resource
                     ->dehydrated() // Asegura que se envíe y guarde en la base de datos
                     ->helperText('Se genera automáticamente según el prefijo del cargo seleccionado.')
                     ->label(traduct("fields.employee_code")),
-                TextInput::make('document_type')
-                    ->default(null)
-                    ->maxLength(30)
-                    ->label(traduct("fields.document_type")),
+                // Tipo de documento: al cambiarlo se limpia el número para no dejar uno con formato incorrecto
+                Select::make('document_type')
+                    ->label(__('fields.document_type'))
+                    ->options([
+                        'dni'      => 'DNI',
+                        'ruc'      => 'RUC',
+                        'ce'       => 'Carné de extranjería',
+                        'passport' => 'Pasaporte',
+                        'other'    => 'Otro',
+                    ])
+                    ->live()
+                    ->afterStateUpdated(fn(Set $set) => $set('document_number', null)),
+
+                // Número de documento: la regla y el largo máximo dependen del tipo elegido
                 TextInput::make('document_number')
+                    ->label(__('fields.document_number'))
+                    ->regex(fn(Get $get): string => match ($get('document_type')) {
+                        'dni'      => Regex::DOC_DNI,
+                        'ruc'      => Regex::TAX_ID_PE,
+                        'ce'       => Regex::DOC_CE,
+                        'passport' => Regex::DOC_PASSPORT,
+                        default    => Regex::DOC_OTHER,
+                    })
+                    ->maxLength(fn(Get $get): int => match ($get('document_type')) {
+                        'dni'   => 8,
+                        'ruc'   => 11,
+                        default => 50,
+                    })
                     ->default(null)
                     ->maxLength(50)
-                    ->unique(ignoreRecord: true)
-                    ->label(traduct("fields.document_number")),
+                    // Pasaporte y CE se guardan en mayúsculas para evitar duplicados por mayúsculas/minúsculas
+                    ->dehydrateStateUsing(fn(?string $state) => $state ? strtoupper($state) : null)
+                    ->validationMessages(['regex' => 'El formato no corresponde al tipo de documento seleccionado.']),
+
+
                 TextInput::make('first_name')
                     ->required()
                     ->maxLength(100)
+                    ->regex(Regex::PERSON_NAME)
                     ->label(traduct("fields.first_name")),
                 TextInput::make('last_name')
                     ->required()
+                    ->regex(Regex::PERSON_NAME)
                     ->maxLength(100)
                     ->label(traduct("fields.last_name")),
                 TextInput::make('personal_email')
@@ -191,6 +221,7 @@ class EmployeeResource extends Resource
                     ->label(traduct("fields.work_email")),
                 TextInput::make('phone')
                     ->tel()
+                    ->regex(Regex::PHONE)
                     ->default(null)
                     ->maxLength(50)
                     ->label(traduct("fields.phone")),
@@ -387,7 +418,7 @@ class EmployeeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.deleted_at")),
             ])
-            ->recordClasses(fn (Employee $record) => $record->trashed() ? 'is-trashed' : null)
+            ->recordClasses(fn(Employee $record) => $record->trashed() ? 'is-trashed' : null)
             ->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make()

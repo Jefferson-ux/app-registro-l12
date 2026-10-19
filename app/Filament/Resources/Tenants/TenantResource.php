@@ -34,6 +34,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\utils\Regex;
 
 
 class TenantResource extends Resource
@@ -72,24 +73,29 @@ class TenantResource extends Resource
                 TextInput::make('name')
                     ->label('Tenant Name')
                     ->required()
+                    ->regex(Regex::PHRASE)
                     ->maxLength(150)
                     ->label(traduct('fields.name')),
                 TextInput::make('business_name')
                     ->label(traduct('fields.business_name'))
                     ->default(null)
+                    ->regex(Regex::PHRASE)
                     ->maxLength(200),
                 TextInput::make('tax_id')
                     ->label(traduct('fields.tax_id'))
                     ->default(null)
+                    ->regex(Regex::GENERAL_TAX_ID)
                     ->maxLength(50),
                 TextInput::make('email')
                     ->label(traduct('fields.email'))
                     ->email()
                     ->maxLength(150)
-                    ->default(null),
+                    ->default(null)
+                    ->unique(ignoreRecord: true),
                 TextInput::make('phone')
                     ->label(traduct('fields.phone'))
                     ->tel()
+                    ->regex(Regex::PHONE)
                     ->maxLength(50)
                     ->default(null),
                 TextInput::make('country')
