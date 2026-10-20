@@ -1,66 +1,190 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏭 <u>Sistema de Registro de Asistencia - SaaS </u>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plataforma SaaS multitenant para el control de asistencia y gestión de personal, construida con **Laravel 12** y **Filament 4**. Cada empresa (tenant) administra sus empleados, sucursales, horarios y registros de asistencia, mientras que el dueño de la plataforma gestiona empresas, planes y suscripciones.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Tabla de contenidos
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- [Características](#características)
+- [Stack tecnológico](#stack-tecnológico)
+- [Arquitectura](#arquitectura)
+- [Requisitos](#requisitos)
+- [Instalación](#instalación)
+- [Configuración](#configuración)
+- [Roles y permisos](#roles-y-permisos)
+- [Idiomas (Lang)](#idiomas-lang)
+- [API](#api)
+- [Correo en desarrollo](#correo-en-desarrollo)
+- [Estructura de carpetas relevante](#estructura-de-carpetas-relevante)
+- [Flujo de trabajo con Git](#flujo-de-trabajo-con-git)
+- [Roadmap](#roadmap)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Características
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Multitenancy con base de datos compartida**: todas las tablas de empresa llevan el campo `tenant_id`; la tabla `tenants` es la parte central.
+- **Dos paneles Filament**:
+    - **AdminPanel** (`/admin`): gestión de la plataforma (empresas, planes, suscripciones, usuarios, roles, auditoría, métricas SaaS como MRR, conversión de trial y churn).
+    - **AppPanel** (`/app`): panel de la empresa cliente (empleados, sucursales, departamentos, cargos, turnos, feriados, asistencia e incidencias).
+- **Roles y permisos por empresa** con Spatie Permission (modo _teams_ usando `tenant_id`).
+- **Super Admin** sin tenant, con acceso total a la plataforma.
+- **Registro de auditoría** de solo lectura.
+- **Interfaz en español** con selector de idioma (ES/EN) en el menú de perfil.
+- **API REST** autenticada con Laravel Sanctum.
+- **Correo** con Laravel Mail (Mailpit en local).
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Stack tecnológico
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Capa          | Tecnología                             |
+| ------------- | -------------------------------------- |
+| Backend       | Laravel 12, PHP 8.2+                   |
+| Paneles       | Filament 4                             |
+| Permisos      | spatie/laravel-permission (teams)      |
+| API           | Laravel Sanctum                        |
+| Base de datos | MySQL / MariaDB                        |
+| Entorno local | Laragon (Mailpit incluido)             |
+| Traducciones  | laravel-lang/common (solo `es` y `en`) |
 
-## Laravel Sponsors
+## Arquitectura
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```
+Landing (dashboard.blade.php)
+        │
+        ▼
+   Login ──▸ super_admin ──▸ /admin  (AdminPanel)
+        │
+        └──▸ usuario de empresa ──▸ /app  (AppPanel)
+```
 
-### Premium Partners
+- **Aislamiento por tenant**: el middleware `SetPermissionsTeamId` fija el tenant activo en Spatie en cada request (web y API), tomándolo de `users.tenant_id`.
+- **Super Admin**: usuario con `tenant_id = null` y rol `super_admin`; un `Gate::before` en `AppServiceProvider` le otorga acceso total.
+- **Restricciones por Resource**: las acciones que nunca deben existir (p. ej. editar o eliminar un `AuditLog`) se bloquean directamente en el Resource con `canCreate()`, `canEdit()`, `canDelete()`, etc.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Modelos principales
 
-## Contributing
+`Tenant`, `User`, `Plan`, `Subscription`, `Branch`, `Department`, `Position`, `Employee`, `WorkSchedule`, `WorkScheduleDay`, `EmployeeSchedule`, `Holiday`, `AttendanceSession`, `AttendanceRecord`, `AttendanceIncident`, `Configuration`, `AuditLog`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Requisitos
 
-## Code of Conduct
+- PHP >= 8.2 con extensiones habituales de Laravel
+- Composer 2
+- Node.js 18+ y npm
+- MySQL 8 / MariaDB 10.6+
+- Laragon (recomendado en Windows) o cualquier stack equivalente
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Instalación
 
-## Security Vulnerabilities
+```bash
+# Clonar el repositorio
+git clone https://github.com/Jefferson-ux/app-registro-l12.git
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Entrar al proyecto
+cd app-registro-l12
 
-## License
+# Instalar las dependencias propias de Laravel
+composer install
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Copiar el archivo de entorno de ejmplo
+cp .env.example .env
+
+# Generar la "KEY" del proyecto
+php artisan key:generate
+```
+
+Configura la base de datos en `.env` y luego:
+
+```bash
+# Ejecutar para obtener tablas y datos
+php artisan migrate --seed
+
+# Instalar dependencias de estilo (Opcional)
+npm install
+npm run build
+
+# Ejecutar el servidor de
+php artisan serve
+```
+
+> Para acelerar `composer install` en desarrollo, evita `--optimize-autoloader`; úsalo solo al desplegar.
+
+## Configuración
+
+Variables relevantes de `.env`:
+
+```dotenv
+APP_LOCALE=es
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=es_PE
+APP_TIMEZONE=America/Lima
+
+DB_CONNECTION=mysql
+DB_DATABASE=nombre_de_tu_bd
+
+MAIL_MAILER=smtp
+MAIL_HOST=127.0.0.1
+MAIL_PORT=1025
+
+# Solo desarrollo local
+SUPER_ADMIN_EMAIL="admin@gmail.com"
+```
+
+Configuración de Spatie (`config/permission.php`):
+
+```php
+'teams' => true,
+'team_foreign_key' => 'tenant_id',
+```
+
+> Este cambio debe hacerse **antes** de ejecutar la migración de Spatie; de lo contrario las tablas pivote no incluirán `tenant_id`.
+
+## Estructura de carpetas relevante
+
+```
+app-registro-l12
+  │
+  ├── app/
+  │   ├── Console/Commands/
+  │   ├── Filament/
+  │   │   ├── App/              # Panel de Cliente
+  │   │   │   └── Resources/
+  │   │   ├── Resources/        # Resources de cada panel
+  │   │   └── /
+  │   ├── Http/
+  │   │   ├── Controllers/Api/  # AuthController, EmployeeController...
+  │   │   ├── Middleware/       # SetPermissionsTeamId, SetLocale
+  │   │   ├── Requests/
+  │   │   └── Resources/
+  │   ├── Models/
+  │   ├── Policies/
+  │   └── Providers/Filament/   # AdminPanelProvider, AppPanelProvider
+  ├── database/
+  │   ├── migrations/
+  │   └── seeders/
+  │       └── Production/       # Permisos, roles base y planes
+  ├── lang/
+  │   ├── es/                   # Traducciones propias
+  │   ├── en/
+  │   └── vendor/filament-panels/
+  ├── public/css/dashboard.css  # Estilos de la landing
+  └── resources/views/dashboard.blade.php
+```
+
+## Flujo de trabajo con Git
+
+```
+main        ← rama estable
+developer   ← rama de integración
+feature/*   ← ramas cortas por funcionalidad (se borran al ejecutar "merge")
+```
+
+1. Crear la rama desde `developer`: `git checkout developer && git checkout -b feature/nombre`
+2. Mergear la feature a `developer` (local) y borrar la rama.
+3. Abrir un Pull Request `developer` → `main`.
+
+Recomendado: activar _branch protection_ en `main` para exigir PR.
+
+## Licencia
+
+Proyecto privado. Todos los derechos reservados.
