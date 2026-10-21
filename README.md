@@ -12,13 +12,9 @@ Plataforma SaaS multitenant para el control de asistencia y gestión de personal
 - [Requisitos](#requisitos)
 - [Instalación](#instalación)
 - [Configuración](#configuración)
-- [Roles y permisos](#roles-y-permisos)
-- [Idiomas (Lang)](#idiomas-lang)
 - [API](#api)
-- [Correo en desarrollo](#correo-en-desarrollo)
 - [Estructura de carpetas relevante](#estructura-de-carpetas-relevante)
 - [Flujo de trabajo con Git](#flujo-de-trabajo-con-git)
-- [Roadmap](#roadmap)
 
 ---
 
