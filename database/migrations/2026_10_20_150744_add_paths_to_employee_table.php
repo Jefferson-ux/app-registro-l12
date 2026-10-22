@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('employee', function (Blueprint $table) {
-            $table->string('face_photo_path')->nullable()->after('employment_status');
-            $table->string('qr_image_path')->nullable()->after('photo_path');
+        Schema::table('employees', function (Blueprint $table) {
+            $table->string('face_photo_path',1000)->nullable()->after('employment_status');
+            $table->string('qr_image_path',1000)->nullable()->after('face_photo_path');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('employee', function (Blueprint $table) {
+        Schema::table('employees', function (Blueprint $table) {
             $table->dropColumn('face_photo_path');
             $table->dropColumn('qr_image_path');
         });

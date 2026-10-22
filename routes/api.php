@@ -5,7 +5,6 @@ use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\KioskController;
-use App\Http\Controllers\EmployeeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,12 +17,6 @@ Route::prefix('v1')->group(function () {
     //! API de entrada
     // api ==> GET https::/api/v1/
     Route::get('/', [HealthController::class, 'index'])->name('health-check');
-
-    //! APIs de Prueba
-    // api ==> GET http::/api/v1/employees/{employee}
-    Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->name('get-employee');
-    // api ==> GET http::/api/v1/employees/{employee}
-    Route::get('/attendance/{employee}', [EmployeeController::class, 'showAttendance'])->name('show-attendance');
 
     //! APIs Autenticadas
     // api ==> POST http::/api/v1/login
