@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreAttendanceIncidentRequest;
 use App\Http\Requests\Api\MarkRequest;
 use App\Http\Resources\AttendanceTodayResource;
+use App\Http\Resources\MarkResource;
 use App\Http\Resources\EmployeeResource;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
