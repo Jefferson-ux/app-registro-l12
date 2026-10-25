@@ -17,6 +17,7 @@ SELECT
     wsd.check_out_time,
     wsd.break_start_time AS break_start,
     wsd.break_end_time AS break_end,
+    wsd.is_working_day AS is_working_day,
     e.tenant_id,
     e.branch_id,
     e.department_id,

@@ -106,7 +106,7 @@ class AttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'No puedes registrar asistencia porque no cuentas con un contrato o periodo de horario activo en el sistema.',
-            ], 422); // 422 Unprocessable Content
+            ], 403); // 422 Unprocessable Content
         }
 
         // FILTRO B: Tiene contrato, pero HOY no es su día laborable (Ej: Sábado con horas NULL en tu VIEW)
@@ -114,7 +114,7 @@ class AttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Hoy no es un día laborable asignado en tu jornada de trabajo actual.',
-            ], 422);
+            ], 403);
         }
 
         // 3. Si pasa todos los filtros, procedemos con la lógica de tu Action
