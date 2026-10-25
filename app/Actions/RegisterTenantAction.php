@@ -2,7 +2,7 @@
 
 namespace App\Actions;
 
-use App\Mail\ExampleMail;
+use App\Mail\RegisterMail;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +48,7 @@ class RegisterTenantAction
 
             // 3. Enviar Correo
             Mail::to($user->email)
-                ->send(new ExampleMail($user, $plainPassword));
+                ->send(new RegisterMail($user, $plainPassword));
 
             return $tenant;
         });

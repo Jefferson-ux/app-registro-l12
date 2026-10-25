@@ -33,6 +33,8 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\utils\Regex;
+
 
 class AttendanceIncidentResource extends Resource
 {
@@ -60,28 +62,28 @@ class AttendanceIncidentResource extends Resource
     {
         return traductModel('attendance_incident', plural: true);
     }
-    
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('employee_id')
-                    ->relationship('employee','id')
-                    ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
+                    ->relationship('employee', 'id')
+                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}")
                     ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
                     ->preload()
                     ->live() // necesario para que el segundo Select reaccione a este cambio
-                    ->afterStateUpdated(fn (Set $set) => $set('attendance_session_id', null)) 
+                    ->afterStateUpdated(fn(Set $set) => $set('attendance_session_id', null))
                     ->required()
                     ->label(traduct('fields.employee')),
                 Select::make('attendance_session_id')
                     ->relationship(
                         'attendanceSession',
                         'id',
-                        modifyQueryUsing: fn (Builder $query, Get $get) => $query
-                            ->when($get('employee_id'), fn ($query, $employeeId) => $query->where('employee_id', $employeeId))
+                        modifyQueryUsing: fn(Builder $query, Get $get) => $query
+                            ->when($get('employee_id'), fn($query, $employeeId) => $query->where('employee_id', $employeeId))
                     )
-                    ->getOptionLabelFromRecordUsing(fn (AttendanceSession $record): string => "{$record->attendance_date}")
+                    ->getOptionLabelFromRecordUsing(fn(AttendanceSession $record): string => "{$record->attendance_date}")
                     ->preload()
                     ->required()
                     ->label(traductModel("attendance_session")),
@@ -107,17 +109,17 @@ class AttendanceIncidentResource extends Resource
                     ->label(traduct("fields.description")),
                 Select::make('status')
                     ->options([
-                            'pending' => traduct('status.pending'),
-                            'justified' => traduct('status.justified'),
-                            'approved' => traduct('status.approved'),
-                            'rejected' => traduct('status.rejected'),
-                            'cancelled' => traduct('status.cancelled'),
-                        ])
+                        'pending' => traduct('status.pending'),
+                        'justified' => traduct('status.justified'),
+                        'approved' => traduct('status.approved'),
+                        'rejected' => traduct('status.rejected'),
+                        'cancelled' => traduct('status.cancelled'),
+                    ])
                     ->default('pending')
                     ->required()
                     ->label(traduct("fields.status")),
                 Select::make('resolved_by')
-                    ->relationship('resolver', 'name') 
+                    ->relationship('resolver', 'name')
                     ->searchable()
                     ->preload()
                     ->default(null)
@@ -137,103 +139,16 @@ class AttendanceIncidentResource extends Resource
     {
         return $schema
             ->components([
-            TextEntry::make('tenant.name')
-                ->label(traduct('fields.tenant')),
-            TextEntry::make('employee.id')
-                ->label(traduct('fields.employee')),
-            TextEntry::make('attendanceSession.id')
-                ->label(traductModel('attendance_session')),
-            TextEntry::make('incident_type')
-                ->label(traduct('fields.incident_type'))
-                ->badge()
-                ->formatStateUsing(fn (string $state): string => match ($state) {
-                    'late' => traduct('fields.incident_late'),
-                    'absence' => traduct('fields.incident_absence'),
-                    'early_leave' => traduct('fields.incident_early_leave'),
-                    'missing_check_in' => traduct('fields.incident_missing_check_in'),
-                    'missing_check_out' => traduct('fields.incident_missing_check_out'),
-                    'manual' => traduct('fields.incident_manual'),
-                    default => $state,
-                })
-                ->color(fn (string $state): string => match ($state) {
-                    'late', 'early_leave' => 'warning',
-                    'absence', 'missing_check_in', 'missing_check_out' => 'danger',
-                    'manual' => 'gray',
-                    default => 'gray',
-                }),
-            TextEntry::make('incident_date')
-                ->label(traduct('fields.incident_date'))
-                ->date(),
-            TextEntry::make('description')
-                ->label(traduct('fields.description'))
-                ->placeholder('-')
-                ->columnSpanFull(),
-            TextEntry::make('status')
-                ->label(traduct('fields.status'))
-                ->badge()
-                ->formatStateUsing(fn (string $state): string => match ($state) {
-                    'pending' => traduct('status.pending'),
-                    'justified' => traduct('status.justified'),
-                    'approved' => traduct('status.approved'),
-                    'rejected' => traduct('status.rejected'),
-                    'cancelled' => traduct('status.cancelled'),
-                    default => $state,
-                })
-                ->color(fn (string $state): string => match ($state) {
-                    'pending' => 'warning',
-                    'justified', 'approved' => 'success',
-                    'rejected' => 'danger',
-                    'cancelled' => 'gray',
-                    default => 'gray',
-                }),
-            TextEntry::make('resolved_by')
-                ->label(traduct('fields.resolved_by'))
-                ->numeric()
-                ->placeholder('-'),
-            TextEntry::make('resolved_at')
-                ->label(traduct('fields.resolved_at'))
-                ->dateTime()
-                ->placeholder('-'),
-            TextEntry::make('resolution_notes')
-                ->label(traduct('fields.resolution_notes'))
-                ->placeholder('-')
-                ->columnSpanFull(),
-            TextEntry::make('created_at')
-                ->label(traduct('fields.created_at'))
-                ->dateTime()
-                ->placeholder('-'),
-            TextEntry::make('updated_at')
-                ->label(traduct('fields.updated_at'))
-                ->dateTime()
-                ->placeholder('-'),
-            TextEntry::make('deleted_at')
-                ->label(traduct('fields.deleted_at'))
-                ->dateTime()
-                ->visible(fn (AttendanceIncident $record): bool => $record->trashed()),
-        ]);
-    }
-
-    public static function table(Table $table): Table
-    {
-        return $table
-            ->recordTitleAttribute('id')
-            ->columns([
-            TextColumn::make('employee_full_name')
-                ->label(traduct('fields.employee'))
-                ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->whereHas('employee', function (Builder $q) use ($search) {
-                        $q->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
-                    });
-                }),
-                TextColumn::make('attendanceSession.id')
-                    ->label(traduct('fields.attendance_session'))
-                    ->searchable(),
-                TextColumn::make('incident_type')
+                TextEntry::make('tenant.name')
+                    ->label(traduct('fields.tenant')),
+                TextEntry::make('employee.id')
+                    ->label(traduct('fields.employee')),
+                TextEntry::make('attendanceSession.id')
+                    ->label(traductModel('attendance_session')),
+                TextEntry::make('incident_type')
                     ->label(traduct('fields.incident_type'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'late' => traduct('fields.incident_late'),
                         'absence' => traduct('fields.incident_absence'),
                         'early_leave' => traduct('fields.incident_early_leave'),
@@ -242,7 +157,94 @@ class AttendanceIncidentResource extends Resource
                         'manual' => traduct('fields.incident_manual'),
                         default => $state,
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
+                        'late', 'early_leave' => 'warning',
+                        'absence', 'missing_check_in', 'missing_check_out' => 'danger',
+                        'manual' => 'gray',
+                        default => 'gray',
+                    }),
+                TextEntry::make('incident_date')
+                    ->label(traduct('fields.incident_date'))
+                    ->date(),
+                TextEntry::make('description')
+                    ->label(traduct('fields.description'))
+                    ->placeholder('-')
+                    ->columnSpanFull(),
+                TextEntry::make('status')
+                    ->label(traduct('fields.status'))
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'pending' => traduct('status.pending'),
+                        'justified' => traduct('status.justified'),
+                        'approved' => traduct('status.approved'),
+                        'rejected' => traduct('status.rejected'),
+                        'cancelled' => traduct('status.cancelled'),
+                        default => $state,
+                    })
+                    ->color(fn(string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'justified', 'approved' => 'success',
+                        'rejected' => 'danger',
+                        'cancelled' => 'gray',
+                        default => 'gray',
+                    }),
+                TextEntry::make('resolved_by')
+                    ->label(traduct('fields.resolved_by'))
+                    ->numeric()
+                    ->placeholder('-'),
+                TextEntry::make('resolved_at')
+                    ->label(traduct('fields.resolved_at'))
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('resolution_notes')
+                    ->label(traduct('fields.resolution_notes'))
+                    ->placeholder('-')
+                    ->columnSpanFull(),
+                TextEntry::make('created_at')
+                    ->label(traduct('fields.created_at'))
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('updated_at')
+                    ->label(traduct('fields.updated_at'))
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('deleted_at')
+                    ->label(traduct('fields.deleted_at'))
+                    ->dateTime()
+                    ->visible(fn(AttendanceIncident $record): bool => $record->trashed()),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->recordTitleAttribute('id')
+            ->columns([
+                TextColumn::make('employee_full_name')
+                    ->label(traduct('fields.employee'))
+                    ->state(fn($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('employee', function (Builder $q) use ($search) {
+                            $q->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        });
+                    }),
+                TextColumn::make('attendanceSession.id')
+                    ->label(traduct('fields.attendance_session'))
+                    ->searchable(),
+                TextColumn::make('incident_type')
+                    ->label(traduct('fields.incident_type'))
+                    ->badge()
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'late' => traduct('fields.incident_late'),
+                        'absence' => traduct('fields.incident_absence'),
+                        'early_leave' => traduct('fields.incident_early_leave'),
+                        'missing_check_in' => traduct('fields.incident_missing_check_in'),
+                        'missing_check_out' => traduct('fields.incident_missing_check_out'),
+                        'manual' => traduct('fields.incident_manual'),
+                        default => $state,
+                    })
+                    ->color(fn(string $state): string => match ($state) {
                         'late', 'early_leave' => 'warning',
                         'absence', 'missing_check_in', 'missing_check_out' => 'danger',
                         'manual' => 'gray',
@@ -255,7 +257,7 @@ class AttendanceIncidentResource extends Resource
                 TextColumn::make('status')
                     ->label(traduct('fields.status'))
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'pending' => traduct('status.pending'),
                         'justified' => traduct('status.justified'),
                         'approved' => traduct('status.approved'),
@@ -263,7 +265,7 @@ class AttendanceIncidentResource extends Resource
                         'cancelled' => traduct('status.cancelled'),
                         default => $state,
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'pending' => 'warning',
                         'justified', 'approved' => 'success',
                         'rejected' => 'danger',
@@ -305,22 +307,22 @@ class AttendanceIncidentResource extends Resource
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
-                        ->label(__('actions.soft_delete'))
-                        ->modalHeading(__('modals.trash.heading'))
-                        ->modalDescription(__('modals.trash.description'))
-                        ->icon('heroicon-m-archive-box'),
+                    ->label(__('actions.soft_delete'))
+                    ->modalHeading(__('modals.trash.heading'))
+                    ->modalDescription(__('modals.trash.description'))
+                    ->icon('heroicon-m-archive-box'),
 
                 RestoreAction::make()
-                        ->label(__('actions.restore'))
-                        ->modalHeading(__('modals.restore.heading'))
-                        ->modalDescription(__('modals.restore.description'))
-                        ->color('info'),
+                    ->label(__('actions.restore'))
+                    ->modalHeading(__('modals.restore.heading'))
+                    ->modalDescription(__('modals.restore.description'))
+                    ->color('info'),
 
                 ForceDeleteAction::make()
-                        ->label(__('actions.delete'))
-                        ->modalHeading(__('modals.force_delete.heading'))
-                        ->modalDescription(__('modals.force_delete.description'))
-                        ->color('danger'),
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

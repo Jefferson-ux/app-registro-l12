@@ -23,6 +23,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use App\utils\Regex;
 
 class HolidayResource extends Resource
 {
@@ -62,6 +63,7 @@ class HolidayResource extends Resource
                 TextInput::make('name')
                     ->required()
                     ->maxValue(150)
+                    ->regex(Regex::PHRASE)
                     ->label(traduct('fields.holiday_name')),
                 DatePicker::make('holiday_date')
                     ->required()
@@ -145,13 +147,13 @@ class HolidayResource extends Resource
                     ->modalHeading(__('modals.force_delete.heading'))
                     ->modalDescription(__('modals.force_delete.description'))
                     ->color('danger'),
-                ])
-                ->toolbarActions([
-                    BulkActionGroup::make([
-                        DeleteBulkAction::make()
-                            ->modalHeading(__('modals.bulk.force_delete.heading'))
-                            ->modalDescription(__('modals.bulk.force_delete.description')),
-                    ]),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description')),
+                ]),
             ]);
     }
 

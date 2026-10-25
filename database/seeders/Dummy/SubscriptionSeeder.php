@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders;
+namespace Database\Seeders\Dummy;
 
 use App\Models\Plan;
 use App\Models\Subscription;

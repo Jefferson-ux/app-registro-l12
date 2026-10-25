@@ -30,6 +30,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\utils\Regex;
 
 class PositionResource extends Resource
 {
@@ -57,7 +58,7 @@ class PositionResource extends Resource
     {
         return traductModel('position', plural: true);
     }
-    
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -68,6 +69,7 @@ class PositionResource extends Resource
                     ->label(traduct("fields.department")),
                 TextInput::make('name')
                     ->required()
+                    ->regex(Regex::PHRASE)
                     ->maxLength(150)
                     ->label(traduct("fields.position_name")),
                 Textarea::make('description')
@@ -78,6 +80,7 @@ class PositionResource extends Resource
                 TextInput::make('prefix')
                     ->label('Prefijo de Código')
                     ->maxLength(25)
+                    ->alphaDash()
                     ->extraInputAttributes(['style' => 'text-transform: uppercase'])
                     ->helperText('Ej: DEV para Desarrollador, GER para Gerente.'),
                 Toggle::make('status')
@@ -114,7 +117,7 @@ class PositionResource extends Resource
                     ->label(traduct("fields.updated_at")),
                 TextEntry::make('deleted_at')
                     ->dateTime()
-                    ->visible(fn (Position $record): bool => $record->trashed())
+                    ->visible(fn(Position $record): bool => $record->trashed())
                     ->label(traduct("fields.deleted_at")),
             ]);
     }
@@ -157,22 +160,22 @@ class PositionResource extends Resource
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
-                        ->label(__('actions.soft_delete'))
-                        ->modalHeading(__('modals.trash.heading'))
-                        ->modalDescription(__('modals.trash.description'))
-                        ->icon('heroicon-m-archive-box'),
+                    ->label(__('actions.soft_delete'))
+                    ->modalHeading(__('modals.trash.heading'))
+                    ->modalDescription(__('modals.trash.description'))
+                    ->icon('heroicon-m-archive-box'),
 
                 RestoreAction::make()
-                        ->label(__('actions.restore'))
-                        ->modalHeading(__('modals.restore.heading'))
-                        ->modalDescription(__('modals.restore.description'))
-                        ->color('info'),
+                    ->label(__('actions.restore'))
+                    ->modalHeading(__('modals.restore.heading'))
+                    ->modalDescription(__('modals.restore.description'))
+                    ->color('info'),
 
                 ForceDeleteAction::make()
-                        ->label(__('actions.delete'))
-                        ->modalHeading(__('modals.force_delete.heading'))
-                        ->modalDescription(__('modals.force_delete.description'))
-                        ->color('danger'),
+                    ->label(__('actions.delete'))
+                    ->modalHeading(__('modals.force_delete.heading'))
+                    ->modalDescription(__('modals.force_delete.description'))
+                    ->color('danger'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

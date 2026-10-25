@@ -140,7 +140,7 @@ class PlanResource extends Resource
                         TextInput::make('max_branches')
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(10000000)
+                            ->maxValue(100000)
                             ->label(traduct('fields.max_branches')),
 
                     ]),

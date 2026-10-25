@@ -2,7 +2,26 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder; // Corregido: punto y coma agregado
+use Database\Seeders\Production\{PermissionsSeeder, PlanSeeder};
+use Database\Seeders\Dummy\{
+    TenantSeeder,
+    UserSeeder,
+    SubscriptionSeeder,
+    AuditLogSeeder,
+    BranchSeeder,
+    DepartmentSeeder,
+    PositionSeeder,
+    EmployeeSeeder,
+    WorkScheduleSeeder,
+    WorkScheduleDaySeeder,
+    EmployeeScheduleSeeder,
+    HolidaySeeder,
+    AttendanceSessionSeeder,
+    AttendanceRecordSeeder,
+    AttendanceIncidentSeeder
+};
+
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {

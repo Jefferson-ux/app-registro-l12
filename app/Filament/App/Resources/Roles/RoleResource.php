@@ -31,6 +31,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Str;
+use App\utils\Regex;
 
 class RoleResource extends Resource
 {
@@ -117,6 +118,7 @@ class RoleResource extends Resource
 
                         TextInput::make('label')
                             ->label(traduct('fields.label'))
+                            ->regex(Regex::PHRASE)
                             ->maxLength(255),
 
                         Select::make('color')
