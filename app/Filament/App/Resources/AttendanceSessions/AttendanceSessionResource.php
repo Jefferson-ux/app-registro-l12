@@ -82,6 +82,14 @@ class AttendanceSessionResource extends Resource
                     ->native(false)
                     ->displayFormat('d/m/Y H:i')
                     ->label(traduct("fields.check_out_at")),
+                DateTimePicker::make('break_start_at')
+                    ->native(false)
+                    ->displayFormat('d/m/Y H:i')
+                    ->label(traduct("fields.break_start_at")),
+                DateTimePicker::make('break_end_at')
+                    ->native(false)
+                    ->displayFormat('d/m/Y H:i')
+                    ->label(traduct("fields.break_end_at")),
                 TextInput::make('scheduled_minutes')
                     ->required()
                     ->numeric()
@@ -144,6 +152,14 @@ class AttendanceSessionResource extends Resource
                     ->placeholder('-'),
                 TextEntry::make('check_out_at')
                     ->label(traduct('fields.check_out_at'))
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('break_start_at')
+                    ->label(traduct('fields.break_start_at'))
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('break_end_at')
+                    ->label(traduct('fields.break_end_at'))
                     ->dateTime()
                     ->placeholder('-'),
                 TextEntry::make('scheduled_minutes')
@@ -239,6 +255,16 @@ class AttendanceSessionResource extends Resource
                     ->label(traduct('fields.check_out_at'))
                     ->dateTime()
                     ->sortable(),
+                TextColumn::make('break_start_at')
+                    ->label(traduct('fields.break_start_at'))
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('break_end_at')
+                    ->label(traduct('fields.break_end_at'))
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('scheduled_minutes')
                     ->label(traduct('fields.scheduled_minutes'))
                     ->numeric()
@@ -285,7 +311,7 @@ class AttendanceSessionResource extends Resource
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['employee_code'] ?? null, // <-- Usar la clave correcta del input
-                            fn (Builder $query, $code): Builder => $query->whereHas('employee', function (Builder $q) use ($code) {
+                            fn(Builder $query, $code): Builder => $query->whereHas('employee', function (Builder $q) use ($code) {
                                 $q->where('employee_code', trim($code));
                             })
                         );

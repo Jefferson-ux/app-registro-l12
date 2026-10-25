@@ -129,6 +129,12 @@ class Employee extends Model
 
     public function activeSchedule(): ?EmployeeSchedule
     {
+        // NUEVO FILTRO DE SEGURIDAD: Si el empleado no está ACTIVO en la empresa,
+        // se corta la consulta y no se le otorga ningún horario vigente hoy.
+        if ($this->employment_status !== 'active') {
+            return null;
+        }
+
         // Accede a la relación de todos los horarios vinculados a este empleado
         return $this->schedules()
             // Filtra solo los horarios que estén con estado "activo/habilitado" (true)

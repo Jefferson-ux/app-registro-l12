@@ -192,6 +192,8 @@ return [
     'check_out_time' => 'Hora de salida',
     'check_in_at' => 'Hora de Entrada',
     'check_out_at' => 'Hora de Salida',
+    'break_start_at' => 'Hora de Inicio de Descanso',
+    'break_end_at' => 'Hora de Final de Descanso',
     'recorded_at' => 'Fecha de Registro',
     'scheduled_minutes' => 'Minutos Programados',
     'worked_hours' => 'Horas trabajadas',
