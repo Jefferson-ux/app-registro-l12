@@ -1,5 +1,6 @@
 CREATE OR REPLACE VIEW v_employee_schedules AS
 SELECT
+    e.id,
     e.employee_code,
     CONCAT(e.first_name, ' ', e.last_name) AS employee_name,
 	 CASE

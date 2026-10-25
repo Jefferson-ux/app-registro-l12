@@ -16,7 +16,6 @@ class AttendanceTodayResource extends JsonResource
         $status   = $this->determineCurrentStatus();
 
         return [
-            // ===== CAMPOS ORIGINALES (sin cambios) =====
             'id'                  => $this->id,
             'attendance_date'     => $this->attendance_date->format('d-m-Y'),
             'check_in_at'         => $this->check_in_at?->toIso8601String(),
@@ -33,11 +32,7 @@ class AttendanceTodayResource extends JsonResource
             ],
             'employee'            => new EmployeeResource($this->whenLoaded('employee')),
 
-            // ===== CAMPOS NUEVOS =====
-            'attendance_id'       => $this->id,
             'type'                => $lastMark['type'] ?? null,
-            'recorded_at'         => $lastMark ? $lastMark['time']->toIso8601String() : null,
-            'work_date'           => $this->attendance_date?->format('Y-m-d'),
             'next_action'         => $this->determineNextAction($status),
             'attendance_status'   => $status,
         ];

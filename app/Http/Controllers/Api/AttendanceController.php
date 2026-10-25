@@ -84,8 +84,40 @@ class AttendanceController extends Controller
     }
 
     // ! ===================== Marcaciones ===========================
+
     public function mark(MarkRequest $request, MarkAttendanceAction $markAttendance)
     {
+        // 1. Buscamos al empleado usando el 'employee_code' que viene en el Request
+        $employee = Employee::where('employee_code', $request->employee_code)->first();
+
+        // FILTRO CERO: Si el código de empleado no existe en la base de datos
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => "El código de empleado '{$request->employee_code}' no se encuentra registrado en el sistema.",
+            ], 404); // 404 Not Found
+        }
+
+        // 2. Ejecutamos el análisis de su horario para el día de hoy
+        $scheduleAnalysis = $employee->todayScheduleAnalysis();
+
+        // FILTRO A: No tiene un horario o contrato activo en general hoy
+        if (!$scheduleAnalysis['has_active_contract']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No puedes registrar asistencia porque no cuentas con un contrato o periodo de horario activo en el sistema.',
+            ], 422); // 422 Unprocessable Content
+        }
+
+        // FILTRO B: Tiene contrato, pero HOY no es su día laborable (Ej: Sábado con horas NULL en tu VIEW)
+        if (!$scheduleAnalysis['is_working_day_today']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hoy no es un día laborable asignado en tu jornada de trabajo actual.',
+            ], 422);
+        }
+
+        // 3. Si pasa todos los filtros, procedemos con la lógica de tu Action
         try {
             $result = $markAttendance->execute($request);
         } catch (AttendanceException $e) {
@@ -100,7 +132,7 @@ class AttendanceController extends Controller
             'message' => $result['message'],
             'data' => [
                 'employee' => new EmployeeResource($result['employee']),
-                'attendance' => new AttendanceTodayResource($result['session']),
+                'attendance' => new MarkResource($result['session']),
             ],
         ]);
     }

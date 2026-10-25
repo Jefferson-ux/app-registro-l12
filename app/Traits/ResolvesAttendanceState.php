@@ -53,11 +53,16 @@ trait ResolvesAttendanceState
     {
         return match ($status) {
             'NOT_STARTED' => 'ENTRY',
-            'WORKING'     => 'BREAK_START',
+            'WORKING'     => $this->canTakeBreak() ? 'BREAK_START' : 'EXIT',
             'ON_BREAK'    => 'BREAK_END',
             'COMPLETED',
             'INCOMPLETE'  => 'COMPLETED',
             default       => 'ENTRY',
         };
+    }
+
+    protected function canTakeBreak(): bool
+    {
+        return ! $this->break_end_at && ($this->employee?->hasBreakToday() ?? false);
     }
 }

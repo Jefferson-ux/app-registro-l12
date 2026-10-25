@@ -16,20 +16,23 @@ class MarkResource extends JsonResource
         $status   = $this->determineCurrentStatus();
 
         return [
+            'id'                => $this->id,
             'attendance_id'     => $this->id,
-            'employee'          => [
-                'code'      => $this->employee?->code,
-                'full_name' => $this->employee?->full_name,
-            ],
+            'employee'          => new EmployeeResource($this->whenLoaded('employee')),
             'type'              => $lastMark['type'] ?? null,
-            'recorded_at'       => $lastMark ? $lastMark['time']->toIso8601String() : null,
             'work_date'         => $this->attendance_date?->format('Y-m-d'),
             'next_action'       => $this->determineNextAction($status),
+            'recorded_at'       => $lastMark ? $lastMark['time']->toIso8601String() : null,
+            'attendance_date'   => $this->attendance_date->format('d-m-Y'),
             'attendance_status' => $status,
             'punctuality'       => [
-                'status'       => $this->status,
-                'late_minutes' => $this->late_minutes,
+                'status'        => $this->status,
+                'late_minutes'  => $this->late_minutes,
             ],
+            'check_in_at'         => $this->check_in_at?->toIso8601String(),
+            'check_out_at'        => $this->check_out_at?->toIso8601String(),
+            'break_start_at'      => $this->break_start_at?->toIso8601String(),
+            'break_end_at'        => $this->break_end_at?->toIso8601String(),
         ];
     }
 }
