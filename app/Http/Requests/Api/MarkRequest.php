@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class MarkRequest extends FormRequest
 {
@@ -24,11 +25,7 @@ class MarkRequest extends FormRequest
     {
         return [
             'employee_code' => 'required|string',
-            'type' => [
-                'required',
-                'string',
-                'in:ENTRY,EXIT,BREAK_START,BREAK_END',
-            ],
+            'type' => ['nullable', Rule::in(['ENTRY', 'BREAK_START', 'BREAK_END', 'EXIT'])],
             'request_id' => ['required', 'uuid'],
         ];
     }

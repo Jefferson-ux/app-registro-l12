@@ -23,7 +23,7 @@ class MarkAttendanceAction
     public function execute(Request $request): array
     {
         $tenantId = $request->user()->tenant_id;
-        $type = AttendanceType::from($request->input('type'));
+        // $type = AttendanceType::from($request->input('type'));
 
         $employee = Employee::where('tenant_id', $tenantId)
             ->where('employee_code', $request->input('employee_code'))
@@ -41,12 +41,14 @@ class MarkAttendanceAction
         $now = now();
         $today = $now->copy()->setTimezone($tz)->toDateString();
 
-        return DB::transaction(function () use ($request, $type, $employee, $tenantId, $tz, $now, $today) {
+        return DB::transaction(function () use ($request, $employee, $tenantId, $tz, $now, $today) {
             $session = AttendanceSession::firstOrNew([
                 'tenant_id' => $tenantId,
                 'employee_id' => $employee->id,
                 'attendance_date' => $today,
             ]);
+
+            $type = $this->resolveType($request, $session);
 
             $session = match ($type) {
                 AttendanceType::Entry => $this->entry->execute($session, $employee, $now, $tz),
@@ -68,5 +70,24 @@ class MarkAttendanceAction
                 'session' => $session->fresh(),
             ];
         });
+    }
+
+    private function resolveType(Request $request, AttendanceSession $session): AttendanceType
+    {
+        if ($request->filled('type')) {
+            return AttendanceType::from($request->input('type'));
+        }
+
+        if (! $session->exists) {
+            return AttendanceType::Entry;
+        }
+
+        $next = $session->nextAction();
+
+        if ($next === 'COMPLETED') {
+            throw new AttendanceException('La jornada de hoy ya está completada.', 409);
+        }
+
+        return AttendanceType::from($next);
     }
 }

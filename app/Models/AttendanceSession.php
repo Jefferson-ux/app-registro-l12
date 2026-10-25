@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
+use App\Traits\ResolvesAttendanceState;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AttendanceSession extends Model
 {
-    use BelongsToTenant, HasFactory;
+    use BelongsToTenant, HasFactory, ResolvesAttendanceState;
 
     protected $fillable = [
         'tenant_id',
@@ -18,8 +19,8 @@ class AttendanceSession extends Model
         'attendance_date',
         'check_in_at',
         'check_out_at',
-        'break_start_at', 
-        'break_end_at',   
+        'break_start_at',
+        'break_end_at',
         'scheduled_minutes',
         'worked_minutes',
         'late_minutes',
@@ -57,5 +58,10 @@ class AttendanceSession extends Model
     public function incidents(): HasMany
     {
         return $this->hasMany(AttendanceIncident::class);
+    }
+
+    public function nextAction(): string
+    {
+        return $this->determineNextAction($this->determineCurrentStatus());
     }
 }
