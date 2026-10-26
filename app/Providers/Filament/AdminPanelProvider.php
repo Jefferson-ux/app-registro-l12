@@ -93,7 +93,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
                 // Agrega el middleware personalizado para establecer el team_id en los permisos del usuario
                 SetPermissionsTeamId::class,
-            ])
+            ],isPersistent:true)
 
 
             ->navigationGroups([

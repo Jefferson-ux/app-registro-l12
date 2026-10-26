@@ -8,7 +8,6 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
-    use BelongsToTenant;  
 
     protected $fillable = [
         'name',
@@ -24,6 +23,11 @@ class Role extends SpatieRole
         'is_protected' => 'boolean',
         'color' => RoleColor::class,
     ];
+
+    public function tenant()
+    {
+        return $this->belongsTo(\App\Models\Tenant::class);
+    }
 
      
 }

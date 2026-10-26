@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
         // Usuario Admin para Tenant 2
         $userTenant2 = User::create([
             'name'      => fake()->name(),
-            'email'     => fake()->email(),
+            'email'     => "tenant2@gmail.com",
             'password'  => Hash::make('password_2'),
             'status'    => 'inactive',
             'tenant_id' => 2,

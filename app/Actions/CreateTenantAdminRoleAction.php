@@ -18,7 +18,11 @@ class CreateTenantAdminRoleAction
 
     public function execute(int $tenantId): Role
     {
-        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);   
+        $registrar = app(PermissionRegistrar::class);
+        $previous = $registrar->getPermissionsTeamId();
+
+        try {
+            $registrar->setPermissionsTeamId($tenantId);
 
         $description = "Rol con acceso completo al panel de la empresa.
 Puede gestionar todos los módulos: empleados, sucursales, departamentos, cargos, horarios, asistencia y roles del sistema.
@@ -26,11 +30,7 @@ Tiene permiso para crear, editar y eliminar usuarios, así como asignarles roles
 Este rol no puede eliminarse ni transferirse a otro usuario.";
 
         $role = Role::firstOrCreate(
-            [
-                'name' => 'admin',
-                'guard_name' => 'web',
-                'tenant_id' => $tenantId,
-            ],
+            ['name' => 'admin', 'guard_name' => 'web', 'tenant_id' => $tenantId],
             [
                 'label' => 'Administrador',
                 'description' => $description,
@@ -46,5 +46,8 @@ Este rol no puede eliminarse ni transferirse a otro usuario.";
         $role->givePermissionTo($permissions);
 
         return $role;
+    } finally {
+        $registrar->setPermissionsTeamId($previous);
     }
+}
 }

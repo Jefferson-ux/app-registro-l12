@@ -92,7 +92,7 @@ class AppPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 SetPermissionsTeamId::class,
-            ])
+            ],isPersistent:true)
             ->userMenuItems([
                 'toggle_lang' => Action::make('toggle_lang')
                     ->label(fn() => app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español')

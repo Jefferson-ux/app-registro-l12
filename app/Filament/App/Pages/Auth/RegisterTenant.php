@@ -152,11 +152,7 @@ class RegisterTenant extends SimplePage implements HasForms
 
             $this->redirect(route('thank-you'));
         } catch (\Throwable $th) {
-            /*Notification::make()
-                ->title('Error al registrar la empresa')
-                ->body('Ocurrió un problema durante el registro. Por favor, intenta de nuevo.')
-                ->danger()
-                ->send();*/
+
             Notification::make()
                 ->title('Error al registrar la empresa')
                 ->body("Error: {$th->getMessage()} en {$th->getFile()}:{$th->getLine()}")

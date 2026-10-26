@@ -18,42 +18,40 @@ class RegisterTenantAction
         private CreateDefaultWorkScheduleAction $createDefaultSchedule,
     ) {}
 
-    public function execute(array $data): Tenant
-    {
-        return DB::transaction(function () use ($data) {
-            // 1. Crear el Tenant
-            $tenant = Tenant::create([
-                'name'          => $data['name'],
-                'business_name' => $data['business_name'] ?? null,
-                'tax_id'        => $data['tax_id'] ?? null,
-                'email'         => $data['email'],
-                'phone'         => $data['phone'] ?? null,
-                'country'       => $data['country'] ?? null,
-                'timezone'      => $data['timezone'] ?? null,
-                'logo'           => $data['logo'] ?? null,
-            ]);
+public function execute(array $data): Tenant
+{
+    [$tenant, $user, $plainPassword] = DB::transaction(function () use ($data) {
+        $tenant = Tenant::create([
+            'name'          => $data['name'],
+            'business_name' => $data['business_name'] ?? null,
+            'tax_id'        => $data['tax_id'] ?? null,
+            'email'         => $data['email'],
+            'phone'         => $data['phone'] ?? null,
+            'country'       => $data['country'] ?? null,
+            'timezone'      => $data['timezone'] ?? null,
+            'logo'          => $data['logo'] ?? null,
+        ]);
 
-            // 2. Generar usuario
-            $username = $data['name'] . '-Admin';
-            $plainPassword = Str::random(12);
+        $plainPassword = Str::random(12);
 
-            $user = User::create([
-                'tenant_id' => $tenant->id,
-                'name'      => $username,
-                'email'     => $data['email'],
-                'password'  => Hash::make($plainPassword),
-            ]);
+        $user = User::create([
+            'tenant_id' => $tenant->id,
+            'name'      => $data['name'],
+            'email'     => $data['email'],
+            'password'  => Hash::make($plainPassword),
+        ]);
 
-            $this->createAdminRole->execute($tenant->id);
-            $this->assignRole->execute($user, 'admin');
+        $this->createAdminRole->execute($tenant->id);
+        $this->assignRole->execute($user, 'admin');
+        $this->createDefaultSchedule->execute($tenant->id);
 
+        return [$tenant, $user, $plainPassword];
+    });
+    
+    app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
 
-            $this->createDefaultSchedule->execute($tenant->id);
-            // 3. Enviar Correo
-            Mail::to($user->email)
-                ->send(new RegisterMail($user, $plainPassword));
+    Mail::to($user->email)->send(new RegisterMail($user, $plainPassword));
 
-            return $tenant;
-        });
-    }
+    return $tenant;
+}
 }
