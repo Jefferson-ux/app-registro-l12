@@ -15,6 +15,7 @@ class RegisterTenantAction
     public function __construct(
         private CreateTenantAdminRoleAction $createAdminRole,
         private AssignRoleToUserAction $assignRole,
+        private CreateDefaultWorkScheduleAction $createDefaultSchedule,
     ) {}
 
     public function execute(array $data): Tenant
@@ -46,6 +47,8 @@ class RegisterTenantAction
             $this->createAdminRole->execute($tenant->id);
             $this->assignRole->execute($user, 'admin');
 
+
+            $this->createDefaultSchedule->execute($tenant->id);
             // 3. Enviar Correo
             Mail::to($user->email)
                 ->send(new RegisterMail($user, $plainPassword));
