@@ -65,6 +65,27 @@ return [
 
     "placeholder" => [
         "not_assigned" => "No asignado"
-    ]
+    ],
+
+    "employee_count" => [
+        "title" => "Número de Empleados",
+    ],
+
+    "attendance_absent" => [
+        "title" => "Inasistencias de la semana",
+    ],
+    "attendance_late" => [
+        "title" => "Tardanzas de la semana",
+    ],
+    "attendance_present" => [
+        "title" => "Asistencias puntuales de la semana",
+    ],
+    "attendance_incomplete" => [
+        "title" => "Jornadas incompletas de la semana",
+    ],
+    "attendance_leave" => [
+        "title" => "Salidas permitidas de la semana",
+    ],
+    
 
 ];

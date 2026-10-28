@@ -60,19 +60,10 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             // Método que renderiza todos los widgets dentro de App\Filament\Widgets
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Widgets/Admin'), for: 'App\Filament\Widgets\Admin')
             ->widgets([
                 // AccountWidget::class,
             ])
-            /*->renderHook(
-                PanelsRenderHook::PAGE_START, // Inyecta el HTML justo al inicio del contenido de la página
-                fn (): HtmlString => new HtmlString('
-                    <div class="p-4 mb-5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md">
-                        <h1 class="text-2xl font-bold tracking-tight">🚀 Panel de Control SaaS</h1>
-                        <p class="text-xs text-blue-100 mt-1">Configuración general y métricas del Tenant en tiempo real.</p>
-                    </div>
-                ')
-            )*/
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
