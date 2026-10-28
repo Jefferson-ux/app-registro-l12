@@ -250,20 +250,24 @@ class AttendanceSessionResource extends Resource
                 TextColumn::make('check_in_at')
                     ->label(traduct('fields.check_in_at'))
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->formatStateUsing(fn ($state) => self::formatHumanTime($state)),
                 TextColumn::make('check_out_at')
                     ->label(traduct('fields.check_out_at'))
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->formatStateUsing(fn ($state) => self::formatHumanTime($state)),
                 TextColumn::make('break_start_at')
                     ->label(traduct('fields.break_start_at'))
                     ->dateTime()
+                    ->formatStateUsing(fn ($state) => self::formatHumanTime($state))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('break_end_at')
                     ->label(traduct('fields.break_end_at'))
                     ->dateTime()
                     ->sortable()
+                    ->formatStateUsing(fn ($state) => self::formatHumanTime($state))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('scheduled_minutes')
                     ->label(traduct('fields.scheduled_minutes'))
@@ -366,5 +370,47 @@ class AttendanceSessionResource extends Resource
         return [
             'index' => ManageAttendanceSessions::route('/'),
         ];
+    }
+
+    protected static function formatHumanTime($state): string
+    {
+        if (!$state) {
+            return '-';
+        }
+
+        $date = \Carbon\Carbon::parse($state);
+        $now = \Carbon\Carbon::now();
+        
+        $diffInSeconds = (int) $date->diffInSeconds($now);
+        $diffInMinutes = (int) $date->diffInMinutes($now);
+        $diffInHours = (int) $date->diffInHours($now);
+
+        if ($diffInSeconds === 1) {
+            return "hace {$diffInSeconds} segundo";
+        }
+
+        if ($diffInSeconds < 60) {
+            return "hace {$diffInSeconds} segundos";
+        }
+
+        if ($diffInMinutes === 1) {
+            return "hace {$diffInMinutes} minuto";
+        }
+
+        if ($diffInMinutes < 60) {
+            return "hace {$diffInMinutes} minutos";
+        }
+
+        if ($diffInHours === 1) {
+            $mins = $date->copy()->addHour()->diffInMinutes($now); // o simplemente el módulo
+            return "hace 1 h y " . ($diffInMinutes % 60) . " m";
+        }
+
+        if ($diffInHours < 24) {
+            $minsRestantes = $diffInMinutes % 60;
+            return "hace {$diffInHours} h y {$minsRestantes} m";
+        }
+
+        return $date->translatedFormat('Y-m-d H:i');
     }
 }
