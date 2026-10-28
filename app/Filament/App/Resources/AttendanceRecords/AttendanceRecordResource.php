@@ -62,11 +62,15 @@ class AttendanceRecordResource extends Resource
                     ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
                     ->preload()
                     ->required()
-                    ->label(traduct('fields.employee')),
+                    ->label(traduct('fields.employee'))
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
+                    ->dehydrated(fn (string $operation): bool => $operation !== 'edit'),
                 Select::make('branch_id')
                     ->relationship('branch', 'name')
                     ->default(null)
-                    ->label(traduct('fields.branch')),
+                    ->label(traduct('fields.branch'))
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
+                    ->dehydrated(fn (string $operation): bool => $operation !== 'edit'),
                 Select::make('type')
                     ->options([
                         'check_in' => traductShort('status.record_type.check_in'),
@@ -75,10 +79,14 @@ class AttendanceRecordResource extends Resource
                         'break_end' => traductShort('status.record_type.break_end'),
                     ])
                     ->required()
-                    ->label(traduct('fields.record_type')),
+                    ->label(traduct('fields.record_type'))
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
+                    ->dehydrated(fn (string $operation): bool => $operation !== 'edit'),
                 DateTimePicker::make('recorded_at')
                     ->required()
-                    ->label(traduct('fields.recorded_at')),
+                    ->label(traduct('fields.recorded_at'))
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
+                    ->dehydrated(fn (string $operation): bool => $operation !== 'edit'),
                 Select::make('method')
                     ->options([
                         'web' => traductShort('status.method.web'),
@@ -90,29 +98,39 @@ class AttendanceRecordResource extends Resource
                         'api' => traductShort('status.method.api'),
                     ])
                     ->required()
-                    ->label(traduct('fields.method')),
+                    ->label(traduct('fields.method'))
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
+                    ->dehydrated(fn (string $operation): bool => $operation !== 'edit'),
                 TextInput::make('latitude')
                     ->numeric()
                     ->step(0.0000001)
                     ->minValue(-90)
                     ->maxValue(90)
                     ->nullable()
-                    ->label(traduct('fields.latitude')),
+                    ->label(traduct('fields.latitude'))
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
+                    ->dehydrated(fn (string $operation): bool => $operation !== 'edit'),
                 TextInput::make('longitude')
                     ->numeric()
                     ->step(0.0000001)
                     ->minValue(-180)
                     ->maxValue(180)
                     ->nullable()
-                    ->label(traduct('fields.longitude')),
+                    ->label(traduct('fields.longitude'))
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
+                    ->dehydrated(fn (string $operation): bool => $operation !== 'edit'),
                 TextInput::make('ip_address')
                     ->default(null)
                     ->maxValue(45)
-                    ->label(traduct('fields.ip_address')),
+                    ->label(traduct('fields.ip_address'))
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
+                    ->dehydrated(fn (string $operation): bool => $operation !== 'edit'),
                 TextInput::make('device_identifier')
                     ->default(null)
                     ->maxValue(255)
-                    ->label(traduct('fields.device_identifier')),
+                    ->label(traduct('fields.device_identifier'))
+                    ->disabled(fn (string $operation): bool => $operation === 'edit')
+                    ->dehydrated(fn (string $operation): bool => $operation !== 'edit'),
                 Textarea::make('notes')
                     ->default(null)
                     ->columnSpanFull()
@@ -297,19 +315,7 @@ class AttendanceRecordResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make()
-                    ->label(__('actions.delete'))
-                    ->modalHeading(__('modals.force_delete.heading'))
-                    ->modalDescription(__('modals.force_delete.description'))
-                    ->color('danger'),
-                ])
-                ->toolbarActions([
-                    BulkActionGroup::make([
-                        DeleteBulkAction::make()
-                            ->modalHeading(__('modals.bulk.force_delete.heading'))
-                            ->modalDescription(__('modals.bulk.force_delete.description')),
-                    ]),
-            ]);
+                ]);
     }
 
     public static function getPages(): array
