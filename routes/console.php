@@ -9,5 +9,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('attendance:close-daily')
-    ->dailyAt('17:40')
+    ->dailyAt('20:10')
     ->sendOutputTo(storage_path('logs/attendance.log'));;
