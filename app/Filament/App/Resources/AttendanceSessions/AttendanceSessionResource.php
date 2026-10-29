@@ -406,7 +406,7 @@ class AttendanceSessionResource extends Resource
             return "hace 1 h y " . ($diffInMinutes % 60) . " m";
         }
 
-        if ($diffInHours < 24) {
+        if ($diffInHours < 8) {
             $minsRestantes = $diffInMinutes % 60;
             return "hace {$diffInHours} h y {$minsRestantes} m";
         }

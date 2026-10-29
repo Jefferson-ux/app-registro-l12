@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets\Attendance\Attendance;
 
+use App\Models\AttendanceRecord;
 use App\Models\AttendanceSession;
 use Filament\Widgets\Widget;
 
@@ -14,18 +15,38 @@ class RecentAttendanceSession extends Widget
         '2xl' => '2', // Ocupa la mitad si el grid del dashboard es de 2 columnas
     ];
 
-    protected function getViewData(): array
-    {
-        // Consultamos los últimos registros de asistencia (hasta 30) con su respectivo empleado
-        $sessions = AttendanceSession::with('employee')
-            ->latest('created_at') // O el campo de fecha/hora que utilices ('check_in_at')
-            ->limit(30)
-            ->get();
+protected function getViewData(): array
+{
+    $sessions = AttendanceSession::with('employee')
+        ->whereNotNull('check_in_at')
+        ->latest('updated_at')
+        ->limit(30)
+        ->get();
 
-        return [
-            'sessions' => $sessions,
-        ];
-    }
+    $events = $sessions->flatMap(function ($s) {
+        $rows = collect();
+
+        $rows->push([
+            'employee' => $s->employee,
+            'type'     => 'Entrada',
+            'at'       => $s->check_in_at,
+            'status'   => $s->status,
+        ]);
+
+        if ($s->check_out_at) {
+            $rows->push([
+                'employee' => $s->employee,
+                'type'     => 'Salida',
+                'at'       => $s->check_out_at,
+                'status'   => null,
+            ]);
+        }
+
+        return $rows;
+    })->sortByDesc('at')->take(30)->values();
+
+    return ['events' => $events];
+}
 
     protected static function formatHumanTime($state): string
     {
@@ -62,7 +83,7 @@ class RecentAttendanceSession extends Widget
             return "hace 1 hora y " . ($diffInMinutes % 60) . " minutos";
         }
 
-        if ($diffInHours < 24) {
+        if ($diffInHours < 8) {
             $minsRestantes = $diffInMinutes % 60;
             return "hace {$diffInHours} horas y {$minsRestantes} minutos";
         }

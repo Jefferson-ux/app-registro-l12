@@ -23,16 +23,10 @@
                 color: #4f5763;
                 border-bottom: 1px solid #a0a9bb;
             }
-            .badge-status {
-                display: inline-block;
-                padding: 4px 8px;
-                font-size: 12px;
-                font-weight: 600;
-                border-radius: 4px;
-            }
-            .badge-present { background-color: #d1fae5; color: #065f46; }
-            .badge-late { background-color: #fef3c7; color: #92400e; }
-            .badge-absent { background-color: #fee2e2; color: #991b1b; }
+            .status-present { color: #16a34a; font-weight: 600; }
+            .status-late    { color: #eab308; font-weight: 600; }
+            .status-out     { color: #3b82f6; font-weight: 600; }
+            .status-other   { color: #9ca3af; font-weight: 600; }
         </style>
 
         <div style="overflow-x: auto; max-height: 400px; overflow-y: auto;">
@@ -40,38 +34,37 @@
                 <thead>
                     <tr>
                         <th>Empleado</th>
-                        <th>Hora de Marcación</th>
+                        <th>Marcación</th>
                         <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($sessions as $session)
+                    @forelse ($events as $e)
+                        @php
+                            $class = match (true) {
+                                $e['type'] === 'Salida'    => 'status-out',
+                                $e['status'] === 'present' => 'status-present',
+                                $e['status'] === 'late'    => 'status-late',
+                                default                    => 'status-other',
+                            };
+                        @endphp
                         <tr>
                             <td>
-                                {{ $session->employee?->first_name ?? 'N/A' }} 
-                                {{ $session->employee?->last_name ?? '' }}
+                                {{ $e['employee']?->first_name ?? 'N/A' }}
+                                {{ $e['employee']?->last_name ?? '' }}
                             </td>
                             <td>
-                                {{-- Si tienes un formateador personalizado como tu formatHumanTime o el standard de Carbon --}}
-                                {{ self::formatHumanTime($session->created_at) }}
+                                {{ $e['type'] }} {{ self::formatHumanTime($e['at']) }}
                             </td>
                             <td>
-                                @php
-                                    $status = $session->status;
-                                    $label = match($status) {
-                                        'present' => 'Temprano / A tiempo',
-                                        'late' => 'Tardanza',
-                                        'absent' => 'Ausente',
-                                        default => ucfirst($status),
-                                    };
-                                    $class = match($status) {
-                                        'present' => 'badge-present',
-                                        'late' => 'badge-late',
-                                        default => 'badge-absent',
-                                    };
-                                @endphp
-                                <span class="badge-status {{ $class }}">
-                                    {{ $label }}
+                                <span class="{{ $class }}">
+                                    {{ $e['type'] === 'Salida'
+                                        ? 'Salida'
+                                        : match ($e['status']) {
+                                            'present' => 'Puntual',
+                                            'late'    => 'Tarde',
+                                            default   => $e['status'],
+                                        } }}
                                 </span>
                             </td>
                         </tr>
