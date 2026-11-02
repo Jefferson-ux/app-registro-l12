@@ -31,4 +31,29 @@ return [
     'cannot_delete_title' => 'Cannot be deleted',
     'restrict_delete_body' => ":entity ':name' has associated records or dependencies.",
     'cannot_delete_active_subscription' => "Cannot delete subscription ':name' because it is currently active.",
+
+    'attendance_marks' => [
+        'on_time'     => 'On-time arrival',
+        'late'        => 'Late arrival',
+        'absent'      => 'Absence',
+        'break_start' => 'Break start',
+        'break_end'   => 'Break end',
+        'check_out'   => 'Check-out',
+    ],
+
+    'attendance_widget' => [
+        'heading'  => 'Today\'s Attendance History',
+        'employee' => 'Employee',
+        'mark'     => 'Mark',
+        'time'     => 'Time',
+        'search'   => 'Search by name or code...',
+        'empty'    => 'No attendance records today.',
+    ],
+    'welcome' => [
+        'greeting'      => 'Welcome',
+        'logout'        => 'Sign out',
+        'confirm_title' => 'Sign out?',
+        'confirm_text'  => 'Your current session will be closed.',
+        'cancel'        => 'Cancel',
+    ],
 ];

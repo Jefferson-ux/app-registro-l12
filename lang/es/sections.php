@@ -72,20 +72,20 @@ return [
     ],
 
     "attendance_absent" => [
-        "title" => "Inasistencias de la semana",
+        "title" => "Inasistencias del día",
     ],
     "attendance_late" => [
-        "title" => "Tardanzas de la semana",
+        "title" => "Tardanzas del día",
     ],
     "attendance_present" => [
-        "title" => "Asistencias puntuales de la semana",
+        "title" => "Asistencias puntuales del día",
     ],
     "attendance_incomplete" => [
-        "title" => "Jornadas incompletas de la semana",
+        "title" => "Jornadas incompletas del día",
     ],
     "attendance_leave" => [
-        "title" => "Salidas permitidas de la semana",
+        "title" => "Salidas permitidas del día",
     ],
-    
+
 
 ];

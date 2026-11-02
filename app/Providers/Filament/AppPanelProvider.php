@@ -26,6 +26,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\App\Pages\AppDashboard;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -57,13 +58,11 @@ class AppPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
             ->pages([
-                Dashboard::class,
+                AppDashboard::class,
             ])
 
             ->discoverWidgets(in: app_path('Filament/Widgets/Attendance'), for: 'App\Filament\Widgets\Attendance')
-            ->widgets([
-                AccountWidget::class,
-            ])
+            ->widgets([])
             ->navigationGroups([
                 NavigationGroup::make(fn() => traduct('navigation.business'))
                     ->collapsed(true),
@@ -92,7 +91,7 @@ class AppPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 SetPermissionsTeamId::class,
-            ],isPersistent:true)
+            ], isPersistent: true)
             ->userMenuItems([
                 'toggle_lang' => Action::make('toggle_lang')
                     ->label(fn() => app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español')

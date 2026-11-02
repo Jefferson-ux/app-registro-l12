@@ -37,4 +37,28 @@ return [
     'restrict_delete_body' => ":entity ':name' tiene registros o dependencias asociadas.",
     'cannot_delete_active_subscription' => "No se puede eliminar la suscripción ':name' porque se encuentra activa.",
 
+    'attendance_marks' => [
+        'on_time'     => 'Llegada puntual',
+        'late'        => 'Llegada tarde',
+        'absent'      => 'Inasistencia',
+        'break_start' => 'Inicio de descanso',
+        'break_end'   => 'Final de descanso',
+        'check_out'   => 'Salida',
+    ],
+
+    'attendance_widget' => [
+        'heading'  => 'Historial de Marcaciones de Hoy',
+        'employee' => 'Empleado',
+        'mark'     => 'Marcación',
+        'time'     => 'Hora',
+        'search'   => 'Buscar por nombre o código...',
+        'empty'    => 'No hay registros de asistencia hoy.',
+    ],
+    'welcome' => [
+        'greeting'      => 'Bienvenido(a)',
+        'logout'        => 'Cerrar sesión',
+        'confirm_title' => '¿Cerrar sesión?',
+        'confirm_text'  => 'Se cerrará tu sesión actual.',
+        'cancel'        => 'Cancelar',
+    ],
 ];
