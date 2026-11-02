@@ -152,6 +152,7 @@ class PositionResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.deleted_at")),
             ])
+            ->stackedOnMobile()
             ->filters([
                 TrashedFilter::make()
                     ->native(false),

@@ -21,17 +21,23 @@ class AttendanceStats extends StatsOverviewWidget
 
         return [
             Stat::make('employeeCount', $employee_count)
-                ->label(__('sections.employee_count.title')),
+                ->label(__('sections.employee_count.title'))
+                ->extraAttributes(['class' => 'stat-card-employee-count']),
             Stat::make('absentCount', $counts->get('absent', 0))
-                ->label(__('sections.attendance_absent.title')),
+                ->label(__('sections.attendance_absent.title'))
+                ->extraAttributes(['class' => 'stat-card-absent-count']),
             Stat::make('attendanceLate', $counts->get('late', 0))
-                ->label(__('sections.attendance_late.title')),
+                ->label(__('sections.attendance_late.title'))
+                ->extraAttributes(['class' => 'stat-card-late-count']),
             Stat::make('attendancePresent', $counts->get('present', 0))
-                ->label(__('sections.attendance_present.title')),
+                ->label(__('sections.attendance_present.title'))
+                ->extraAttributes(['class' => 'stat-card-present-count']),
             Stat::make('attendanceLeave', $counts->get('leave', 0))
-                ->label(__('sections.attendance_leave.title')),
+                ->label(__('sections.attendance_leave.title'))
+                ->extraAttributes(['class' => 'stat-card-leave-count']),
             Stat::make('attendanceIncomplete', $counts->get('incomplete', 0))
-                ->label(__('sections.attendance_incomplete.title')),
+                ->label(__('sections.attendance_incomplete.title'))
+                ->extraAttributes(['class' => 'stat-card-incomplete-count']),
         ];
     }
 }

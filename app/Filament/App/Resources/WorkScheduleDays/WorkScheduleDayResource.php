@@ -103,63 +103,63 @@ class WorkScheduleDayResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema
-        ->components([
-            TextEntry::make('tenant.name')
-                ->label(traduct('fields.tenant')),
-            TextEntry::make('workSchedule.name')
-                ->label(traduct('fields.schedule_name')),
-            TextEntry::make('day_of_week')
-                ->label(traduct('fields.day_of_week'))
-                ->getStateUsing(function ($record): string {
-                    // 1. Obtenemos el valor crudo del registro numérico
-                    $value = (int) $record->day_of_week; 
+            ->components([
+                TextEntry::make('tenant.name')
+                    ->label(traduct('fields.tenant')),
+                TextEntry::make('workSchedule.name')
+                    ->label(traduct('fields.schedule_name')),
+                TextEntry::make('day_of_week')
+                    ->label(traduct('fields.day_of_week'))
+                    ->getStateUsing(function ($record): string {
+                        // 1. Obtenemos el valor crudo del registro numérico
+                        $value = (int) $record->day_of_week;
 
-                    // 2. Mapeamos manualmente a la traducción
-                    return match ($value) {
-                        1 => traductShort('status.day_of_week.monday'),
-                        2 => traductShort('status.day_of_week.tuesday'),
-                        3 => traductShort('status.day_of_week.wednesday'),
-                        4 => traductShort('status.day_of_week.thursday'),
-                        5 => traductShort('status.day_of_week.friday'),
-                        6 => traductShort('status.day_of_week.saturday'),
-                        7 => traductShort('status.day_of_week.sunday'),
-                        default => '-',
-                    };
-                })
-                ->numeric(),
-            IconEntry::make('is_working_day')
-                ->label(traduct('fields.is_working_day'))
-                ->boolean(),
-            TextEntry::make('check_in_time')
-                ->label(traduct('fields.check_in_time'))
-                ->time()
-                ->placeholder('-'),
-            TextEntry::make('check_out_time')
-                ->label(traduct('fields.check_out_time'))
-                ->time()
-                ->placeholder('-'),
-            TextEntry::make('break_start_time')
-                ->label(traduct('fields.break_start_time'))
-                ->time()
-                ->placeholder('-'),
-            TextEntry::make('break_end_time')
-                ->label(traduct('fields.break_end_time'))
-                ->time()
-                ->placeholder('-'),
-            TextEntry::make('check_in_tolerance_minutes')
-                ->label(traduct('fields.check_in_tolerance'))
-                ->numeric(),
-            TextEntry::make('check_out_tolerance_minutes')
-                ->label(traduct('fields.check_out_tolerance'))
-                ->numeric(),
-            TextEntry::make('created_at')
-                ->label(traduct('fields.created_at'))
-                ->dateTime()
-                ->placeholder('-'),
-            TextEntry::make('updated_at')
-                ->label(traduct('fields.updated_at'))
-                ->dateTime()
-                ->placeholder('-'),
+                        // 2. Mapeamos manualmente a la traducción
+                        return match ($value) {
+                            1 => traductShort('status.day_of_week.monday'),
+                            2 => traductShort('status.day_of_week.tuesday'),
+                            3 => traductShort('status.day_of_week.wednesday'),
+                            4 => traductShort('status.day_of_week.thursday'),
+                            5 => traductShort('status.day_of_week.friday'),
+                            6 => traductShort('status.day_of_week.saturday'),
+                            7 => traductShort('status.day_of_week.sunday'),
+                            default => '-',
+                        };
+                    })
+                    ->numeric(),
+                IconEntry::make('is_working_day')
+                    ->label(traduct('fields.is_working_day'))
+                    ->boolean(),
+                TextEntry::make('check_in_time')
+                    ->label(traduct('fields.check_in_time'))
+                    ->time()
+                    ->placeholder('-'),
+                TextEntry::make('check_out_time')
+                    ->label(traduct('fields.check_out_time'))
+                    ->time()
+                    ->placeholder('-'),
+                TextEntry::make('break_start_time')
+                    ->label(traduct('fields.break_start_time'))
+                    ->time()
+                    ->placeholder('-'),
+                TextEntry::make('break_end_time')
+                    ->label(traduct('fields.break_end_time'))
+                    ->time()
+                    ->placeholder('-'),
+                TextEntry::make('check_in_tolerance_minutes')
+                    ->label(traduct('fields.check_in_tolerance'))
+                    ->numeric(),
+                TextEntry::make('check_out_tolerance_minutes')
+                    ->label(traduct('fields.check_out_tolerance'))
+                    ->numeric(),
+                TextEntry::make('created_at')
+                    ->label(traduct('fields.created_at'))
+                    ->dateTime()
+                    ->placeholder('-'),
+                TextEntry::make('updated_at')
+                    ->label(traduct('fields.updated_at'))
+                    ->dateTime()
+                    ->placeholder('-'),
             ]);
     }
 
@@ -168,73 +168,74 @@ class WorkScheduleDayResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-            TextColumn::make('workSchedule.name')
-                ->label(traduct('fields.schedule_name'))
-                ->searchable(),
-            TextColumn::make('day_of_week')
-                ->label(traduct('fields.day_of_week'))
-                ->numeric()
-                ->formatStateUsing(fn (int $state): string => match ($state) {
-                    1 => traductShort('status.day_of_week.monday'),
-                    2 => traductShort('status.day_of_week.tuesday'),
-                    3 => traductShort('status.day_of_week.wednesday'),
-                    4 => traductShort('status.day_of_week.thursday'),
-                    5 => traductShort('status.day_of_week.friday'),
-                    6 => traductShort('status.day_of_week.saturday'),
-                    7 => traductShort('status.day_of_week.sunday'),
-                    default => (string) $state,
-                })
-                ->sortable(),
-            IconColumn::make('is_working_day')
-                ->label(traduct('fields.is_working_day'))
-                ->boolean(),
-            TextColumn::make('check_in_time')
-                ->label(traduct('fields.check_in_time'))
-                ->time('g:i A')
-                ->sortable(),
-            TextColumn::make('check_out_time')
-                ->label(traduct('fields.check_out_time'))
-                ->time('g:i A')
-                ->sortable(),
-            TextColumn::make('break_start_time')
-                ->label(traduct('fields.break_start_time'))
-                ->time()
-                ->toggleable(isToggledHiddenByDefault: true)
-                ->sortable(),
-            TextColumn::make('break_end_time')
-                ->label(traduct('fields.break_end_time'))
-                ->time()
-                ->toggleable(isToggledHiddenByDefault: true)
-                ->sortable(),
-            TextColumn::make('check_in_tolerance_minutes')
-                ->label(traduct('fields.check_in_tolerance'))
-                ->numeric()
-                ->toggleable(isToggledHiddenByDefault: true)
-                ->sortable(),
-            TextColumn::make('check_out_tolerance_minutes')
-                ->label(traduct('fields.check_out_tolerance'))
-                ->numeric()
-                ->toggleable(isToggledHiddenByDefault: true)
-                ->sortable(),
-            TextColumn::make('created_at')
-                ->label(traduct('fields.created_at'))
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
-            TextColumn::make('updated_at')
-                ->label(traduct('fields.updated_at'))
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('workSchedule.name')
+                    ->label(traduct('fields.schedule_name'))
+                    ->searchable(),
+                TextColumn::make('day_of_week')
+                    ->label(traduct('fields.day_of_week'))
+                    ->numeric()
+                    ->formatStateUsing(fn(int $state): string => match ($state) {
+                        1 => traductShort('status.day_of_week.monday'),
+                        2 => traductShort('status.day_of_week.tuesday'),
+                        3 => traductShort('status.day_of_week.wednesday'),
+                        4 => traductShort('status.day_of_week.thursday'),
+                        5 => traductShort('status.day_of_week.friday'),
+                        6 => traductShort('status.day_of_week.saturday'),
+                        7 => traductShort('status.day_of_week.sunday'),
+                        default => (string) $state,
+                    })
+                    ->sortable(),
+                IconColumn::make('is_working_day')
+                    ->label(traduct('fields.is_working_day'))
+                    ->boolean(),
+                TextColumn::make('check_in_time')
+                    ->label(traduct('fields.check_in_time'))
+                    ->time('g:i A')
+                    ->sortable(),
+                TextColumn::make('check_out_time')
+                    ->label(traduct('fields.check_out_time'))
+                    ->time('g:i A')
+                    ->sortable(),
+                TextColumn::make('break_start_time')
+                    ->label(traduct('fields.break_start_time'))
+                    ->time()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('break_end_time')
+                    ->label(traduct('fields.break_end_time'))
+                    ->time()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('check_in_tolerance_minutes')
+                    ->label(traduct('fields.check_in_tolerance'))
+                    ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('check_out_tolerance_minutes')
+                    ->label(traduct('fields.check_out_tolerance'))
+                    ->numeric()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label(traduct('fields.created_at'))
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')
+                    ->label(traduct('fields.updated_at'))
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->stackedOnMobile()
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('work_schedule_id') // El campo de la llave foránea en tu tabla
-                ->relationship('workSchedule', 'name') // Nombre de la relación en tu Modelo y columna a mostrar
-                ->label('Turno')
-                ->placeholder('Todos los turnos')
-                ->searchable()
-                ->preload()
+                    ->relationship('workSchedule', 'name') // Nombre de la relación en tu Modelo y columna a mostrar
+                    ->label('Turno')
+                    ->placeholder('Todos los turnos')
+                    ->searchable()
+                    ->preload()
             ])
             ->recordActions([
                 ViewAction::make(),

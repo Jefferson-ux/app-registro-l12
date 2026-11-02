@@ -208,6 +208,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->stackedOnMobile()
             ->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make()

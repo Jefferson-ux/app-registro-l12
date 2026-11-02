@@ -58,8 +58,8 @@ class EmployeeScheduleResource extends Resource
         return $schema
             ->components([
                 Select::make('employee_id')
-                    ->relationship('employee','id')
-                    ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
+                    ->relationship('employee', 'id')
+                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}")
                     ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
                     ->preload()
                     ->required()
@@ -93,7 +93,7 @@ class EmployeeScheduleResource extends Resource
                     ->label(traduct("fields.tenant")),
                 TextEntry::make('employee_full_name')
                     ->label(traduct('fields.employee'))
-                    ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? ''))),
+                    ->state(fn($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? ''))),
                 TextEntry::make('workSchedule.name')
                     ->label(traduct("fields.schedule_name")),
                 TextEntry::make('start_date')
@@ -122,15 +122,15 @@ class EmployeeScheduleResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-            TextColumn::make('employee_full_name')
-                ->label(traduct('fields.employee'))
-                ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->whereHas('employee', function (Builder $q) use ($search) {
-                        $q->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
-                    });
-                }),
+                TextColumn::make('employee_full_name')
+                    ->label(traduct('fields.employee'))
+                    ->state(fn($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('employee', function (Builder $q) use ($search) {
+                            $q->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        });
+                    }),
                 TextColumn::make('workSchedule.name')
                     ->searchable()
                     ->label(traduct("fields.schedule_name")),
@@ -156,6 +156,7 @@ class EmployeeScheduleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.updated_at")),
             ])
+            ->stackedOnMobile()
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
@@ -168,13 +169,13 @@ class EmployeeScheduleResource extends Resource
                     ->modalHeading(__('modals.force_delete.heading'))
                     ->modalDescription(__('modals.force_delete.description'))
                     ->color('danger'),
-                ])
-                ->toolbarActions([
-                    BulkActionGroup::make([
-                        DeleteBulkAction::make()
-                            ->modalHeading(__('modals.bulk.force_delete.heading'))
-                            ->modalDescription(__('modals.bulk.force_delete.description')),
-                    ]),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description')),
+                ]),
             ]);
     }
 

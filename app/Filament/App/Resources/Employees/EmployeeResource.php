@@ -418,6 +418,7 @@ class EmployeeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.deleted_at")),
             ])
+            ->stackedOnMobile()
             ->recordClasses(fn(Employee $record) => $record->trashed() ? 'is-trashed' : null)
             ->defaultSort('created_at', 'desc')
             ->filters([

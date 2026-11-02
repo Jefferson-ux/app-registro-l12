@@ -187,6 +187,7 @@ class BranchResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.deleted_at")),
             ])
+            ->stackedOnMobile()
             ->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make()

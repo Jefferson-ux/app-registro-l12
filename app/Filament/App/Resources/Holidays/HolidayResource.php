@@ -135,6 +135,7 @@ class HolidayResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct('fields.updated_at')),
             ])
+            ->stackedOnMobile()
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //

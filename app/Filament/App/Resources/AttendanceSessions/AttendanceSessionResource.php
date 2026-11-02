@@ -251,23 +251,23 @@ class AttendanceSessionResource extends Resource
                     ->label(traduct('fields.check_in_at'))
                     ->dateTime()
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => self::formatHumanTime($state)),
+                    ->formatStateUsing(fn($state) => self::formatHumanTime($state)),
                 TextColumn::make('check_out_at')
                     ->label(traduct('fields.check_out_at'))
                     ->dateTime()
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => self::formatHumanTime($state)),
+                    ->formatStateUsing(fn($state) => self::formatHumanTime($state)),
                 TextColumn::make('break_start_at')
                     ->label(traduct('fields.break_start_at'))
                     ->dateTime()
-                    ->formatStateUsing(fn ($state) => self::formatHumanTime($state))
+                    ->formatStateUsing(fn($state) => self::formatHumanTime($state))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('break_end_at')
                     ->label(traduct('fields.break_end_at'))
                     ->dateTime()
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => self::formatHumanTime($state))
+                    ->formatStateUsing(fn($state) => self::formatHumanTime($state))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('scheduled_minutes')
                     ->label(traduct('fields.scheduled_minutes'))
@@ -304,6 +304,7 @@ class AttendanceSessionResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->stackedOnMobile()
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Filter::make('employee_code_filter')
@@ -380,7 +381,7 @@ class AttendanceSessionResource extends Resource
 
         $date = \Carbon\Carbon::parse($state);
         $now = \Carbon\Carbon::now();
-        
+
         $diffInSeconds = (int) $date->diffInSeconds($now);
         $diffInMinutes = (int) $date->diffInMinutes($now);
         $diffInHours = (int) $date->diffInHours($now);
