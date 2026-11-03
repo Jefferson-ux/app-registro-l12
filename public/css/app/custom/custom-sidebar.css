@@ -69,7 +69,9 @@
 /* =================================================================
    MODO CLARO (Fondo oscuro, etiquetas limpias y activo corregido)
    ============================================================= */
-
+.fi-logo {
+    color:#cbd5e1
+}
 .fi-sidebar-nav,
 .fi-sidebar {
     background-color: #1e293b !important; /* Slate / Azul marino oscuro profesional */

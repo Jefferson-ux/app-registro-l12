@@ -105,6 +105,7 @@ class RegisterTenant extends SimplePage implements HasForms
                     ->label(traduct('fields.logo'))
                     ->image()
                     ->imageEditor()
+                    ->disk('public')
                     ->directory('tenants/logos')
                     ->hint('(Opcional)')
                     ->hintIcon(Heroicon::QuestionMarkCircle)
@@ -147,6 +148,9 @@ class RegisterTenant extends SimplePage implements HasForms
         $data = $this->form->getState();
 
         try {
+            if (isset($data['logo']) && is_array($data['logo'])) {
+                $data['logo'] = reset($data['logo']);
+            }
 
             $action->execute($data);
 

@@ -40,7 +40,7 @@ class AppPanelProvider extends PanelProvider
             ->login()
             ->font('Bricolage Grotesque')
             ->registration(RegisterTenant::class)
-            ->brandName("Panel Empresarial")
+            ->brandLogo(fn() => view('filament.app.brand'))
             ->profile(EditProfile::class)
             ->passwordReset()
             ->colors([
