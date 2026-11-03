@@ -182,6 +182,7 @@ class WorkScheduleResource extends Resource
                     ->label(traduct('fields.deleted_at')),
             ])
             ->stackedOnMobile()
+            ->recordClasses(fn(WorkSchedule $record) => $record->trashed() ? 'is-trashed' : null)
             ->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make()

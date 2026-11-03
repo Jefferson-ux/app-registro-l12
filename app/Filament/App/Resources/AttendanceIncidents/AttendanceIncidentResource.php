@@ -300,6 +300,7 @@ class AttendanceIncidentResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->stackedOnMobile()
+            ->recordClasses(fn(AttendanceIncident $record) => $record->trashed() ? 'is-trashed' : null)
             ->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make()

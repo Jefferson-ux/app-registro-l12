@@ -188,6 +188,7 @@ class BranchResource extends Resource
                     ->label(traduct("fields.deleted_at")),
             ])
             ->stackedOnMobile()
+            ->recordClasses(fn(Branch $record) => $record->trashed() ? 'is-trashed' : null)
             ->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make()
