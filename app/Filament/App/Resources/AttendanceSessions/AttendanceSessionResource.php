@@ -39,6 +39,7 @@ class AttendanceSessionResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
 
     protected static ?string $recordTitleAttribute = 'id';
+    public static bool $shouldRegisterGlobalSearch = false;
 
     protected static ?int $navigationSort = 4;
 

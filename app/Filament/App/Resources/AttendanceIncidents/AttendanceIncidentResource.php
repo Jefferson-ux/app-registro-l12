@@ -44,6 +44,7 @@ class AttendanceIncidentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedExclamationTriangle;
 
+    public static bool $shouldRegisterGlobalSearch = false;
     protected static ?string $recordTitleAttribute = 'id';
 
     protected static ?int $navigationSort = 6;

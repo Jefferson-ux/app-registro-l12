@@ -34,6 +34,7 @@ class HolidayResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSun;
 
     protected static ?string $recordTitleAttribute = 'name';
+    public static bool $shouldRegisterGlobalSearch = false;
 
     protected static ?int $navigationSort = 1;
 

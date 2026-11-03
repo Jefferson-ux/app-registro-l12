@@ -43,7 +43,8 @@ class WorkScheduleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'id';
+    public static bool $shouldRegisterGlobalSearch = false;
 
 
     protected static ?int $navigationSort = 1;

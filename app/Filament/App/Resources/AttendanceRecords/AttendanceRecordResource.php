@@ -33,6 +33,7 @@ class AttendanceRecordResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
     protected static ?string $recordTitleAttribute = 'id';
+    public static bool $shouldRegisterGlobalSearch = false;
 
 
     protected static ?int $navigationSort = 5;
