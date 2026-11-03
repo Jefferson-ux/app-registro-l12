@@ -119,60 +119,69 @@ tr.is-trashed {
 /* =================================================================
    ESTÉTICA EXCLUSIVA PARA FILAS APILADAS EN MÓVIL (->stackedOnMobile())
    ============================================================= */
+@media (max-width: 640px) {
 
-/* Solo actúa cuando las celdas o filas están en modo apilado responsivo */
-.fi-ta-stacked,
-.fi-ta-row.fi-ta-stacked {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-    padding: 1rem !important;
-    background-color: #ffffff !important;
-    border-radius: 12px !important;
-    margin-bottom: 0.75rem !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06) !important;
-    border: 1px solid #e5e7eb !important;
-    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
-}
+    /* Fila transformada en tarjeta */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row {
+        background-color: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 0.875rem !important;
+        margin-bottom: 0.875rem !important;
+        padding: 1.125rem !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 0.875rem !important;
+    }
 
-/* Modo oscuro para los elementos apilados */
-.dark .fi-ta-stacked,
-.dark .fi-ta-row.fi-ta-stacked {
-    background-color: #0f172a !important;
-    border: 1px solid #1e293b !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
-}
+    /* A partir de 560px en móvil, salta a 2 columnas */
+    @media (min-width: 560px) {
+        .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+    }
 
-/* Efecto sutil al tocar la tarjeta apilada en móvil */
-.fi-ta-stacked:active {
-    transform: scale(0.99);
-}
+    /* Celdas internas de la tarjeta */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row td,
+    .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row .fi-ta-cell {
+        display: flex !important;
+        flex-direction: column !important;
+        border: none !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
 
-/* Estilo estético para las etiquetas (labels) dentro del modo apilado */
-.fi-ta-stacked .fi-ta-text-item-label,
-.fi-ta-stacked .fi-ta-cell-label {
-    font-size: 0.7rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    color: #6b7280 !important;
-}
+    /* Ocultar cabeceras de tabla tradicional en móvil */
+    .fi-ta-table-stacked-header-row {
+        display: none !important;
+        }
 
-.dark .fi-ta-stacked .fi-ta-text-item-label,
-.dark .fi-ta-stacked .fi-ta-cell-label {
-    color: #9ca3af !important;
-}
 
-/* Separadores internos muy limpios entre los datos de la tarjeta apilada */
-.fi-ta-stacked .fi-ta-cell {
-    padding: 0.2rem 0 !important;
-    border-bottom: 1px solid #f3f4f6 !important;
-}
+    /* Forzar que la celda que contiene las acciones ocupe todo el ancho inferior */
+    .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row td:has(.fi-ta-actions),
+    .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row .fi-ta-cell:has(.fi-ta-actions) {
+        grid-column: 1 / -1 !important; /* Abarca desde la primera hasta la última columna del grid */
+        border-top: 1px solid #f1f5f9 !important; /* Línea separadora sutil arriba de los botones */
+        margin-top: 0.25rem !important;
+        padding-top: 0.75rem !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: flex-end !important; /* Alinea los botones hacia la derecha (puedes cambiarlo a 'space-between' o 'start') */
+        align-items: center !important;
+    }
 
-.dark .fi-ta-stacked .fi-ta-cell {
-    border-bottom: 1px solid #1e293b !important;
-}
+    /* Modo oscuro para la celda de acciones */
+    .dark .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row td:has(.fi-ta-actions),
+    .dark .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row .fi-ta-cell:has(.fi-ta-actions) {
+        border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    }
 
-/* Quitar la línea en el último elemento de la pila */
-.fi-ta-stacked .fi-ta-cell:last-child {
-    border-bottom: none !important;
-}
+        /* Modo oscuro en móvil */
+    .dark .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row {
+        background-color: #0b0f19 !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+
+
+    }
+
