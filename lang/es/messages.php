@@ -61,4 +61,10 @@ return [
         'confirm_text'  => 'Se cerrará tu sesión actual.',
         'cancel'        => 'Cancelar',
     ],
+    'logout_modal' => [
+        'heading'     => 'Cerrar sesión',
+        'description' => '¿Seguro que deseas cerrar sesión?',
+        'cancel'      => 'Cancelar',
+        'confirm'     => 'Cerrar sesión',
+    ],
 ];

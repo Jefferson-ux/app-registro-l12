@@ -1,0 +1,113 @@
+/* Igualar el color del Topbar con el del Sidebar */
+.fi-topbar {
+    background-color: #1e293b !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.dark .fi-topbar {
+    background-color: #030712 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Ocultar el texto "Panel Empresarial" manteniendo el logo intacto */
+.fi-sidebar-header span,
+.fi-sidebar-header p,
+.fi-sidebar-header h1 {
+    display: none !important;
+}
+
+.fi-sidebar-item-button,
+.fi-sidebar-item-btn {
+    border-radius: 0 !important;
+}
+.fi-sidebar-item.fi-active .fi-sidebar-item-button,
+.fi-sidebar-item.fi-active .fi-sidebar-item-btn{
+    border-radius: 0rem !important;
+}
+
+/* =================================================================
+   MODO OSCURO (Intacto, tal como lo tenías y funcionaba bien)
+   ============================================================= */
+
+.dark .fi-sidebar-nav,
+.dark .fi-sidebar {
+    background-color: #030712 !important; /* Negro medianoche */
+}
+
+.dark .fi-sidebar-group-btn {
+    border-bottom: 2px solid #ffffff !important;
+}
+
+.dark .fi-sidebar-item-button {
+    color: #ffffff !important;
+    transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+.dark .fi-sidebar-item-button:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+}
+
+.dark .fi-sidebar-item.fi-active .fi-sidebar-item-button {
+    background-color: #1d4ed8 !important;
+    color: #ffffff !important;
+}
+
+
+
+
+
+
+
+
+
+/* =================================================================
+   MODO CLARO (Fondo oscuro, etiquetas limpias y activo corregido)
+   ============================================================= */
+
+.fi-sidebar-nav,
+.fi-sidebar {
+    background-color: #1e293b !important; /* Slate / Azul marino oscuro profesional */
+}
+
+/* Color por defecto para las letras usando fi-sidebar-item-label */
+.fi-sidebar-item-label {
+    color: #cbd5e1 !important; /* Gris claro muy legible */
+    transition: color 0.15s ease !important;
+}
+
+.fi-sidebar-group-btn {
+    border-bottom: 2px solid #5555 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Hover en modo claro */
+.fi-sidebar-item-btn:hover  {
+    background-color: #445e87 !important;
+}
+
+.fi-sidebar-item-button:hover .fi-sidebar-item-label {
+    color: #d8d9dd !important; /* Blanco al pasar el cursor */
+}
+
+
+
+
+
+.fi-sidebar-item.fi-active,
+.fi-sidebar-item.fi-active .fi-sidebar-item-button,
+.fi-sidebar-item.fi-active a {
+    background-color: #2563eb !important;
+    border-radius: 0.5rem !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.fi-sidebar-item.fi-active .fi-sidebar-item-label {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+.fi-sidebar-item.fi-active .fi-sidebar-item-icon {
+    color: #ffffff !important;
+}

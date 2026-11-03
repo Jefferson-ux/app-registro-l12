@@ -1,0 +1,108 @@
+.theme-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #f4f4f5;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+
+html.dark .theme-loader {
+    background: #09090b;
+}
+
+.theme-loader.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    transition: none;
+}
+
+.tl-layout {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.tl-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 24px 16px;
+    background: #ffffff;
+    border-right: 1px solid rgba(100, 116, 139, 0.18);
+}
+
+html.dark .tl-sidebar {
+    background: #18181b;
+}
+
+.tl-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+    min-width: 0;
+}
+
+.tl-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.tl-block {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    background: rgba(100, 116, 139, 0.16);
+}
+
+.tl-block::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: tl-shimmer 1.3s ease-in-out infinite;
+}
+
+html.dark .tl-block::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.07), transparent);
+}
+
+.tl-logo   { height: 36px; width: 70%; margin-bottom: 10px; }
+.tl-item   { height: 18px; }
+.tl-item--short { width: 65%; }
+.tl-topbar { height: 48px; }
+.tl-card   { height: 110px; }
+.tl-table  { flex: 1; min-height: 240px; }
+
+@keyframes tl-shimmer {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@media (max-width: 1024px) {
+    .tl-sidebar {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .tl-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tl-block::after {
+        animation: none;
+    }
+}

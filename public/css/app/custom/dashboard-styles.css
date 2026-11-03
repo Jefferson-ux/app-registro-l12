@@ -1,0 +1,92 @@
+/* =================================================================
+   ESTILO TARJETAS STATS
+   ============================================================= */
+
+/* Importar una fuente moderna y estilizada desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* Aplicar la fuente globalmente a las tarjetas estadísticas */
+.stat-card-employee-count,
+.stat-card-absent-count,
+.stat-card-late-count,
+.stat-card-present-count,
+.stat-card-leave-count,
+.stat-card-incomplete-count {
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    border-radius: 10px !important;
+    border: none !important; /* Sin bordes cortantes, estilo bloque limpio */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+    color: #ffffff !important; /* Textos blancos por defecto para contraste total */
+    overflow: hidden !important;
+}
+
+/* Efecto hover al pasar el cursor */
+.stat-card-employee-count:hover,
+.stat-card-absent-count:hover,
+.stat-card-late-count:hover,
+.stat-card-present-count:hover,
+.stat-card-leave-count:hover,
+.stat-card-incomplete-count:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-2px);
+}
+
+/* Forzar que los textos y números dentro de las tarjetas sean blancos y nítidos */
+.stat-card-employee-count *,
+.stat-card-absent-count *,
+.stat-card-late-count *,
+.stat-card-present-count *,
+.stat-card-leave-count *,
+.stat-card-incomplete-count * {
+    color: #ffffff !important;
+}
+
+
+/* 1. Total de Empleados (Degradado Azul / Celeste) */
+.stat-card-employee-count {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+}
+.dark .stat-card-employee-count {
+    background: linear-gradient(135deg, #1e40af 0%, #0f172a 100%) !important;
+}
+
+/* 2. Ausentes (Degradado Coral / Rojo vibrante) */
+.stat-card-absent-count {
+    background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%) !important;
+}
+.dark .stat-card-absent-count {
+    background: linear-gradient(135deg, #9f1239 0%, #4c0519 100%) !important;
+}
+
+/* 3. Tardanzas (Degradado Ámbar / Naranja cálido) */
+.stat-card-late-count {
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+}
+.dark .stat-card-late-count {
+    background: linear-gradient(135deg, #b45309 0%, #451a03 100%) !important;
+}
+
+/* 4. Presentes (Degradado Esmeralda / Verde Menta) */
+.stat-card-present-count {
+    background: linear-gradient(135deg, #34d399 0%, #059669 100%) !important;
+}
+.dark .stat-card-present-count {
+    background: linear-gradient(135deg, #065f46 0%, #022c22 100%) !important;
+}
+
+/* 5. Permisos / Licencias (Degradado Gris Pizarra Neutro) */
+.stat-card-leave-count {
+    background: linear-gradient(135deg, #94a3b8 0%, #475569 100%) !important;
+}
+.dark .stat-card-leave-count {
+    background: linear-gradient(135deg, #334155 0%, #0f172a 100%) !important;
+}
+
+/* 6. Incompletos / Pendientes (Degradado Violeta / Índigo) */
+.stat-card-incomplete-count {
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%) !important;
+}
+.dark .stat-card-incomplete-count {
+    background: linear-gradient(135deg, #5b21b6 0%, #2e1065 100%) !important;
+}

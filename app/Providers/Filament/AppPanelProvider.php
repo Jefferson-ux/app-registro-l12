@@ -17,6 +17,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -27,6 +28,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\App\Pages\AppDashboard;
+use Filament\View\PanelsRenderHook;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -36,12 +38,13 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
+            ->font('Bricolage Grotesque')
             ->registration(RegisterTenant::class)
             ->brandName("Panel Empresarial")
             ->profile(EditProfile::class)
             ->passwordReset()
             ->colors([
-                'primary' => "#2ec411",
+                'primary' => "#0ea5e9",
                 'danger' => Color::Red,
                 'gray' => Color::Zinc,
                 'info' => Color::Blue,
@@ -53,6 +56,11 @@ class AppPanelProvider extends PanelProvider
             ->assets([
                 // Registras tu archivo CSS plano directamente
                 Css::make('custom-table-styles', asset('css/app/custom/custom-table.css')),
+                Css::make('theme-loader', asset('css/app/ui/theme-loader.css')),
+                Css::make('dashboard-styles', asset('css/app/custom/dashboard-styles.css')),
+                Css::make('custom-sidebar-styles', asset('css/app/custom/custom-sidebar.css')),
+                Css::make('custom-scroll-styles', asset('css/app/custom/custom-scroll.css')),
+                Js::make('theme-loader', asset('js/app/ui/theme-loader.js')),
             ])
 
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
@@ -97,6 +105,10 @@ class AppPanelProvider extends PanelProvider
                     ->label(fn() => app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español')
                     ->icon('heroicon-o-language')
                     ->url(fn() => route('lang.switch', app()->getLocale() === 'es' ? 'en' : 'es')),
-            ]);
+            ])
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn() => view('filament.hooks.logout-confirm-modal'),
+            );
     }
 }

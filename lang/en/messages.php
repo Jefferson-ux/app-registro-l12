@@ -56,4 +56,10 @@ return [
         'confirm_text'  => 'Your current session will be closed.',
         'cancel'        => 'Cancel',
     ],
+    'logout_modal' => [
+        'heading'     => 'Log out',
+        'description' => 'Are you sure you want to log out?',
+        'cancel'      => 'Cancel',
+        'confirm'     => 'Log out',
+    ],
 ];

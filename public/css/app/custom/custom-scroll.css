@@ -1,0 +1,52 @@
+/* =================================================================
+   PERSONALIZACIÓN DE SCROLLBARS (MODO MODERNO Y DELGADO)
+   ============================================================= */
+
+/* --- 1. NAVEGADORES WEBKIT (Chrome, Edge, Safari, Opera) --- */
+
+/* Ancho general de la barra de desplazamiento */
+::-webkit-scrollbar {
+    width: 6px !important;  /* Barra vertical más delgada */
+    height: 6px !important; /* Barra horizontal más delgada */
+}
+
+/* El fondo (track) por donde se desliza la barra */
+::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+/* El "puchito" o indicador que se arrastra (Modo Claro) */
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1 !important; /* Gris pizarra suave */
+    border-radius: 9999px !important; /* Totalmente redondeado estilo píldora */
+}
+
+/* Hover sobre la barra de desplazamiento (Modo Claro) */
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8 !important; /* Un poco más oscuro al pasar el cursor */
+}
+
+
+/* --- 2. NAVEGADORES WEBKIT - MODO OSCURO --- */
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #334155 !important; /* Gris azulado oscuro sutil */
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #475569 !important; /* Resalta al pasar el cursor en oscuro */
+}
+
+
+/* --- 3. FIREFOX (Soporte estándar moderno) --- */
+* {
+    /* thin = delgada | auto = normal */
+    scrollbar-width: thin !important;
+
+    /* color del thumb y del track respectivamente */
+    scrollbar-color: #cbd5e1 transparent !important;
+}
+
+.dark * {
+    scrollbar-color: #334155 transparent !important;
+}
