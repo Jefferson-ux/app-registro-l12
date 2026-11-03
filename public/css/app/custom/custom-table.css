@@ -1,3 +1,100 @@
+/* =================================================================
+   ESTILOS DE TABLA - MODO CLARO Y OSCURO
+   ============================================================= */
+
+/* --- MODO CLARO --- */
+.fi-ta-ctn {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+    background-color: #ffffff !important;
+    overflow: hidden !important;
+}
+
+
+thead .fi-ta-selection-cell,
+thead .fi-ta-actions-header-cell,
+thead .fi-ta-empty-header-cell,
+thead .fi-ta-header-cell {
+    background-color: #bed5eb !important;
+    border-bottom: 2px solid #0ea5e9 !important; /* Reemplaza el rojo por #0ea5e9 */
+}
+.fi-ta-header-toolbar,
+.fi-ta-filter-indicators {
+    background-color:#bed5eb !important;
+}
+
+.fi-ta-header-cell label,
+.fi-ta-header-cell span {
+    color: #0ea5e9 !important; /* Texto de la cabecera en #0ea5e9 */
+    font-weight: 600 !important;
+}
+
+.fi-ta-row {
+    transition: background-color 0.15s ease !important;
+}
+
+.fi-ta-row:hover {
+    background-color: #f1f5f9 !important;
+}
+
+.fi-ta-row td {
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding-top: 0.875rem !important;
+    padding-bottom: 0.875rem !important;
+}
+
+
+/* --- MODO OSCURO --- */
+.dark .fi-ta-ctn {
+    background-color: #0b0f19 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: none !important;
+}
+
+
+
+
+
+
+
+.dark thead .fi-ta-selection-cell,
+.dark thead .fi-ta-actions-header-cell,
+.dark thead .fi-ta-empty-header-cell,
+.dark thead .fi-ta-header-cell {
+    background-color: #030712 !important;
+    border-bottom: 2px solid rgba(128, 201, 226, 0.521) !important;
+}
+.dark .fi-ta-header-toolbar,
+.dark .fi-ta-filter-indicators {
+    background-color: #030712 !important;
+}
+
+.dark .fi-ta-header-cell label,
+.dark .fi-ta-header-cell span {
+    color: #94a3b8 !important; /* Texto claro legible para cabeceras oscuras */
+}
+
+.dark .fi-ta-row:hover {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark .fi-ta-row td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: #e2e8f0 !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -12,13 +109,6 @@ tr.is-trashed {
     background-color: rgba(71, 85, 105, 0.25) !important;
     opacity: 0.5;
 }
-
-
-
-
-
-
-
 
 
 

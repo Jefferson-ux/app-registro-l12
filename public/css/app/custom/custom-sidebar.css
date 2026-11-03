@@ -25,6 +25,11 @@
     border-radius: 0rem !important;
 }
 
+.fi-sidebar-group-label {
+    font-weight: 900 !important;
+    font-size: 1.08rem !important;
+}
+
 /* =================================================================
    MODO OSCURO (Intacto, tal como lo tenías y funcionaba bien)
    ============================================================= */
