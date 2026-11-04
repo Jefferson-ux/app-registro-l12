@@ -37,6 +37,9 @@ Route::prefix('v1')->group(function () {
         // api ==> GET http::/api/v1/attendance/mark
         Route::post('/attendance/mark', [AttendanceController::class, 'mark'])->name('attendance-mark');
 
+        // api ==> GET http::/api/v1/attendance/mark-by-face
+        Route::post('/attendance/mark-by-face', [AttendanceController::class, 'markByFace'])->name('attendance-mark');
+
         // api ==> GET http::/api/v1/attendance/today/{code}
         Route::get('/attendance/today/{code}', [AttendanceController::class, 'attendanceToday'])->name('get-attendance-today');
 

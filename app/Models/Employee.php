@@ -33,11 +33,14 @@ class Employee extends Model
         'employment_status',
     ];
 
+    protected $hidden = ['face_descriptor'];
+
     protected function casts(): array
     {
         return [
             'hire_date' => 'date',
             'termination_date' => 'date',
+            'face_descriptor' => 'encrypted:array',
         ];
     }
 
