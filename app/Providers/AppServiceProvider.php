@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Listeners\UpdateLastLoginAt;
+use App\Models\Employee;
+use App\Observers\EmployeeObserver;
 use Filament\Auth\Pages\Login;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -30,5 +32,6 @@ class AppServiceProvider extends ServiceProvider
             Login::class,
             UpdateLastLoginAt::class
         );
+        Employee::observe(EmployeeObserver::class);
     }
 }

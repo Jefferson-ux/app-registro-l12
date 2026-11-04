@@ -20,6 +20,7 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -34,6 +35,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeResource extends Resource
 {
@@ -68,6 +70,7 @@ class EmployeeResource extends Resource
     {
         return $schema
             ->components([
+                
                 Select::make('user_id')
                     ->relationship('user', 'name')
                     ->default(null)
@@ -325,6 +328,19 @@ class EmployeeResource extends Resource
                     ->dateTime()
                     ->visible(fn(Employee $record): bool => $record->trashed())
                     ->label(traduct("fields.deleted_at")),
+                ImageEntry::make('qr_image_path')
+                    ->label('Código QR')
+                    ->state(function (Employee $record): ?string {
+                        if (! $record->qr_image_path || ! Storage::disk('local')->exists($record->qr_image_path)) {
+                            return null;
+                        }
+
+                        return 'data:image/png;base64,' . base64_encode(
+                            Storage::disk('local')->get($record->qr_image_path)
+                        );
+                    })
+                    ->imageWidth(200)
+                    ->imageHeight(200),
             ]);
     }
 
