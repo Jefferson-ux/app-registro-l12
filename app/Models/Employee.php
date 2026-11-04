@@ -31,6 +31,9 @@ class Employee extends Model
         'hire_date',
         'termination_date',
         'employment_status',
+        'face_photo_path',
+        'face_descriptor',
+        'qr_image_path',
     ];
 
     protected $hidden = ['face_descriptor'];
