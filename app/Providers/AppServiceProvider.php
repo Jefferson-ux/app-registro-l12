@@ -25,9 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-            Gate::before(function ($user, $ability) {
-        return $user->email === config('app.super_admin_email') ? true : null;
-            });
+        Gate::before(function ($user, $ability) {
+            return $user->email === config('app.super_admin_email') ? true : null;
+        });
         Event::listen(
             Login::class,
             UpdateLastLoginAt::class

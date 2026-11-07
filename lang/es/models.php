@@ -83,5 +83,9 @@ return [
         'singular' => 'Día de turno',
         'plural' => 'Días de turno',
     ],
+    'user_session' => [
+        'singular' => 'Sesión de usuario',
+        'plural' => 'Sesiones de usuario',
+    ],
 
 ];
