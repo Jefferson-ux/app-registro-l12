@@ -109,6 +109,7 @@ class AttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'No puedes registrar asistencia porque no cuentas con un contrato o periodo de horario activo en el sistema.',
+                'employee' => new EmployeeResource($employee),
             ], 403); // 422 Unprocessable Content
         }
 
@@ -117,6 +118,7 @@ class AttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Hoy no es un día laborable asignado en tu jornada de trabajo actual.',
+                'employee' => new EmployeeResource($employee),
             ], 403);
         }
 
@@ -127,6 +129,7 @@ class AttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
+                'employee' => new EmployeeResource($employee),
             ], $e->status);
         }
 
@@ -142,69 +145,67 @@ class AttendanceController extends Controller
 
 
     public function markByFace(FaceMarkRequest $request, FaceMatcher $matcher, MarkAttendanceAction $markAttendance)
-{
-    $match = $matcher->match(
-        $request->input('face_descriptor'),
-        $request->user()->tenant_id
-    );
+    {
+        $match = $matcher->match(
+            $request->input('face_descriptor'),
+            $request->user()->tenant_id
+        );
 
-    if (!$match) {
-        Log::channel('face')->warning('Rostro no reconocido', ['ip' => $request->ip()]);
+        if (!$match) {
+            Log::channel('face')->warning('Rostro no reconocido', ['ip' => $request->ip()]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Rostro no reconocido',
+            ], 404);
+        }
+
+        $employee = $match['employee'];
+
+        Log::channel('face')->info('Marcación facial', [
+            'employee_id' => $employee->id,
+            'distance'    => round($match['distance'], 4),
+        ]);
+
+        // Hacemos que el request "parezca" un QR
+        $request->merge(['employee_code' => $employee->employee_code]);
+
+        // Mismos filtros que mark()
+        $scheduleAnalysis = $employee->todayScheduleAnalysis();
+
+        if (!$scheduleAnalysis['has_active_contract']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No puedes registrar asistencia porque no cuentas con un contrato o periodo de horario activo en el sistema.',
+                'employee' => new EmployeeResource($employee),
+            ], 403);
+        }
+
+        if (!$scheduleAnalysis['is_working_day_today']) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hoy no es un día laborable asignado en tu jornada de trabajo actual.',
+                'employee' => new EmployeeResource($employee),
+            ], 403);
+        }
+
+        try {
+            $result = $markAttendance->execute($request);
+        } catch (AttendanceException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'employee' => new EmployeeResource($employee),
+            ], $e->status);
+        }
 
         return response()->json([
-            'success' => false,
-            'message' => 'Rostro no reconocido',
-        ], 404);
+            'success' => true,
+            'message' => $result['message'],
+            'data' => [
+                'employee'   => new EmployeeResource($result['employee']),
+                'attendance' => new MarkResource($result['session']),
+            ],
+        ]);
     }
-
-    $employee = $match['employee'];
-
-    Log::channel('face')->info('Marcación facial', [
-        'employee_id' => $employee->id,
-        'distance'    => round($match['distance'], 4),
-    ]);
-
-    // Hacemos que el request "parezca" un QR
-    $request->merge(['employee_code' => $employee->employee_code]);
-
-    // Mismos filtros que mark()
-    $scheduleAnalysis = $employee->todayScheduleAnalysis();
-
-    if (!$scheduleAnalysis['has_active_contract']) {
-        return response()->json([
-            'success' => false,
-            'message' => 'No puedes registrar asistencia porque no cuentas con un contrato o periodo de horario activo en el sistema.',
-        ], 403);
-    }
-
-    if (!$scheduleAnalysis['is_working_day_today']) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Hoy no es un día laborable asignado en tu jornada de trabajo actual.',
-        ], 403);
-    }
-
-    try {
-        $result = $markAttendance->execute($request);
-    } catch (AttendanceException $e) {
-        return response()->json([
-            'success' => false,
-            'message' => $e->getMessage(),
-        ], $e->status);
-    }
-
-    return response()->json([
-        'success' => true,
-        'message' => $result['message'],
-        'data' => [
-            'employee'   => new EmployeeResource($result['employee']),
-            'attendance' => new MarkResource($result['session']),
-        ],
-    ]);
 }
-    
-}
-
-
-
-
