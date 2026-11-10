@@ -73,195 +73,188 @@ class EmployeeResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        // Dentro de tu método form(Schema $schema): Schema
         return $schema
             ->components([
                 Tabs::make('Formulario de Empleado')
+                    ->columnSpanFull()
                     ->tabs([
                         // PESTAÑA 1: Datos Personales y de Contacto
                         Tabs\Tab::make('Datos Personales')
                             ->schema([
-                                Grid::make(2) // Distribuye en 2 columnas
-                                    ->schema([
-                                        Select::make('document_type')
-                                            ->label(__('fields.document_type'))
-                                            ->options([
-                                                'dni'      => 'DNI',
-                                                'ruc'      => 'RUC',
-                                                'ce'       => 'Carné de extranjería',
-                                                'passport' => 'Pasaporte',
-                                                'other'    => 'Otro',
-                                            ])
-                                            ->live()
-                                            ->afterStateUpdated(fn(Set $set) => $set('document_number', null)),
-                                        TextInput::make('document_number')
-                                            ->label(__('fields.document_number'))
-                                            ->regex(fn(Get $get): string => match ($get('document_type')) {
-                                                'dni'      => Regex::DOC_DNI,
-                                                'ruc'      => Regex::TAX_ID_PE,
-                                                'ce'       => Regex::DOC_CE,
-                                                'passport' => Regex::DOC_PASSPORT,
-                                                default    => Regex::DOC_OTHER,
-                                            })
-                                            ->maxLength(fn(Get $get): int => match ($get('document_type')) {
-                                                'dni'   => 8,
-                                                'ruc'   => 11,
-                                                default => 50,
-                                            })
-                                            ->default(null)
-                                            ->dehydrateStateUsing(fn(?string $state) => $state ? strtoupper($state) : null)
-                                            ->validationMessages(['regex' => 'El formato no corresponde al tipo de documento seleccionado.']),
-                                        TextInput::make('first_name')
-                                            ->required()
-                                            ->maxLength(100)
-                                            ->regex(Regex::PERSON_NAME)
-                                            ->label(traduct("fields.first_name")),
-                                        TextInput::make('last_name')
-                                            ->required()
-                                            ->regex(Regex::PERSON_NAME)
-                                            ->maxLength(100)
-                                            ->label(traduct("fields.last_name")),
-                                        TextInput::make('personal_email')
-                                            ->email()
-                                            ->default(null)
-                                            ->maxLength(150)
-                                            ->label(traduct("fields.personal_email")),
-                                        TextInput::make('work_email')
-                                            ->email()
-                                            ->default(null)
-                                            ->maxLength(150)
-                                            ->label(traduct("fields.work_email")),
-                                        TextInput::make('phone')
-                                            ->tel()
-                                            ->regex(Regex::PHONE)
-                                            ->default(null)
-                                            ->maxLength(50)
-                                            ->label(traduct("fields.phone")),
-                                    ]),
+                                Select::make('document_type')
+                                    ->label(__('fields.document_type'))
+                                    ->options([
+                                        'dni'      => 'DNI',
+                                        'ruc'      => 'RUC',
+                                        'ce'       => 'Carné de extranjería',
+                                        'passport' => 'Pasaporte',
+                                        'other'    => 'Otro',
+                                    ])
+                                    ->live()
+                                    ->afterStateUpdated(fn(Set $set) => $set('document_number', null)),
+                                TextInput::make('document_number')
+                                    ->label(__('fields.document_number'))
+                                    ->regex(fn(Get $get): string => match ($get('document_type')) {
+                                        'dni'      => Regex::DOC_DNI,
+                                        'ruc'      => Regex::TAX_ID_PE,
+                                        'ce'       => Regex::DOC_CE,
+                                        'passport' => Regex::DOC_PASSPORT,
+                                        default    => Regex::DOC_OTHER,
+                                    })
+                                    ->maxLength(fn(Get $get): int => match ($get('document_type')) {
+                                        'dni'   => 8,
+                                        'ruc'   => 11,
+                                        default => 50,
+                                    })
+                                    ->default(null)
+                                    ->dehydrateStateUsing(fn(?string $state) => $state ? strtoupper($state) : null)
+                                    ->validationMessages(['regex' => 'El formato no corresponde al tipo de documento seleccionado.']),
+                                TextInput::make('first_name')
+                                    ->required()
+                                    ->maxLength(100)
+                                    ->regex(Regex::PERSON_NAME)
+                                    ->label(traduct("fields.first_name")),
+                                TextInput::make('last_name')
+                                    ->required()
+                                    ->regex(Regex::PERSON_NAME)
+                                    ->maxLength(100)
+                                    ->label(traduct("fields.last_name")),
+                                TextInput::make('personal_email')
+                                    ->email()
+                                    ->default(null)
+                                    ->maxLength(150)
+                                    ->label(traduct("fields.personal_email")),
+                                TextInput::make('work_email')
+                                    ->email()
+                                    ->default(null)
+                                    ->maxLength(150)
+                                    ->label(traduct("fields.work_email")),
+                                TextInput::make('phone')
+                                    ->tel()
+                                    ->regex(Regex::PHONE)
+                                    ->default(null)
+                                    ->maxLength(50)
+                                    ->label(traduct("fields.phone")),
                             ]),
 
-                        // PESTAÑA 2: Organización (con los campos de fechas y situación laboral integrados)
+                        // PESTAÑA 2: Organización
                         Tabs\Tab::make('Organización')
                             ->schema([
-                                Grid::make(2) // Distribuye en 2 columnas
-                                    ->schema([
-                                        Select::make('user_id')
-                                            ->relationship('user', 'name')
-                                            ->default(null)
-                                            ->label(traduct("fields.user")),
-                                        Select::make('branch_id')
-                                            ->relationship('branch', 'name')
-                                            ->default(null)
-                                            ->label(traduct("fields.branch")),
-                                        Select::make('department_id')
-                                            ->relationship('department', 'name')
-                                            ->default(null)
-                                            ->label(traduct("fields.department")),
-                                        Select::make('position_id')
-                                            ->relationship('position', 'name')
-                                            ->reactive()
-                                            ->default(null)
-                                            ->label(traduct("fields.position"))
-                                            ->afterStateUpdated(function (mixed $state, Set $set, ?Employee $record) {
-                                                if (!$state) {
-                                                    $set('employee_code', null);
-                                                    return;
-                                                }
+                                Select::make('user_id')
+                                    ->relationship('user', 'name')
+                                    ->default(null)
+                                    ->label(traduct("fields.user")),
+                                Select::make('branch_id')
+                                    ->relationship('branch', 'name')
+                                    ->default(null)
+                                    ->label(traduct("fields.branch")),
+                                Select::make('department_id')
+                                    ->relationship('department', 'name')
+                                    ->default(null)
+                                    ->label(traduct("fields.department")),
+                                Select::make('position_id')
+                                    ->relationship('position', 'name')
+                                    ->reactive()
+                                    ->default(null)
+                                    ->label(traduct("fields.position"))
+                                    ->afterStateUpdated(function (mixed $state, Set $set, ?Employee $record) {
+                                        if (!$state) {
+                                            $set('employee_code', null);
+                                            return;
+                                        }
 
-                                                $position = Position::find($state);
+                                        $position = Position::find($state);
 
-                                                if (!$position || empty($position->prefix)) {
-                                                    $set('employee_code', null);
-                                                    return;
-                                                }
+                                        if (!$position || empty($position->prefix)) {
+                                            $set('employee_code', null);
+                                            return;
+                                        }
 
-                                                $prefix = strtoupper(trim($position->prefix));
-                                                $tenantId = filament()->getTenant()?->id;
+                                        $prefix = strtoupper(trim($position->prefix));
+                                        $tenantId = filament()->getTenant()?->id;
 
-                                                $query = Employee::where('employee_code', 'like', "{$prefix}-%")
-                                                    ->withTrashed();
+                                        $query = Employee::where('employee_code', 'like', "{$prefix}-%")
+                                            ->withTrashed();
 
-                                                if ($tenantId) {
-                                                    $query->where('tenant_id', $tenantId);
-                                                }
+                                        if ($tenantId) {
+                                            $query->where('tenant_id', $tenantId);
+                                        }
 
-                                                if ($record && $record->exists) {
-                                                    $query->where('id', '!=', $record->id);
-                                                }
+                                        if ($record && $record->exists) {
+                                            $query->where('id', '!=', $record->id);
+                                        }
 
-                                                $existingCodes = $query->pluck('employee_code');
+                                        $existingCodes = $query->pluck('employee_code');
 
-                                                $maxNumber = 0;
-                                                foreach ($existingCodes as $code) {
-                                                    $parts = explode('-', $code);
-                                                    $number = intval(end($parts));
-                                                    if ($number > $maxNumber) {
-                                                        $maxNumber = $number;
-                                                    }
-                                                }
+                                        $maxNumber = 0;
+                                        foreach ($existingCodes as $code) {
+                                            $parts = explode('-', $code);
+                                            $number = intval(end($parts));
+                                            if ($number > $maxNumber) {
+                                                $maxNumber = $number;
+                                            }
+                                        }
 
-                                                $sequence = $maxNumber + 1;
-                                                $set('employee_code', sprintf('%s-%03d', $prefix, $sequence));
-                                            }),
-                                        Select::make('supervisor_id')
-                                            ->relationship(
-                                                'supervisor',
-                                                'id',
-                                                modifyQueryUsing: fn(Builder $query, ?Employee $record) => $record
-                                                    ? $query->where('id', '!=', $record->id)
-                                                    : $query
-                                            )
-                                            ->default(null)
-                                            ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}")
-                                            ->searchable(['first_name', 'last_name'])
-                                            ->preload()
-                                            ->label(traduct("fields.supervisor")),
-                                        TextInput::make('employee_code')
-                                            ->required()
-                                            ->maxLength(50)
-                                            ->regex(Regex::CODE)
-                                            ->unique(
-                                                table: 'employees',
-                                                column: 'employee_code',
-                                                ignoreRecord: true,
-                                                modifyRuleUsing: function ($rule, callable $get) {
-                                                    return $rule->where('tenant_id', $get('tenant_id') ?? auth()->user()->tenant_id);
-                                                }
-                                            )
-                                            ->dehydrated()
-                                            ->helperText('Se genera automáticamente según el prefijo del cargo seleccionado.')
-                                            ->label(traduct("fields.employee_code")),
-                                        DatePicker::make('hire_date')
-                                            ->displayFormat('d/m/Y')
-                                            ->native(false)
-                                            ->label(traduct("fields.hire_date")),
-                                        DatePicker::make('termination_date')
-                                            ->displayFormat('d/m/Y')
-                                            ->native(false)
-                                            ->label(traduct("fields.termination_date")),
-                                        Select::make('employment_status')
-                                            ->options([
-                                                'active' => traduct('status.active'),
-                                                'inactive' => traduct('status.inactive'),
-                                                'suspended' => traduct('status.suspended'),
-                                                'terminated' => traduct('status.terminated'),
-                                            ])
-                                            ->default('active')
-                                            ->required()
-                                            ->label(traduct("fields.employment_status")),
-                                    ]),
+                                        $sequence = $maxNumber + 1;
+                                        $set('employee_code', sprintf('%s-%03d', $prefix, $sequence));
+                                    }),
+                                Select::make('supervisor_id')
+                                    ->relationship(
+                                        'supervisor',
+                                        'id',
+                                        modifyQueryUsing: fn(Builder $query, ?Employee $record) => $record
+                                            ? $query->where('id', '!=', $record->id)
+                                            : $query
+                                    )
+                                    ->default(null)
+                                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}")
+                                    ->searchable(['first_name', 'last_name'])
+                                    ->preload()
+                                    ->label(traduct("fields.supervisor")),
+                                TextInput::make('employee_code')
+                                    ->required()
+                                    ->maxLength(50)
+                                    ->regex(Regex::CODE)
+                                    ->unique(
+                                        table: 'employees',
+                                        column: 'employee_code',
+                                        ignoreRecord: true,
+                                        modifyRuleUsing: function ($rule, callable $get) {
+                                            return $rule->where('tenant_id', $get('tenant_id') ?? auth()->user()->tenant_id);
+                                        }
+                                    )
+                                    ->dehydrated()
+                                    ->helperText('Se genera automáticamente según el prefijo del cargo seleccionado.')
+                                    ->label(traduct("fields.employee_code")),
+                                DatePicker::make('hire_date')
+                                    ->displayFormat('d/m/Y')
+                                    ->native(false)
+                                    ->label(traduct("fields.hire_date")),
+                                DatePicker::make('termination_date')
+                                    ->displayFormat('d/m/Y')
+                                    ->native(false)
+                                    ->label(traduct("fields.termination_date")),
+                                Select::make('employment_status')
+                                    ->options([
+                                        'active'     => traduct('status.active'),
+                                        'inactive'   => traduct('status.inactive'),
+                                        'suspended'  => traduct('status.suspended'),
+                                        'terminated' => traduct('status.terminated'),
+                                    ])
+                                    ->default('active')
+                                    ->required()
+                                    ->label(traduct("fields.employment_status")),
                             ]),
 
-                        // PESTAÑA 3: Vacía (para futuros campos)
+                        // PESTAÑA 3: Adicional
                         Tabs\Tab::make('Adicional')
                             ->schema([
                                 ViewField::make('face_payload')
                                     ->view('filament.forms.face-capture')
-                                    ->dehydrated(),
+                                    ->dehydrated()
+                                    ->columnSpanFull(),
                             ]),
-                    ])
-                    ->columnSpanFull(),
-
+                    ]),
             ]);
     }
 
@@ -269,94 +262,108 @@ class EmployeeResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label('Tenant')
-                    ->label(traduct("fields.tenant")),
-                TextEntry::make('user.name')
-                    ->label('User')
-                    ->placeholder('-')
-                    ->label(traduct("fields.user")),
-                TextEntry::make('branch.name')
-                    ->label('Branch')
-                    ->placeholder('-')
-                    ->label(traduct("fields.branch")),
-                TextEntry::make('department.name')
-                    ->label('Department')
-                    ->placeholder('-')
-                    ->label(traduct("fields.department")),
-                TextEntry::make('position.name')
-                    ->label('Position')
-                    ->placeholder('-')
-                    ->label(traduct("fields.position")),
-                TextEntry::make('supervisor.id')
-                    ->label('Supervisor')
-                    ->placeholder('-')
-                    ->label(traduct("fields.supervisor")),
-                TextEntry::make('employee_code')
-                    ->label(traduct("fields.employee_code")),
-                TextEntry::make('document_type')
-                    ->placeholder('-')
-                    ->label(traduct("fields.document_type")),
-                TextEntry::make('document_number')
-                    ->placeholder('-')
-                    ->label(traduct("fields.document_number")),
-                TextEntry::make('first_name')
-                    ->label(traduct("fields.first_name")),
-                TextEntry::make('last_name')
-                    ->label(traduct("fields.last_name")),
-                TextEntry::make('personal_email')
-                    ->placeholder('-')
-                    ->label(traduct("fields.personal_email")),
-                TextEntry::make('work_email')
-                    ->placeholder('-')
-                    ->label(traduct("fields.work_email")),
-                TextEntry::make('phone')
-                    ->placeholder('-')
-                    ->label(traduct("fields.phone")),
-                TextEntry::make('hire_date')
-                    ->date()
-                    ->placeholder('-')
-                    ->label(traduct("fields.hire_date")),
-                TextEntry::make('termination_date')
-                    ->date()
-                    ->placeholder('-')
-                    ->label(traduct("fields.termination_date")),
-                TextEntry::make('employment_status')
-                    ->badge()
-                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
-                    ->color(fn(string $state): string => match ($state) {
-                        'active' => 'success',
-                        'inactive' => 'warning',
-                        'suspended' => 'warning',
-                        'terminated' => 'danger',
-                        default => 'gray',
-                    })
-                    ->label(traduct("fields.employment_status")),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.created_at")),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.updated_at")),
-                TextEntry::make('deleted_at')
-                    ->dateTime()
-                    ->visible(fn(Employee $record): bool => $record->trashed())
-                    ->label(traduct("fields.deleted_at")),
-                ImageEntry::make('qr_image_path')
-                    ->label('Código QR')
-                    ->state(function (Employee $record): ?string {
-                        if (! $record->qr_image_path || ! Storage::disk('local')->exists($record->qr_image_path)) {
-                            return null;
-                        }
+                Tabs::make('Empleado')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make(traduct("sections.personal_data"))
+                            ->icon(Heroicon::OutlinedUser)
+                            ->columns(2)
+                            ->schema([
+                                TextEntry::make('first_name')
+                                    ->label(traduct("fields.first_name")),
+                                TextEntry::make('last_name')
+                                    ->label(traduct("fields.last_name")),
+                                TextEntry::make('document_type')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.document_type")),
+                                TextEntry::make('document_number')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.document_number")),
+                                TextEntry::make('personal_email')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.personal_email")),
+                                TextEntry::make('phone')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.phone")),
+                            ]),
 
-                        return 'data:image/png;base64,' . base64_encode(
-                            Storage::disk('local')->get($record->qr_image_path)
-                        );
-                    })
-                    ->imageWidth(200)
-                    ->imageHeight(200),
+                        Tab::make(traduct("sections.company_data"))
+                            ->icon(Heroicon::OutlinedBuildingOffice2)
+                            ->columns(3)
+                            ->schema([
+                                TextEntry::make('employee_code')
+                                    ->label(traduct("fields.employee_code")),
+                                TextEntry::make('user.name')
+                                    ->placeholder(__('empty.user'))
+                                    ->label(traduct("fields.user")),
+                                TextEntry::make('branch.name')
+                                    ->placeholder(__('empty.branch'))
+                                    ->label(traduct("fields.branch")),
+                                TextEntry::make('department.name')
+                                    ->placeholder(__('empty.department'))
+                                    ->label(traduct("fields.department")),
+                                TextEntry::make('position.name')
+                                    ->placeholder(__('empty.position'))
+                                    ->label(traduct("fields.position")),
+                                TextEntry::make('supervisor.id')
+                                    ->placeholder(__('empty.supervisor'))
+                                    ->label(traduct("fields.supervisor")),
+                                TextEntry::make('work_email')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.work_email")),
+                                TextEntry::make('hire_date')
+                                    ->date()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.hire_date")),
+                                TextEntry::make('termination_date')
+                                    ->date()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.termination_date")),
+                                TextEntry::make('employment_status')
+                                    ->badge()
+                                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                                    ->color(fn(string $state): string => match ($state) {
+                                        'active' => 'success',
+                                        'inactive' => 'warning',
+                                        'suspended' => 'warning',
+                                        'terminated' => 'danger',
+                                        default => 'gray',
+                                    })
+                                    ->label(traduct("fields.employment_status")),
+                            ]),
+
+                        Tab::make(traduct("sections.qr_audit"))
+                            ->icon(Heroicon::OutlinedQrCode)
+                            ->columns(3)
+                            ->schema([
+                                ImageEntry::make('qr_image_path')
+                                    ->label(traduct("fields.qr_code"))
+                                    ->state(function (Employee $record): ?string {
+                                        if (! $record->qr_image_path || ! Storage::disk('local')->exists($record->qr_image_path)) {
+                                            return null;
+                                        }
+
+                                        return 'data:image/png;base64,' . base64_encode(
+                                            Storage::disk('local')->get($record->qr_image_path)
+                                        );
+                                    })
+                                    ->imageWidth(200)
+                                    ->imageHeight(200)
+                                    ->columnSpanFull(),
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.created_at")),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.updated_at")),
+                                TextEntry::make('deleted_at')
+                                    ->dateTime()
+                                    ->visible(fn(Employee $record): bool => $record->trashed())
+                                    ->label(traduct("fields.deleted_at")),
+                            ]),
+                    ]),
             ]);
     }
 

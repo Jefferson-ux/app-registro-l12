@@ -31,6 +31,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\utils\Regex;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class PositionResource extends Resource
 {
@@ -93,32 +95,43 @@ class PositionResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label(traduct("fields.tenant")),
-                TextEntry::make('department.name')
-                    ->placeholder('-')
-                    ->label(traduct("fields.department")),
-                TextEntry::make('name')
-                    ->label(traduct("fields.position_name")),
-                TextEntry::make('description')
-                    ->placeholder('-')
+                Tabs::make('Cargo')
                     ->columnSpanFull()
-                    ->label(traduct("fields.description")),
-                IconEntry::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.created_at")),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.updated_at")),
-                TextEntry::make('deleted_at')
-                    ->dateTime()
-                    ->visible(fn(Position $record): bool => $record->trashed())
-                    ->label(traduct("fields.deleted_at")),
+                    ->tabs([
+                        Tab::make(traduct("sections.general"))
+                            ->icon(Heroicon::OutlinedBriefcase)
+                            ->schema([
+                                TextEntry::make('name')
+                                    ->label(traduct("fields.position_name")),
+                                TextEntry::make('department.name')
+                                    ->placeholder(__('empty.department'))
+                                    ->label(traduct("fields.department")),
+                                IconEntry::make('status')
+                                    ->boolean()
+                                    ->label(traduct("fields.status")),
+                                TextEntry::make('description')
+                                    ->placeholder(__('empty.description'))
+                                    ->label(traduct("fields.description"))
+                                    ->columnSpanFull(),
+                            ]),
+
+                        Tab::make(traduct("sections.audit"))
+                            ->icon(Heroicon::OutlinedClock)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.created_at")),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.updated_at")),
+                                TextEntry::make('deleted_at')
+                                    ->dateTime()
+                                    ->visible(fn(Position $record): bool => $record->trashed())
+                                    ->label(traduct("fields.deleted_at")),
+                            ]),
+                    ]),
             ]);
     }
 

@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'generic'           => 'No data',
+    'description'       => 'No description',
+    'parent_department' => 'No parent department',
+    'user'              => 'No user',
+    'branch'            => 'No branch',
+    'department'        => 'No department',
+    'position'          => 'No position',
+    'supervisor'        => 'No supervisor',
+    'qr_code'           => 'No QR code',
+    'time'              => 'No time set',
+    'employee'          => 'No employee',
+    'work_schedule'     => 'No schedule',
+    'date'              => 'No date',
+    'end_date'          => 'No end date',
+    'notes'      => 'No notes',
+    'device'     => 'No device',
+    'ip_address' => 'No IP address',
+    'coordinate' => 'No coordinate',
+    'attendance_session' => 'No attendance session',
+    'resolved_by'        => 'No resolver',
+    'resolved_at'        => 'No resolution date',
+    'resolution_notes'   => 'No resolution notes',
+    'email_verified_at' => 'Email not verified',
+    'last_login_at'     => 'Never logged in',
+];

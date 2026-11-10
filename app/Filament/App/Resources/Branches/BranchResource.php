@@ -33,6 +33,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\utils\Regex;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class BranchResource extends Resource
 {
@@ -102,45 +104,66 @@ class BranchResource extends Resource
             ]);
     }
 
+
     public static function infolist(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label('Tenant')
-                    ->label(traduct("fields.tenant")),
-                TextEntry::make('name')
-                    ->label(traduct("fields.branch_name")),
-                TextEntry::make('address')
-                    ->placeholder('-')
-                    ->label(traduct("fields.adress")),
-                TextEntry::make('latitude')
-                    ->numeric()
-                    ->placeholder('-')
-                    ->label(traduct("fields.latitude")),
-                TextEntry::make('longitude')
-                    ->numeric()
-                    ->placeholder('-')
-                    ->label(traduct("fields.longitude")),
-                TextEntry::make('allowed_radius')
-                    ->numeric()
-                    ->placeholder('-')
-                    ->label(traduct("fields.allowed_radius")),
-                IconEntry::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.created_at")),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.updated_at")),
-                TextEntry::make('deleted_at')
-                    ->dateTime()
-                    ->visible(fn(Branch $record): bool => $record->trashed())
-                    ->label(traduct("fields.deleted_at")),
+                Tabs::make('Sucursal')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make('General')
+                            ->icon(Heroicon::OutlinedBuildingStorefront)
+                            ->columns(2)
+                            ->schema([
+                                TextEntry::make('tenant.name')
+                                    ->label(traduct("fields.tenant")),
+                                TextEntry::make('name')
+                                    ->label(traduct("fields.branch_name")),
+                                TextEntry::make('address')
+                                    ->placeholder('-')
+                                    ->label(traduct("fields.adress")),
+                                IconEntry::make('status')
+                                    ->boolean()
+                                    ->label(traduct("fields.status")),
+                            ]),
+
+                        Tab::make('Ubicación')
+                            ->icon(Heroicon::OutlinedMapPin)
+                            ->columns(3)
+                            ->schema([
+                                TextEntry::make('latitude')
+                                    ->numeric()
+                                    ->placeholder('-')
+                                    ->label(traduct("fields.latitude")),
+                                TextEntry::make('longitude')
+                                    ->numeric()
+                                    ->placeholder('-')
+                                    ->label(traduct("fields.longitude")),
+                                TextEntry::make('allowed_radius')
+                                    ->numeric()
+                                    ->placeholder('-')
+                                    ->label(traduct("fields.allowed_radius")),
+                            ]),
+
+                        Tab::make('Auditoría')
+                            ->icon(Heroicon::OutlinedClock)
+                            ->columns(3)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder('-')
+                                    ->label(traduct("fields.created_at")),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder('-')
+                                    ->label(traduct("fields.updated_at")),
+                                TextEntry::make('deleted_at')
+                                    ->dateTime()
+                                    ->visible(fn(Branch $record): bool => $record->trashed())
+                                    ->label(traduct("fields.deleted_at")),
+                            ]),
+                    ]),
             ]);
     }
 

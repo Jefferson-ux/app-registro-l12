@@ -19,6 +19,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -144,78 +146,101 @@ class AttendanceRecordResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label(traduct('fields.tenant')),
-                TextEntry::make('employee.id')
-                    ->label(traduct('fields.employee')),
-                TextEntry::make('branch.name')
-                    ->label(traduct('fields.branch'))
-                    ->placeholder('-'),
-                TextEntry::make('type')
-                    ->label(traduct('fields.record_type'))
-                    ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'check_in' => traductShort('status.record_type.check_in'),
-                        'check_out' => traductShort('status.record_type.check_out'),
-                        'break_start' => traductShort('status.record_type.break_start'),
-                        'break_end' => traductShort('status.record_type.break_end'),
-                        default => $state,
-                    })
-                    ->color(fn(string $state): string => match ($state) {
-                        'check_in' => 'success',
-                        'check_out' => 'danger',
-                        'break_start', 'break_end' => 'info',
-                        default => 'gray',
-                    }),
-                TextEntry::make('recorded_at')
-                    ->label(traduct('fields.recorded_at'))
-                    ->dateTime(),
-                TextEntry::make('method')
-                    ->label(traduct('fields.method'))
-                    ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'web' => traductShort('status.method.web'),
-                        'mobile' => traductShort('status.method.mobile'),
-                        'kiosk' => traductShort('status.method.kiosk'),
-                        'qr' => traductShort('status.method.qr'),
-                        'manual' => traductShort('status.method.manual'),
-                        'biometric' => traductShort('status.method.biometric'),
-                        'api' => traductShort('status.method.api'),
-                        default => $state,
-                    })
-                    ->color(fn(string $state): string => match ($state) {
-                        'web', 'mobile' => 'info',
-                        'kiosk', 'qr' => 'gray',
-                        'manual' => 'warning',
-                        'biometric', 'api' => 'success',
-                        default => 'gray',
-                    }),
-                TextEntry::make('latitude')
-                    ->label(traduct('fields.latitude'))
-                    ->numeric()
-                    ->placeholder('-'),
-                TextEntry::make('longitude')
-                    ->label(traduct('fields.longitude'))
-                    ->numeric()
-                    ->placeholder('-'),
-                TextEntry::make('ip_address')
-                    ->label(traduct('fields.ip_address'))
-                    ->placeholder('-'),
-                TextEntry::make('device_identifier')
-                    ->label(traduct('fields.device_identifier'))
-                    ->placeholder('-'),
-                TextEntry::make('notes')
-                    ->label(traduct('fields.notes'))
-                    ->placeholder('-')
-                    ->columnSpanFull(),
-                TextEntry::make('created_at')
-                    ->label(traduct('fields.created_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->label(traduct('fields.updated_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
+                Tabs::make('Marcacion')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make(traduct('sections.general'))
+                            ->icon(Heroicon::OutlinedClipboardDocumentCheck)
+                            ->schema([
+                                TextEntry::make('employee.id')
+                                    ->placeholder(__('empty.employee'))
+                                    ->label(traduct('fields.employee')),
+                                TextEntry::make('branch.name')
+                                    ->placeholder(__('empty.branch'))
+                                    ->label(traduct('fields.branch')),
+                                TextEntry::make('type')
+                                    ->label(traduct('fields.record_type'))
+                                    ->badge()
+                                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                                        'check_in'    => traductShort('status.record_type.check_in'),
+                                        'check_out'   => traductShort('status.record_type.check_out'),
+                                        'break_start' => traductShort('status.record_type.break_start'),
+                                        'break_end'   => traductShort('status.record_type.break_end'),
+                                        default       => $state,
+                                    })
+                                    ->color(fn(string $state): string => match ($state) {
+                                        'check_in'                 => 'success',
+                                        'check_out'                => 'danger',
+                                        'break_start', 'break_end' => 'info',
+                                        default                    => 'gray',
+                                    }),
+                                TextEntry::make('recorded_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.recorded_at')),
+                                TextEntry::make('notes')
+                                    ->placeholder(__('empty.notes'))
+                                    ->label(traduct('fields.notes'))
+                                    ->columnSpanFull(),
+                            ]),
+
+                        Tab::make(traduct('sections.method'))
+                            ->icon(Heroicon::OutlinedDevicePhoneMobile)
+                            ->schema([
+                                TextEntry::make('method')
+                                    ->label(traduct('fields.method'))
+                                    ->badge()
+                                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                                        'web'       => traductShort('status.method.web'),
+                                        'mobile'    => traductShort('status.method.mobile'),
+                                        'kiosk'     => traductShort('status.method.kiosk'),
+                                        'qr'        => traductShort('status.method.qr'),
+                                        'manual'    => traductShort('status.method.manual'),
+                                        'biometric' => traductShort('status.method.biometric'),
+                                        'api'       => traductShort('status.method.api'),
+                                        default     => $state,
+                                    })
+                                    ->color(fn(string $state): string => match ($state) {
+                                        'web', 'mobile'    => 'info',
+                                        'kiosk', 'qr'      => 'gray',
+                                        'manual'           => 'warning',
+                                        'biometric', 'api' => 'success',
+                                        default            => 'gray',
+                                    }),
+                                TextEntry::make('device_identifier')
+                                    ->placeholder(__('empty.device'))
+                                    ->label(traduct('fields.device_identifier')),
+                                TextEntry::make('ip_address')
+                                    ->placeholder(__('empty.ip_address'))
+                                    ->label(traduct('fields.ip_address')),
+                            ]),
+
+                        Tab::make(traduct('sections.location'))
+                            ->icon(Heroicon::OutlinedMapPin)
+                            ->schema([
+                                TextEntry::make('latitude')
+                                    ->numeric()
+                                    ->placeholder(__('empty.coordinate'))
+                                    ->label(traduct('fields.latitude')),
+                                TextEntry::make('longitude')
+                                    ->numeric()
+                                    ->placeholder(__('empty.coordinate'))
+                                    ->label(traduct('fields.longitude')),
+                            ]),
+
+                        Tab::make(traduct('sections.audit'))
+                            ->icon(Heroicon::OutlinedShieldCheck)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.created_at')),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.updated_at')),
+                            ]),
+                    ]),
             ]);
     }
 

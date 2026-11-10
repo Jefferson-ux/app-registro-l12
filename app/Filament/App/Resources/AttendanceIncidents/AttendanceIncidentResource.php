@@ -34,7 +34,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\utils\Regex;
-
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class AttendanceIncidentResource extends Resource
 {
@@ -140,79 +141,101 @@ class AttendanceIncidentResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label(traduct('fields.tenant')),
-                TextEntry::make('employee.id')
-                    ->label(traduct('fields.employee')),
-                TextEntry::make('attendanceSession.id')
-                    ->label(traductModel('attendance_session')),
-                TextEntry::make('incident_type')
-                    ->label(traduct('fields.incident_type'))
-                    ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'late' => traduct('fields.incident_late'),
-                        'absence' => traduct('fields.incident_absence'),
-                        'early_leave' => traduct('fields.incident_early_leave'),
-                        'missing_check_in' => traduct('fields.incident_missing_check_in'),
-                        'missing_check_out' => traduct('fields.incident_missing_check_out'),
-                        'manual' => traduct('fields.incident_manual'),
-                        default => $state,
-                    })
-                    ->color(fn(string $state): string => match ($state) {
-                        'late', 'early_leave' => 'warning',
-                        'absence', 'missing_check_in', 'missing_check_out' => 'danger',
-                        'manual' => 'gray',
-                        default => 'gray',
-                    }),
-                TextEntry::make('incident_date')
-                    ->label(traduct('fields.incident_date'))
-                    ->date(),
-                TextEntry::make('description')
-                    ->label(traduct('fields.description'))
-                    ->placeholder('-')
-                    ->columnSpanFull(),
-                TextEntry::make('status')
-                    ->label(traduct('fields.status'))
-                    ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'pending' => traduct('status.pending'),
-                        'justified' => traduct('status.justified'),
-                        'approved' => traduct('status.approved'),
-                        'rejected' => traduct('status.rejected'),
-                        'cancelled' => traduct('status.cancelled'),
-                        default => $state,
-                    })
-                    ->color(fn(string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'justified', 'approved' => 'success',
-                        'rejected' => 'danger',
-                        'cancelled' => 'gray',
-                        default => 'gray',
-                    }),
-                TextEntry::make('resolved_by')
-                    ->label(traduct('fields.resolved_by'))
-                    ->numeric()
-                    ->placeholder('-'),
-                TextEntry::make('resolved_at')
-                    ->label(traduct('fields.resolved_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('resolution_notes')
-                    ->label(traduct('fields.resolution_notes'))
-                    ->placeholder('-')
-                    ->columnSpanFull(),
-                TextEntry::make('created_at')
-                    ->label(traduct('fields.created_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->label(traduct('fields.updated_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('deleted_at')
-                    ->label(traduct('fields.deleted_at'))
-                    ->dateTime()
-                    ->visible(fn(AttendanceIncident $record): bool => $record->trashed()),
+                Tabs::make('Incidencia')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make(traduct('sections.general'))
+                            ->icon(Heroicon::OutlinedExclamationTriangle)
+                            ->schema([
+                                TextEntry::make('tenant.name')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.tenant')),
+                                TextEntry::make('employee.id')
+                                    ->placeholder(__('empty.employee'))
+                                    ->label(traduct('fields.employee')),
+                                TextEntry::make('attendanceSession.id')
+                                    ->placeholder(__('empty.attendance_session'))
+                                    ->label(traductModel('attendance_session')),
+                                TextEntry::make('incident_type')
+                                    ->label(traduct('fields.incident_type'))
+                                    ->badge()
+                                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                                        'late'              => traduct('fields.incident_late'),
+                                        'absence'           => traduct('fields.incident_absence'),
+                                        'early_leave'       => traduct('fields.incident_early_leave'),
+                                        'missing_check_in'  => traduct('fields.incident_missing_check_in'),
+                                        'missing_check_out' => traduct('fields.incident_missing_check_out'),
+                                        'manual'            => traduct('fields.incident_manual'),
+                                        default             => $state,
+                                    })
+                                    ->color(fn(string $state): string => match ($state) {
+                                        'late', 'early_leave'                              => 'warning',
+                                        'absence', 'missing_check_in', 'missing_check_out' => 'danger',
+                                        'manual'                                           => 'gray',
+                                        default                                            => 'gray',
+                                    }),
+                                TextEntry::make('incident_date')
+                                    ->date()
+                                    ->placeholder(__('empty.date'))
+                                    ->label(traduct('fields.incident_date')),
+                                TextEntry::make('description')
+                                    ->placeholder(__('empty.description'))
+                                    ->label(traduct('fields.description'))
+                                    ->columnSpanFull(),
+                            ]),
+
+                        Tab::make(traduct('sections.resolution'))
+                            ->icon(Heroicon::OutlinedCheckBadge)
+                            ->schema([
+                                TextEntry::make('status')
+                                    ->label(traduct('fields.status'))
+                                    ->badge()
+                                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                                        'pending'   => traduct('status.pending'),
+                                        'justified' => traduct('status.justified'),
+                                        'approved'  => traduct('status.approved'),
+                                        'rejected'  => traduct('status.rejected'),
+                                        'cancelled' => traduct('status.cancelled'),
+                                        default     => $state,
+                                    })
+                                    ->color(fn(string $state): string => match ($state) {
+                                        'pending'               => 'warning',
+                                        'justified', 'approved' => 'success',
+                                        'rejected'              => 'danger',
+                                        'cancelled'             => 'gray',
+                                        default                 => 'gray',
+                                    }),
+                                TextEntry::make('resolved_by')
+                                    ->numeric()
+                                    ->placeholder(__('empty.resolved_by'))
+                                    ->label(traduct('fields.resolved_by')),
+                                TextEntry::make('resolved_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.resolved_at'))
+                                    ->label(traduct('fields.resolved_at')),
+                                TextEntry::make('resolution_notes')
+                                    ->placeholder(__('empty.resolution_notes'))
+                                    ->label(traduct('fields.resolution_notes'))
+                                    ->columnSpanFull(),
+                            ]),
+
+                        Tab::make(traduct('sections.audit'))
+                            ->icon(Heroicon::OutlinedShieldCheck)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.created_at')),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.updated_at')),
+                                TextEntry::make('deleted_at')
+                                    ->dateTime()
+                                    ->visible(fn(AttendanceIncident $record): bool => $record->trashed())
+                                    ->label(traduct('fields.deleted_at')),
+                            ]),
+                    ]),
             ]);
     }
 

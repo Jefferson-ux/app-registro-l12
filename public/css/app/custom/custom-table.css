@@ -4,7 +4,7 @@
 
 /* --- MODO CLARO --- */
 .fi-ta-ctn {
-    border: 1px solid #e2e8f0 !important;
+    border: 2px solid #e2e8f0 !important;
     border-radius: 0.75rem !important;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
     background-color: #ffffff !important;
@@ -119,12 +119,9 @@ tr.is-trashed {
 /* =================================================================
    ESTÉTICA EXCLUSIVA PARA FILAS APILADAS EN MÓVIL (->stackedOnMobile())
    ============================================================= */
-@media (max-width: 640px) {
-
+@media (max-width: 639.98px) {
     /* Fila transformada en tarjeta */
     .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row {
-        background-color: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
         border-radius: 0.875rem !important;
         margin-bottom: 0.875rem !important;
         padding: 1.125rem !important;
@@ -147,7 +144,6 @@ tr.is-trashed {
         display: flex !important;
         flex-direction: column !important;
         border: none !important;
-        padding: 0 !important;
         background: transparent !important;
     }
 

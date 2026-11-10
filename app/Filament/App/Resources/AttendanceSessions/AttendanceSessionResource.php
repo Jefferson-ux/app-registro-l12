@@ -24,6 +24,8 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -38,7 +40,6 @@ class AttendanceSessionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
 
-    protected static ?string $recordTitleAttribute = 'id';
     public static bool $shouldRegisterGlobalSearch = false;
 
     protected static ?int $navigationSort = 4;
@@ -135,77 +136,96 @@ class AttendanceSessionResource extends Resource
                     ->label(traduct('fields.status')),
             ]);
     }
-
     public static function infolist(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label(traduct('fields.tenant')),
-                TextEntry::make('employee.id')
-                    ->label(traductModel('employee')),
-                TextEntry::make('attendance_date')
-                    ->label(traduct('fields.attendance_date'))
-                    ->date(),
-                TextEntry::make('check_in_at')
-                    ->label(traduct('fields.check_in_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('check_out_at')
-                    ->label(traduct('fields.check_out_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('break_start_at')
-                    ->label(traduct('fields.break_start_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('break_end_at')
-                    ->label(traduct('fields.break_end_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('scheduled_minutes')
-                    ->label(traduct('fields.scheduled_minutes'))
-                    ->numeric(),
-                TextEntry::make('worked_minutes')
-                    ->label(traduct('fields.worked_minutes'))
-                    ->numeric(),
-                TextEntry::make('late_minutes')
-                    ->label(traduct('fields.late_minutes'))
-                    ->numeric(),
-                TextEntry::make('early_leave_minutes')
-                    ->label(traduct('fields.early_leave_minutes'))
-                    ->numeric(),
-                TextEntry::make('overtime_minutes')
-                    ->label(traduct('fields.overtime_minutes'))
-                    ->numeric(),
-                TextEntry::make('status')
-                    ->label(traduct('fields.status'))
-                    ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'present' => traductShort('status.session.present'),
-                        'late' => traductShort('status.session.late'),
-                        'absent' => traductShort('status.session.absent'),
-                        'incomplete' => traductShort('status.session.incomplete'),
-                        'holiday' => traductShort('status.session.holiday'),
-                        'leave' => traductShort('status.session.leave'),
-                        default => $state,
-                    })
-                    ->color(fn(string $state): string => match ($state) {
-                        'present' => 'success',
-                        'late' => 'warning',
-                        'absent' => 'danger',
-                        'incomplete' => 'warning',
-                        'holiday', 'leave' => 'gray',
-                        default => 'gray',
-                    }),
-                TextEntry::make('created_at')
-                    ->label(traduct('fields.created_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->label(traduct('fields.updated_at'))
-                    ->dateTime()
-                    ->placeholder('-'),
+                Tabs::make('Asistencia')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make(traduct('sections.summary'))
+                            ->icon(Heroicon::OutlinedClipboardDocumentCheck)
+                            ->schema([
+                                TextEntry::make('employee.id')
+                                    ->label(traductModel('employee'))
+                                    ->state(fn($record): string => "{$record->employee->first_name} {$record->employee->last_name}"),
+                                TextEntry::make('attendance_date')
+                                    ->label(traduct('fields.attendance_date'))
+                                    ->date(),
+                                TextEntry::make('status')
+                                    ->label(traduct('fields.status'))
+                                    ->badge()
+                                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                                        'present'    => traductShort('status.session.present'),
+                                        'late'       => traductShort('status.session.late'),
+                                        'absent'     => traductShort('status.session.absent'),
+                                        'incomplete' => traductShort('status.session.incomplete'),
+                                        'holiday'    => traductShort('status.session.holiday'),
+                                        'leave'      => traductShort('status.session.leave'),
+                                        default      => $state,
+                                    })
+                                    ->color(fn(string $state): string => match ($state) {
+                                        'present'            => 'success',
+                                        'late', 'incomplete' => 'warning',
+                                        'absent'             => 'danger',
+                                        default              => 'gray',
+                                    }),
+                            ]),
+
+                        Tab::make(traduct('sections.punches'))
+                            ->icon(Heroicon::OutlinedClock)
+                            ->schema([
+                                TextEntry::make('check_in_at')
+                                    ->label(traduct('fields.check_in_at'))
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic')),
+                                TextEntry::make('check_out_at')
+                                    ->label(traduct('fields.check_out_at'))
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic')),
+                                TextEntry::make('break_start_at')
+                                    ->label(traduct('fields.break_start_at'))
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic')),
+                                TextEntry::make('break_end_at')
+                                    ->label(traduct('fields.break_end_at'))
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic')),
+                            ]),
+
+                        Tab::make(traduct('sections.minutes'))
+                            ->icon(Heroicon::OutlinedCalculator)
+                            ->schema([
+                                TextEntry::make('scheduled_minutes')
+                                    ->label(traduct('fields.scheduled_minutes'))
+                                    ->numeric(),
+                                TextEntry::make('worked_minutes')
+                                    ->label(traduct('fields.worked_minutes'))
+                                    ->numeric(),
+                                TextEntry::make('late_minutes')
+                                    ->label(traduct('fields.late_minutes'))
+                                    ->numeric(),
+                                TextEntry::make('early_leave_minutes')
+                                    ->label(traduct('fields.early_leave_minutes'))
+                                    ->numeric(),
+                                TextEntry::make('overtime_minutes')
+                                    ->label(traduct('fields.overtime_minutes'))
+                                    ->numeric(),
+                            ]),
+
+                        Tab::make(traduct('sections.audit'))
+                            ->icon(Heroicon::OutlinedShieldCheck)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->label(traduct('fields.created_at'))
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic')),
+                                TextEntry::make('updated_at')
+                                    ->label(traduct('fields.updated_at'))
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic')),
+                            ]),
+                    ]),
             ]);
     }
 

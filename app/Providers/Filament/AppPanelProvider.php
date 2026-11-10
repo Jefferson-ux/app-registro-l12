@@ -28,6 +28,11 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Filament\App\Pages\AppDashboard;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Support\Enums\Width;
 use Filament\View\PanelsRenderHook;
 
 class AppPanelProvider extends PanelProvider
@@ -110,5 +115,23 @@ class AppPanelProvider extends PanelProvider
                 PanelsRenderHook::BODY_END,
                 fn() => view('filament.hooks.logout-confirm-modal'),
             );
+    }
+    public function boot(): void
+    {
+        Tab::configureUsing(fn(Tab $tab) => $tab->columns([
+            'default' => 1,  // móvil
+            'md'      => 2,  // pantallas medianas
+            'lg'      => 3,  // pantallas grandes
+        ]));
+        ViewAction::configureUsing(
+            fn(ViewAction $action) => $action->modalWidth(Width::SixExtraLarge)
+        );
+        CreateAction::configureUsing(
+            fn(CreateAction $action) => $action->modalWidth(Width::SixExtraLarge)
+        );
+
+        EditAction::configureUsing(
+            fn(EditAction $action) => $action->modalWidth(Width::SixExtraLarge)
+        );
     }
 }

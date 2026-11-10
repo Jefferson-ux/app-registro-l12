@@ -33,6 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Spatie\Permission\PermissionRegistrar;
 use UnitEnum;
 use App\utils\Regex;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class UserResource extends Resource
 {
@@ -116,46 +118,61 @@ class UserResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema
-            ->columns([
-                'default' => 1, // Celular
-                'sm' => 2,      // Tablets (pantallas pequeñas)
-                'lg' => 3,      // Computadoras (pantallas grandes)
-            ])
             ->components([
-                TextEntry::make('name')
-                    ->label(traduct('fields.name')),
-                TextEntry::make('email')
-                    ->label(traduct('fields.email')),
-                TextEntry::make('email_verified_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.email_verified_at')),
-                TextEntry::make('status')
-                    ->badge()
-                    ->label(traduct('fields.status'))
-                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
-                    ->color(fn(string $state): string => match ($state) {
-                        'active' => 'success',
-                        'inactive' => 'warning',
-                        'blocked' => 'danger',
-                        default => 'gray',
-                    }),
-                TextEntry::make('last_login_at')
-                    ->dateTime()
-                    ->label(traduct('fields.last_login_at'))
-                    ->placeholder('-'),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->label(traduct('fields.created_at'))
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->label(traduct('fields.updated_at'))
-                    ->placeholder('-'),
-                TextEntry::make('deleted_at')
-                    ->dateTime()
-                    ->label(traduct('fields.deleted_at'))
-                    ->visible(fn(User $record): bool => $record->trashed()),
+                Tabs::make('Usuario')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make(traduct('sections.general'))
+                            ->icon(Heroicon::OutlinedUser)
+                            ->schema([
+                                TextEntry::make('name')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.name')),
+                                TextEntry::make('email')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.email')),
+                                TextEntry::make('status')
+                                    ->badge()
+                                    ->label(traduct('fields.status'))
+                                    ->formatStateUsing(fn(string $state): string => traduct('status.' . $state))
+                                    ->color(fn(string $state): string => match ($state) {
+                                        'active'   => 'success',
+                                        'inactive' => 'warning',
+                                        'blocked'  => 'danger',
+                                        default    => 'gray',
+                                    }),
+                            ]),
+
+                        Tab::make(traduct('sections.access'))
+                            ->icon(Heroicon::OutlinedKey)
+                            ->schema([
+                                TextEntry::make('email_verified_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.email_verified_at'))
+                                    ->label(traduct('fields.email_verified_at')),
+                                TextEntry::make('last_login_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.last_login_at'))
+                                    ->label(traduct('fields.last_login_at')),
+                            ]),
+
+                        Tab::make(traduct('sections.audit'))
+                            ->icon(Heroicon::OutlinedShieldCheck)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.created_at')),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.updated_at')),
+                                TextEntry::make('deleted_at')
+                                    ->dateTime()
+                                    ->visible(fn(User $record): bool => $record->trashed())
+                                    ->label(traduct('fields.deleted_at')),
+                            ]),
+                    ]),
             ]);
     }
 

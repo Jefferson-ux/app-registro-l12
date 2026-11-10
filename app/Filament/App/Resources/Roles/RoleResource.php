@@ -187,6 +187,7 @@ class RoleResource extends Resource
 
                                         Toggle::make("select_all_{$resourceName}")
                                             ->label(__('sections.helpers.select_all'))
+                                            ->columnSpanFull()
                                             ->live()
                                             ->afterStateUpdated(function ($state, callable $set) use ($group, $resourceName) {
                                                 $set(
@@ -197,8 +198,8 @@ class RoleResource extends Resource
                                             ->dehydrated(false),
 
                                         CheckboxList::make("permissions_{$resourceName}")
-
                                             ->label(traduct("fields.permission") . ": " . traductModel(Str::snake($resourceName), $plural = true))
+                                            ->columnSpanFull()
                                             ->options(
                                                 $group->sortBy(function ($permission) {
                                                     // 1. Extraemos la acción original (ej: "ViewAny")
@@ -246,22 +247,44 @@ class RoleResource extends Resource
     }
 
 
-
     public static function infolist(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextEntry::make('name'),
-                TextEntry::make('label')->placeholder('----'),
-                TextEntry::make('color')->placeholder('----'),
-                TextEntry::make('guard_name'),
-                TextEntry::make('description')->columnSpanFull(),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-'),
+                Tabs::make('Rol')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make(traduct('sections.general'))
+                            ->icon(Heroicon::OutlinedShieldCheck)
+                            ->schema([
+                                TextEntry::make('name')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.name')),
+                                TextEntry::make('label')
+                                    ->placeholder(__('empty.label'))
+                                    ->label(traduct('fields.label')),
+                                TextEntry::make('guard_name')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.guard_name')),
+                                TextEntry::make('description')
+                                    ->placeholder(__('empty.description'))
+                                    ->label(traduct('fields.description'))
+                                    ->columnSpanFull(),
+                            ]),
+
+                        Tab::make(traduct('sections.audit'))
+                            ->icon(Heroicon::OutlinedClock)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.created_at')),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.updated_at')),
+                            ]),
+                    ]),
             ]);
     }
 

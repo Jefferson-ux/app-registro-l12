@@ -34,6 +34,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\utils\Regex;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class DepartmentResource extends Resource
 {
@@ -89,26 +91,47 @@ class DepartmentResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label('Tenant'),
-                TextEntry::make('name'),
-                TextEntry::make('parent.department_name')
-                    ->label('Parent')
-                    ->placeholder('-'),
-                TextEntry::make('description')
-                    ->placeholder('-')
-                    ->columnSpanFull(),
-                IconEntry::make('status')
-                    ->boolean(),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('deleted_at')
-                    ->dateTime()
-                    ->visible(fn(Department $record): bool => $record->trashed()),
+                Tabs::make('Departamento')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make(traduct("sections.general"))
+                            ->icon(Heroicon::OutlinedBuildingOffice)
+                            ->columns(2)
+                            ->schema([
+                                TextEntry::make('tenant.name')
+                                    ->label(traduct("fields.tenant")),
+                                TextEntry::make('name')
+                                    ->label(traduct("fields.department_name")),
+                                TextEntry::make('parent.department_name')
+                                    ->placeholder(__('empty.parent_department'))
+                                    ->label(traduct("fields.parent_department")),
+                                IconEntry::make('status')
+                                    ->boolean()
+                                    ->label(traduct("fields.status")),
+                                TextEntry::make('description')
+                                    ->placeholder(__('empty.description'))
+                                    ->label(traduct("fields.description"))
+                                    ->columnSpanFull(),
+                            ]),
+
+                        Tab::make(traduct("sections.audit"))
+                            ->icon(Heroicon::OutlinedClock)
+                            ->columns(3)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.created_at")),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct("fields.updated_at")),
+                                TextEntry::make('deleted_at')
+                                    ->dateTime()
+                                    ->visible(fn(Department $record): bool => $record->trashed())
+                                    ->label(traduct("fields.deleted_at")),
+                            ]),
+                    ]),
             ]);
     }
 

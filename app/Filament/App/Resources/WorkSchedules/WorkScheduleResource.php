@@ -34,6 +34,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\utils\Regex;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class WorkScheduleResource extends Resource
 {
@@ -43,9 +45,7 @@ class WorkScheduleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendar;
 
-    protected static ?string $recordTitleAttribute = 'id';
     public static bool $shouldRegisterGlobalSearch = false;
-
 
     protected static ?int $navigationSort = 1;
 
@@ -96,45 +96,55 @@ class WorkScheduleResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label(traduct('fields.tenant')),
-                TextEntry::make('name')
-                    ->label(traduct('fields.name')),
-                TextEntry::make('description')
-                    ->placeholder('-')
+                Tabs::make('Horario')
                     ->columnSpanFull()
-                    ->label(traduct('fields.description')),
-                TextEntry::make('schedule_type')
-                    ->label(traduct('fields.schedule_type'))
-                    ->badge()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'fixed' => traduct('fields.schedule_fixed'),
-                        'flexible' => traduct('fields.schedule_flexible'),
-                        'rotating' => traduct('fields.schedule_rotating'),
-                        default => $state,
-                    })
-                    ->color(fn(string $state): string => match ($state) {
-                        'fixed' => 'indigo',
-                        'flexible' => 'teal',
-                        'rotating' => 'success',
-                        default => 'gray',
-                    })
-                    ->label(traduct('fields.schedule_type')),
-                IconEntry::make('status')
-                    ->boolean()
-                    ->label(traduct('fields.status')),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.created_at')),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.updated_at')),
-                TextEntry::make('deleted_at')
-                    ->dateTime()
-                    ->visible(fn(WorkSchedule $record): bool => $record->trashed())
-                    ->label(traduct('fields.deleted_at')),
+                    ->tabs([
+                        Tab::make(traduct('sections.general'))
+                            ->icon(Heroicon::OutlinedCalendarDays)
+                            ->schema([
+                                TextEntry::make('name')
+                                    ->label(traduct('fields.name')),
+                                TextEntry::make('schedule_type')
+                                    ->badge()
+                                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                                        'fixed'    => traduct('fields.schedule_fixed'),
+                                        'flexible' => traduct('fields.schedule_flexible'),
+                                        'rotating' => traduct('fields.schedule_rotating'),
+                                        default    => $state,
+                                    })
+                                    ->color(fn(string $state): string => match ($state) {
+                                        'fixed'    => 'indigo',
+                                        'flexible' => 'teal',
+                                        'rotating' => 'success',
+                                        default    => 'gray',
+                                    })
+                                    ->label(traduct('fields.schedule_type')),
+                                IconEntry::make('status')
+                                    ->boolean()
+                                    ->label(traduct('fields.status')),
+                                TextEntry::make('description')
+                                    ->placeholder(__('empty.description'))
+                                    ->label(traduct('fields.description'))
+                                    ->columnSpanFull(),
+                            ]),
+
+                        Tab::make(traduct('sections.audit'))
+                            ->icon(Heroicon::OutlinedClock)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.created_at')),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.updated_at')),
+                                TextEntry::make('deleted_at')
+                                    ->dateTime()
+                                    ->visible(fn(WorkSchedule $record): bool => $record->trashed())
+                                    ->label(traduct('fields.deleted_at')),
+                            ]),
+                    ]),
             ]);
     }
 

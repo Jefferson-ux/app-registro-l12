@@ -21,6 +21,8 @@ return [
     'last_login_at' => 'Último acceso',
     'user' => 'Usuario',
 
+    'qr_code' => 'Código QR',
+
     // ===== Ubicación =====
     'country' => 'País',
     'state' => 'Departamento',
