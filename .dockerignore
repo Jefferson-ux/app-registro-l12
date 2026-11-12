@@ -1,0 +1,16 @@
+.git
+.env
+vendor
+node_modules
+storage/logs/*
+*.tar
+docker-compose.yml
+docker
+Dockerfile
+.dockerignore
+.phpunit.result.cache
+README.md
+tests
+.editorconfig
+.gitattributes
+.gitignore
