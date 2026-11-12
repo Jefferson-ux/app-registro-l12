@@ -15,8 +15,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\PermissionRegistrar;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Sanctum\HasApiTokens;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 
-class User extends Authenticatable implements CanResetPassword
+class User extends Authenticatable implements CanResetPassword, FilamentUser
 {
     use HasFactory, Notifiable, SoftDeletes, HasRoles, BelongsToTenant, HasApiTokens;
 
@@ -46,6 +48,15 @@ class User extends Authenticatable implements CanResetPassword
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return match ($panel->getId()) {
+            'admin' => $this->email === config('app.super_admin_email'),
+            'app' => $this->tenant_id !== null,
+            default => false,
+        };
     }
 
     public function employees(): HasMany

@@ -29,15 +29,15 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/utils/traductor.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        },
-            "files": [
-        "app/Utils/traductor.php"
-    ]
+        }
     },
     "scripts": {
         "post-autoload-dump": [
