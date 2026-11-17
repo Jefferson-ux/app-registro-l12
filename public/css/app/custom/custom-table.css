@@ -8,7 +8,7 @@
     border-radius: 0.75rem !important;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
     background-color: #ffffff !important;
-    overflow: hidden !important;
+    overflow: visible !important;
 }
 
 
@@ -17,16 +17,19 @@ thead .fi-ta-actions-header-cell,
 thead .fi-ta-empty-header-cell,
 thead .fi-ta-header-cell {
     background-color: #bed5eb !important;
-    border-bottom: 2px solid #0ea5e9 !important; /* Reemplaza el rojo por #0ea5e9 */
+    border-bottom: 2px solid #0ea5e9 !important;
+    /* Reemplaza el rojo por #0ea5e9 */
 }
+
 .fi-ta-header-toolbar,
 .fi-ta-filter-indicators {
-    background-color:#bed5eb !important;
+    background-color: #bed5eb !important;
 }
 
 .fi-ta-header-cell label,
 .fi-ta-header-cell span {
-    color: #0ea5e9 !important; /* Texto de la cabecera en #0ea5e9 */
+    color: #0ea5e9 !important;
+    /* Texto de la cabecera en #0ea5e9 */
     font-weight: 600 !important;
 }
 
@@ -65,6 +68,7 @@ thead .fi-ta-header-cell {
     background-color: #030712 !important;
     border-bottom: 2px solid rgba(128, 201, 226, 0.521) !important;
 }
+
 .dark .fi-ta-header-toolbar,
 .dark .fi-ta-filter-indicators {
     background-color: #030712 !important;
@@ -72,7 +76,8 @@ thead .fi-ta-header-cell {
 
 .dark .fi-ta-header-cell label,
 .dark .fi-ta-header-cell span {
-    color: #94a3b8 !important; /* Texto claro legible para cabeceras oscuras */
+    color: #94a3b8 !important;
+    /* Texto claro legible para cabeceras oscuras */
 }
 
 .dark .fi-ta-row:hover {
@@ -120,6 +125,7 @@ tr.is-trashed {
    ESTÉTICA EXCLUSIVA PARA FILAS APILADAS EN MÓVIL (->stackedOnMobile())
    ============================================================= */
 @media (max-width: 639.98px) {
+
     /* Fila transformada en tarjeta */
     .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row {
         border-radius: 0.875rem !important;
@@ -150,19 +156,22 @@ tr.is-trashed {
     /* Ocultar cabeceras de tabla tradicional en móvil */
     .fi-ta-table-stacked-header-row {
         display: none !important;
-        }
+    }
 
 
     /* Forzar que la celda que contiene las acciones ocupe todo el ancho inferior */
     .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row td:has(.fi-ta-actions),
     .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row .fi-ta-cell:has(.fi-ta-actions) {
-        grid-column: 1 / -1 !important; /* Abarca desde la primera hasta la última columna del grid */
-        border-top: 1px solid #f1f5f9 !important; /* Línea separadora sutil arriba de los botones */
+        grid-column: 1 / -1 !important;
+        /* Abarca desde la primera hasta la última columna del grid */
+        border-top: 1px solid #f1f5f9 !important;
+        /* Línea separadora sutil arriba de los botones */
         margin-top: 0.25rem !important;
         padding-top: 0.75rem !important;
         display: flex !important;
         flex-direction: row !important;
-        justify-content: flex-end !important; /* Alinea los botones hacia la derecha (puedes cambiarlo a 'space-between' o 'start') */
+        justify-content: flex-end !important;
+        /* Alinea los botones hacia la derecha (puedes cambiarlo a 'space-between' o 'start') */
         align-items: center !important;
     }
 
@@ -172,12 +181,11 @@ tr.is-trashed {
         border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
     }
 
-        /* Modo oscuro en móvil */
+    /* Modo oscuro en móvil */
     .dark .fi-ta-table.fi-ta-table-stacked-on-mobile .fi-ta-row {
         background-color: #0b0f19 !important;
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
     }
 
 
-    }
-
+}

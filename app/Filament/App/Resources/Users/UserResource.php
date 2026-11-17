@@ -80,8 +80,14 @@ class UserResource extends Resource
                     ->required(),
                 DateTimePicker::make('email_verified_at')
                     ->label(traduct('fields.email_verified_at'))
-                    ->placeholder('-')
-                    ->nullable(),
+                    ->native(false)
+                    ->seconds(false)
+                    ->displayFormat('d/m/Y H:i')
+                    ->prefixIcon(Heroicon::OutlinedCheckBadge)
+                    ->placeholder(__('empty.email_verified_at'))
+                    ->default(fn() => now())
+                    ->disabled()
+                    ->dehydrated(),
                 TextInput::make('password')
                     ->revealable() // Permite mostrar/ocultar el texto con el icono de ojo
                     ->password()

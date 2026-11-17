@@ -32,6 +32,7 @@ class RecentAttendanceSession extends Widget
                 });
             })
             ->get();
+
         $columns = ['check_in_at', 'break_start_at', 'break_end_at', 'check_out_at'];
 
         $events = $sessions->flatMap(function ($s) use ($columns) {
@@ -44,7 +45,9 @@ class RecentAttendanceSession extends Widget
                     'status'   => $column === 'check_in_at' ? $s->status : null,
                 ])
                 ->values();
-        })->sortByDesc('at')->values();
+        })->sortByDesc('at')
+            ->take(10)
+            ->values();
 
         return ['events' => $events];
     }

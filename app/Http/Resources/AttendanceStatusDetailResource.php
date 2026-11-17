@@ -25,6 +25,7 @@ class AttendanceStatusDetailResource extends JsonResource
         $currentStatus = $this->determineCurrentStatus();
 
         return [
+            'employee_code' => $this->employee?->employee_code,
             'work_date' => $this->attendance_date?->toDateString() ?? now()->toDateString(),
             'current_status' => $currentStatus,
             'next_action' => $this->determineNextAction($currentStatus),

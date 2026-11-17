@@ -52,7 +52,7 @@ class EmployeeResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'first_name';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 4;
 
 
 

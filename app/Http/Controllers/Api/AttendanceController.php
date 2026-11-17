@@ -26,11 +26,11 @@ class AttendanceController extends Controller
 
         $tenantId = auth()->user()->tenant_id;
 
-        $today = Carbon::today()->format('Y-m-d');
-
         $employee = Employee::where('tenant_id', $tenantId)
             ->where('employee_code', $code)
             ->firstOrFail();
+
+        $today = Carbon::now($employee->tenant?->timezone ?? config('app.timezone'))->toDateString();
 
         $session = AttendanceSession::with('employee')
             ->where('tenant_id', $employee->tenant_id)
@@ -91,7 +91,9 @@ class AttendanceController extends Controller
     public function mark(MarkRequest $request, MarkAttendanceAction $markAttendance)
     {
         // 1. Buscamos al empleado usando el 'employee_code' que viene en el Request
-        $employee = Employee::where('employee_code', $request->employee_code)->first();
+        $employee = Employee::where('tenant_id', $request->user()->tenant_id)
+            ->where('employee_code', $request->employee_code)
+            ->first();
 
         // FILTRO CERO: Si el código de empleado no existe en la base de datos
         if (!$employee) {

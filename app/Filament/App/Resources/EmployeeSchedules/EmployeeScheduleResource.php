@@ -61,8 +61,8 @@ class EmployeeScheduleResource extends Resource
             ->components([
                 Select::make('employee_id')
                     ->relationship('employee', 'id')
-                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}")
-                    ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
+                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}" . " - {$record->employee_code}")
+                    ->searchable(['first_name', 'last_name', 'employee_code']) // Permite buscar por cualquiera de los tres campos
                     ->preload()
                     ->required()
                     ->label(traductModel('employee')),
@@ -83,6 +83,7 @@ class EmployeeScheduleResource extends Resource
                     ->label(traduct("fields.end_date")),
                 Toggle::make('status')
                     ->required()
+                    ->default(true)
                     ->label(traduct("fields.status")),
             ]);
     }

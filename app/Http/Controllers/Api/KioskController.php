@@ -116,7 +116,7 @@ class KioskController extends Controller
 
     private function todaySessionFor(Employee $employee): AttendanceSession
     {
-        $today = Carbon::today()->toDateString();
+        $today = Carbon::now($employee->tenant?->timezone ?? config('app.timezone'))->toDateString();
 
         $session = AttendanceSession::with('employee')
             ->where('tenant_id', $employee->tenant_id)

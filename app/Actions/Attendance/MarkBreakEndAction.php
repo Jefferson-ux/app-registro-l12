@@ -10,8 +10,12 @@ class MarkBreakEndAction
 {
     public function execute(AttendanceSession $session, Carbon $now): AttendanceSession
     {
-        if (! $session->exists) {
+        if (! $session->exists || ! $session->check_in_at) {
             throw new AttendanceException('No existe una sesión activa para registrar el fin de descanso.', 422);
+        }
+
+        if ($session->check_out_at) {
+            throw new AttendanceException('La jornada de hoy ya está completada.', 409);
         }
 
         if (! $session->break_start_at) {

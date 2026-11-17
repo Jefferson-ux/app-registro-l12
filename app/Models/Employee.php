@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\BelongsToTenant;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -141,23 +142,17 @@ class Employee extends Model
             return null;
         }
 
-        // Accede a la relación de todos los horarios vinculados a este empleado
+        $today = $this->todayInTenantTimezone()->toDateString();
+
         return $this->schedules()
-            // Filtra solo los horarios que estén con estado "activo/habilitado" (true)
             ->where('status', true)
-            // Se asegura de que el horario ya haya comenzado (start_date debe ser hoy o en el pasado)
-            ->whereDate('start_date', '<=', today())
-            // Aplica un filtro agrupado para evaluar la fecha de finalización (end_date)
+            ->whereDate('start_date', '<=', $today)
             ->where(
                 fn($query) =>
-                // Caso A: El horario es indefinido (no tiene fecha de término, end_date es NULL)
                 $query->whereNull('end_date')
-                    // Caso B: O si tiene fecha de término, esta vencerá hoy o en el futuro (>= hoy)
-                    ->orWhereDate('end_date', '>=', today())
+                    ->orWhereDate('end_date', '>=', $today)
             )
-            // Si el empleado tiene más de un horario válido hoy, los ordena poniendo el más nuevo primero
             ->latest('start_date')
-            // Toma únicamente el primer registro de la lista ordenada y cierra la consulta
             ->first();
     }
 
@@ -171,7 +166,7 @@ class Employee extends Model
 
         $dayConfig = $activeSchedule->workSchedule
             ?->days()
-            ->where('day_of_week', today()->dayOfWeekIso)
+            ->where('day_of_week', $this->todayInTenantTimezone()->dayOfWeekIso)
             ->first();
 
         // Si no existe la configuración, o si explícitamente viene "is_working_day" en false, no trabaja hoy
@@ -190,12 +185,11 @@ class Employee extends Model
 
     public function hasBreakToday(): bool
     {
-        // Busca la configuración del día actual siguiendo una cadena de relaciones seguras (?->)
-        $day = $this->activeSchedule() // 1. Obtiene el horario vigente de hoy usando la función de arriba
-            ?->workSchedule            // 2. Accede a la jornada o plantilla horaria asociada a ese horario
-            ?->days()                  // 3. Entra a la lista de días configurados para esa jornada (Lunes a Domingo)
-            ->where('day_of_week', today()->dayOfWeekIso) // 4. Filtra por el día actual (ISO: Lunes=1, Domingo=7)
-            ->first();                 // 5. Toma el registro de ese día específico y lo guarda en $day
+        $day = $this->activeSchedule()
+            ?->workSchedule
+            ?->days()
+            ->where('day_of_week', $this->todayInTenantTimezone()->dayOfWeekIso)
+            ->first();
 
         // Evalúa si el día encontrado tiene horas de descanso asignadas
         // Retorna TRUE solo si la hora de inicio Y la hora de fin NO son nulas (ambas deben existir)
@@ -216,8 +210,13 @@ class Employee extends Model
             // Traemos el detalle de forma limpia reutilizando la misma jerarquía
             'schedule_details'     => $activeSchedule?->workSchedule
                 ?->days()
-                ->where('day_of_week', today()->dayOfWeekIso)
+                ->where('day_of_week', $this->todayInTenantTimezone()->dayOfWeekIso)
                 ->first(),
         ];
+    }
+
+    private function todayInTenantTimezone(): Carbon
+    {
+        return Carbon::now($this->tenant?->timezone ?? config('app.timezone'));
     }
 }

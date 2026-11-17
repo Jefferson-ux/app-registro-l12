@@ -13,7 +13,7 @@ class MarkExitAction
 
     public function execute(AttendanceSession $session, Employee $employee, Carbon $now, string $tz): AttendanceSession
     {
-        if (! $session->exists) {
+        if (! $session->exists || ! $session->check_in_at) {
             throw new AttendanceException('No existe una marcación de entrada previa para el día de hoy.', 422);
         }
 
