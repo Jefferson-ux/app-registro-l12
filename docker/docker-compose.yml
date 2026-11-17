@@ -14,7 +14,7 @@ services:
             - app_storage:/var/www/storage
         environment:
             APP_ENV: production
-            APP_DEBUG: "false"
+            APP_DEBUG: "true"
             APP_KEY: ${APP_KEY:?falta APP_KEY}
             APP_PACKAGES_CACHE: /tmp/laravel-packages.php
             APP_SERVICES_CACHE: /tmp/laravel-services.php
