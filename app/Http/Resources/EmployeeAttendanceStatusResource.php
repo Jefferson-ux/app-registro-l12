@@ -45,7 +45,7 @@ class EmployeeAttendanceStatusResource extends JsonResource
     {
         return match ($status) {
             'NOT_STARTED' => 'ENTRY',
-            'WORKING' => 'BREAK_START', // O 'EXIT' según la regla de negocio
+            'WORKING' => 'BREAK_START', 
             'ON_BREAK' => 'BREAK_END',
             'COMPLETED' => 'EXIT',
             default => 'ENTRY',

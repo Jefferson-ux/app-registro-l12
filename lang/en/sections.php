@@ -65,6 +65,26 @@ return [
 
     "placeholder" => [
         "not_assigned" => "Not assigned"
-    ]
+    ],
+
+    "employee_count" => [
+        "title" => "Number of Employees",
+    ],
+
+    "attendance_absent" => [
+        "title" => "Today's Absences",
+    ],
+    "attendance_late" => [
+        "title" => "Today's Late Arrivals",
+    ],
+    "attendance_present" => [
+        "title" => "Today's On-Time Attendance",
+    ],
+    "attendance_incomplete" => [
+        "title" => "Today's Incomplete Shifts",
+    ],
+    "attendance_leave" => [
+        "title" => "Today's Authorized Leaves",
+    ],
 
 ];

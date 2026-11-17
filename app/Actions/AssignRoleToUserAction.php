@@ -10,7 +10,14 @@ class AssignRoleToUserAction
 {
     public function execute(User $user, string $roleName): void
     {
-        app(PermissionRegistrar::class)->setPermissionsTeamId($user->tenant_id);
-        $user->assignRole($roleName);
+        $registrar = app(PermissionRegistrar::class);
+        $previous = $registrar->getPermissionsTeamId();
+
+        try {
+            $registrar->setPermissionsTeamId($user->tenant_id);
+            $user->assignRole($roleName);
+        } finally {
+            $registrar->setPermissionsTeamId($previous);
+        }
     }
 }

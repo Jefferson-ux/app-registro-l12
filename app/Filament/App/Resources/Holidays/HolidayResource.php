@@ -24,6 +24,8 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use App\utils\Regex;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class HolidayResource extends Resource
 {
@@ -34,6 +36,7 @@ class HolidayResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSun;
 
     protected static ?string $recordTitleAttribute = 'name';
+    public static bool $shouldRegisterGlobalSearch = false;
 
     protected static ?int $navigationSort = 1;
 
@@ -81,27 +84,40 @@ class HolidayResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label(traduct('fields.tenant')),
-                TextEntry::make('branch.name')
-                    ->placeholder('-')
-                    ->label(traduct('fields.branch')),
-                TextEntry::make('name')
-                    ->label(traduct('fields.holiday_name')),
-                TextEntry::make('holiday_date')
-                    ->date()
-                    ->label(traduct('fields.holiday_date')),
-                IconEntry::make('is_paid')
-                    ->boolean()
-                    ->label(traduct('fields.is_paid')),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.created_at')),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct('fields.updated_at')),
+                Tabs::make('Feriado')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make(traduct('sections.general'))
+                            ->icon(Heroicon::OutlinedCalendarDays)
+                            ->schema([
+                                TextEntry::make('branch.name')
+                                    ->placeholder(__('empty.branch'))
+                                    ->label(traduct('fields.branch')),
+                                TextEntry::make('name')
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.holiday_name')),
+                                TextEntry::make('holiday_date')
+                                    ->date()
+                                    ->placeholder(__('empty.date'))
+                                    ->label(traduct('fields.holiday_date')),
+                                IconEntry::make('is_paid')
+                                    ->boolean()
+                                    ->label(traduct('fields.is_paid')),
+                            ]),
+
+                        Tab::make(traduct('sections.audit'))
+                            ->icon(Heroicon::OutlinedShieldCheck)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.created_at')),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.updated_at')),
+                            ]),
+                    ]),
             ]);
     }
 
@@ -135,6 +151,7 @@ class HolidayResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct('fields.updated_at')),
             ])
+            ->stackedOnMobile()
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //

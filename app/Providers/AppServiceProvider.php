@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Listeners\UpdateLastLoginAt;
+use App\Models\Employee;
+use App\Observers\EmployeeObserver;
 use Filament\Auth\Pages\Login;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -23,12 +25,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-            Gate::before(function ($user, $ability) {
-        return $user->email === config('app.super_admin_email') ? true : null;
-            });
+        Gate::before(function ($user, $ability) {
+            return $user->email === config('app.super_admin_email') ? true : null;
+        });
         Event::listen(
             Login::class,
             UpdateLastLoginAt::class
         );
+        Employee::observe(EmployeeObserver::class);
     }
 }

@@ -17,6 +17,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -26,6 +27,13 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\App\Pages\AppDashboard;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Support\Enums\Width;
+use Filament\View\PanelsRenderHook;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -35,12 +43,13 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
+            ->font('Bricolage Grotesque')
             ->registration(RegisterTenant::class)
-            ->brandName("Panel Empresarial")
+            ->brandLogo(fn() => view('filament.app.brand'))
             ->profile(EditProfile::class)
             ->passwordReset()
             ->colors([
-                'primary' => "#2ec411",
+                'primary' => "#0ea5e9",
                 'danger' => Color::Red,
                 'gray' => Color::Zinc,
                 'info' => Color::Blue,
@@ -52,18 +61,21 @@ class AppPanelProvider extends PanelProvider
             ->assets([
                 // Registras tu archivo CSS plano directamente
                 Css::make('custom-table-styles', asset('css/app/custom/custom-table.css')),
+                Css::make('theme-loader', asset('css/app/ui/theme-loader.css')),
+                Css::make('dashboard-styles', asset('css/app/custom/dashboard-styles.css')),
+                Css::make('custom-sidebar-styles', asset('css/app/custom/custom-sidebar.css')),
+                Css::make('custom-scroll-styles', asset('css/app/custom/custom-scroll.css')),
+                Js::make('theme-loader', asset('js/app/ui/theme-loader.js')),
             ])
 
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\Filament\App\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\Filament\App\Pages')
             ->pages([
-                Dashboard::class,
+                AppDashboard::class,
             ])
 
-            ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\Filament\App\Widgets')
-            ->widgets([
-                AccountWidget::class,
-            ])
+            ->discoverWidgets(in: app_path('Filament/Widgets/Attendance'), for: 'App\Filament\Widgets\Attendance')
+            ->widgets([])
             ->navigationGroups([
                 NavigationGroup::make(fn() => traduct('navigation.business'))
                     ->collapsed(true),
@@ -92,12 +104,34 @@ class AppPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 SetPermissionsTeamId::class,
-            ])
+            ], isPersistent: true)
             ->userMenuItems([
                 'toggle_lang' => Action::make('toggle_lang')
                     ->label(fn() => app()->getLocale() === 'es' ? 'Switch to English' : 'Cambiar a Español')
                     ->icon('heroicon-o-language')
                     ->url(fn() => route('lang.switch', app()->getLocale() === 'es' ? 'en' : 'es')),
-            ]);
+            ])
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn() => view('filament.hooks.logout-confirm-modal'),
+            );
+    }
+    public function boot(): void
+    {
+        Tab::configureUsing(fn(Tab $tab) => $tab->columns([
+            'default' => 1,  // móvil
+            'md'      => 2,  // pantallas medianas
+            'lg'      => 3,  // pantallas grandes
+        ]));
+        ViewAction::configureUsing(
+            fn(ViewAction $action) => $action->modalWidth(Width::SixExtraLarge)
+        );
+        CreateAction::configureUsing(
+            fn(CreateAction $action) => $action->modalWidth(Width::SixExtraLarge)
+        );
+
+        EditAction::configureUsing(
+            fn(EditAction $action) => $action->modalWidth(Width::SixExtraLarge)
+        );
     }
 }

@@ -19,6 +19,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -34,7 +36,7 @@ class EmployeeScheduleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static ?string $recordTitleAttribute = 'id';
+    public static bool $shouldRegisterGlobalSearch = false;
 
     protected static ?int $navigationSort = 3;
 
@@ -58,8 +60,8 @@ class EmployeeScheduleResource extends Resource
         return $schema
             ->components([
                 Select::make('employee_id')
-                    ->relationship('employee','id')
-                    ->getOptionLabelFromRecordUsing(fn (Employee $record): string => "{$record->first_name} {$record->last_name}")
+                    ->relationship('employee', 'id')
+                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}")
                     ->searchable(['first_name', 'last_name']) // Permite buscar por cualquiera de los tres campos
                     ->preload()
                     ->required()
@@ -89,31 +91,50 @@ class EmployeeScheduleResource extends Resource
     {
         return $schema
             ->components([
-                TextEntry::make('tenant.name')
-                    ->label(traduct("fields.tenant")),
-                TextEntry::make('employee_full_name')
-                    ->label(traduct('fields.employee'))
-                    ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? ''))),
-                TextEntry::make('workSchedule.name')
-                    ->label(traduct("fields.schedule_name")),
-                TextEntry::make('start_date')
-                    ->date()
-                    ->label(traduct("fields.start_date")),
-                TextEntry::make('end_date')
-                    ->date()
-                    ->placeholder('-')
-                    ->label(traduct("fields.end_date")),
-                IconEntry::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.created_at")),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-')
-                    ->label(traduct("fields.updated_at")),
+                Tabs::make('Asignacion')
+                    ->columnSpanFull()
+                    ->tabs([
+                        Tab::make(traduct('sections.general'))
+                            ->icon(Heroicon::OutlinedCalendarDays)
+                            ->schema([
+                                TextEntry::make('employee_full_name')
+                                    ->label(traduct('fields.employee'))
+                                    ->placeholder(__('empty.employee'))
+                                    ->state(fn($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')) ?: null),
+                                TextEntry::make('workSchedule.name')
+                                    ->placeholder(__('empty.work_schedule'))
+                                    ->label(traduct('fields.schedule_name')),
+                                IconEntry::make('status')
+                                    ->boolean()
+                                    ->label(traduct('fields.status')),
+                            ]),
+
+                        Tab::make(traduct('sections.validity'))
+                            ->icon(Heroicon::OutlinedClock)
+                            ->schema([
+                                TextEntry::make('start_date')
+                                    ->date()
+                                    ->placeholder(__('empty.date'))
+                                    ->label(traduct('fields.start_date')),
+                                TextEntry::make('end_date')
+                                    ->date()
+                                    ->placeholder(__('empty.end_date'))
+                                    ->label(traduct('fields.end_date')),
+                            ]),
+
+                        Tab::make(traduct('sections.audit'))
+                            ->icon(Heroicon::OutlinedShieldCheck)
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.created_at')),
+                                TextEntry::make('updated_at')
+                                    ->dateTime()
+                                    ->placeholder(__('empty.generic'))
+                                    ->label(traduct('fields.updated_at')),
+                            ]),
+                    ]),
             ]);
     }
 
@@ -122,15 +143,15 @@ class EmployeeScheduleResource extends Resource
         return $table
             ->recordTitleAttribute('id')
             ->columns([
-            TextColumn::make('employee_full_name')
-                ->label(traduct('fields.employee'))
-                ->state(fn ($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
-                ->searchable(query: function (Builder $query, string $search): Builder {
-                    return $query->whereHas('employee', function (Builder $q) use ($search) {
-                        $q->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%");
-                    });
-                }),
+                TextColumn::make('employee_full_name')
+                    ->label(traduct('fields.employee'))
+                    ->state(fn($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('employee', function (Builder $q) use ($search) {
+                            $q->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        });
+                    }),
                 TextColumn::make('workSchedule.name')
                     ->searchable()
                     ->label(traduct("fields.schedule_name")),
@@ -156,6 +177,7 @@ class EmployeeScheduleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.updated_at")),
             ])
+            ->stackedOnMobile()
             ->defaultSort('created_at', 'desc')
             ->filters([
                 //
@@ -168,13 +190,13 @@ class EmployeeScheduleResource extends Resource
                     ->modalHeading(__('modals.force_delete.heading'))
                     ->modalDescription(__('modals.force_delete.description'))
                     ->color('danger'),
-                ])
-                ->toolbarActions([
-                    BulkActionGroup::make([
-                        DeleteBulkAction::make()
-                            ->modalHeading(__('modals.bulk.force_delete.heading'))
-                            ->modalDescription(__('modals.bulk.force_delete.description')),
-                    ]),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->modalHeading(__('modals.bulk.force_delete.heading'))
+                        ->modalDescription(__('modals.bulk.force_delete.description')),
+                ]),
             ]);
     }
 

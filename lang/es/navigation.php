@@ -18,8 +18,8 @@ return [
     'multitenancy' => 'Multitenencia',
     'roles and_permissions' => 'Roles y permisos',
     'plans and_subscriptions' => 'Planes y suscripciones',
-    'administration'=>'Administración',
-    'access_control'=>'Control de acceso',
+    'administration' => 'Administración',
+    'access_control' => 'Control de acceso',
 
 
     // Labels de Resources — RRHH / estructura

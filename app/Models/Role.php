@@ -8,7 +8,6 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
-    use BelongsToTenant;  
 
     protected $fillable = [
         'name',
@@ -20,10 +19,24 @@ class Role extends SpatieRole
         'is_protected',
     ];
 
-     protected $casts = [
+    protected $casts = [
         'is_protected' => 'boolean',
         'color' => RoleColor::class,
     ];
 
-     
+    protected static function booted(): void
+    {
+        static::creating(function ($role) {
+            if (empty($role->tenant_id)) {
+                $role->tenant_id = filament()->getTenant()?->id
+                    ?? auth()->user()?->tenant_id
+                    ?? auth()->user()?->current_tenant_id; // Ajusta según la propiedad de tu modelo User
+            }
+        });
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(\App\Models\Tenant::class);
+    }
 }

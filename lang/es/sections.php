@@ -65,6 +65,43 @@ return [
 
     "placeholder" => [
         "not_assigned" => "No asignado"
-    ]
+    ],
 
+    "employee_count" => [
+        "title" => "Número de Empleados",
+    ],
+
+    "attendance_absent" => [
+        "title" => "Inasistencias del día",
+    ],
+    "attendance_late" => [
+        "title" => "Tardanzas del día",
+    ],
+    "attendance_present" => [
+        "title" => "Asistencias puntuales del día",
+    ],
+    "attendance_incomplete" => [
+        "title" => "Jornadas incompletas del día",
+    ],
+    "attendance_leave" => [
+        "title" => "Salidas permitidas del día",
+    ],
+
+    // Secciones en Infolists y Formularios
+    'general' => 'General',
+    'personal_data' => 'Datos personales',
+    'company_data'  => 'Datos de empresa',
+    'qr_audit'      => 'QR y auditoría',
+    'audit'      => 'Auditoría',
+    'summary' => 'Resumen',
+    'punches' => 'Marcaciones',
+    'minutes' => 'Minutos',
+    'schedule_times' => 'Horarios',
+    'tolerances' => 'Tolerancias',
+    'tolerances_and_audit' => 'Tolerancias y Auditoría',
+    'validity' => 'Vigencia',
+    'method'   => 'Método',
+    'location' => 'Ubicación',
+    'resolution' => 'Resolución',
+    'access' => 'Acceso',
 ];

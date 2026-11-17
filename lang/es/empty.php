@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'generic'           => 'Sin datos',
+    'description'       => 'Sin descripción',
+    'parent_department' => 'Sin departamento padre',
+    'user'              => 'Sin usuario',
+    'branch'            => 'Sin sucursal',
+    'department'        => 'Sin departamento',
+    'position'          => 'Sin cargo',
+    'supervisor'        => 'Sin supervisor',
+    'qr_code'           => 'Sin código QR',
+    'time'              => 'Sin hora definida',
+    'employee'      => 'Sin empleado',
+    'work_schedule' => 'Sin horario',
+    'date'          => 'Sin fecha',
+    'end_date'      => 'Sin fecha de fin',
+    'notes'      => 'Sin notas',
+    'device'     => 'Sin dispositivo',
+    'ip_address' => 'Sin dirección IP',
+    'coordinate' => 'Sin coordenada',
+    'attendance_session' => 'Sin sesión de asistencia',
+    'resolved_by'        => 'Sin resolutor',
+    'resolved_at'        => 'Sin fecha de resolución',
+    'resolution_notes'   => 'Sin notas de resolución',
+    'email_verified_at' => 'Correo no verificado',
+    'last_login_at'     => 'Sin inicio de sesión',
+];

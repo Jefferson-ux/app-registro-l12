@@ -35,7 +35,6 @@ class MarkExitAction
 
         $earlyLeaveMinutes = 0;
         $overtimeMinutes = 0;
-        $status = $session->status;
 
         if ($scheduleDay && $scheduleDay->is_working_day) {
             $scheduledOut = $this->at($today, $scheduleDay->check_out_time, $tz);
@@ -43,14 +42,9 @@ class MarkExitAction
 
             if ($localNow->lt($scheduledOut->copy()->subMinutes($tolerance))) {
                 $earlyLeaveMinutes = (int) $localNow->diffInMinutes($scheduledOut);
-                $status = 'incomplete';
             } elseif ($localNow->gt($scheduledOut)) {
                 $overtimeMinutes = (int) $scheduledOut->diffInMinutes($localNow);
             }
-        }
-
-        if ($workedMinutes < $session->scheduled_minutes && $earlyLeaveMinutes === 0) {
-            $status = 'incomplete';
         }
 
         $session->update([
@@ -58,7 +52,6 @@ class MarkExitAction
             'worked_minutes' => $workedMinutes,
             'early_leave_minutes' => $earlyLeaveMinutes,
             'overtime_minutes' => $overtimeMinutes,
-            'status' => $status,
         ]);
 
         return $session;
