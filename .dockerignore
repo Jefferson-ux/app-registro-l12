@@ -1,11 +1,14 @@
 .git
+.git/
 .env
 vendor
 node_modules
 storage/logs/*
+public/storage
 *.tar
 docker-compose.yml
 docker
+docker/
 Dockerfile
 .dockerignore
 .phpunit.result.cache
