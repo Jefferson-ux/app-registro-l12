@@ -86,9 +86,6 @@ class WorkScheduleResource extends Resource
                     ->default('fixed')
                     ->required()
                     ->label(traduct("fields.schedule_type")),
-                Toggle::make('status')
-                    ->required()
-                    ->label(traduct("fields.status")),
             ]);
     }
 
@@ -119,9 +116,6 @@ class WorkScheduleResource extends Resource
                                         default    => 'gray',
                                     })
                                     ->label(traduct('fields.schedule_type')),
-                                IconEntry::make('status')
-                                    ->boolean()
-                                    ->label(traduct('fields.status')),
                                 TextEntry::make('description')
                                     ->placeholder(__('empty.description'))
                                     ->label(traduct('fields.description'))
@@ -172,9 +166,6 @@ class WorkScheduleResource extends Resource
                         default => 'gray',
                     })
                     ->label(traduct('fields.schedule_type')),
-                IconColumn::make('status')
-                    ->boolean()
-                    ->label(traduct('fields.status')),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

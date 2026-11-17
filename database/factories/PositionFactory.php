@@ -24,7 +24,6 @@ class PositionFactory extends Factory
                 'department_id' => $department?->id,
                 'name'          => fake()->unique()->jobTitle(),
                 'description'   => fake()->optional()->sentence(),
-                'status'        => fake()->boolean(90), // 90% activo
             ];
         }
 }

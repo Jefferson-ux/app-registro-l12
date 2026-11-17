@@ -21,7 +21,6 @@ class DepartmentFactory extends Factory
             'name'        => fake()->unique()->jobTitle(),
             'parent_id'   => null, // Por defecto es departamento raíz
             'description' => fake()->optional()->sentence(),
-            'status'      => fake()->boolean(85),
         ];
     }
 }

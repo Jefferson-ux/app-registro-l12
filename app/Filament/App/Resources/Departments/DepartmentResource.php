@@ -81,9 +81,6 @@ class DepartmentResource extends Resource
                     ->default(null)
                     ->columnSpanFull()
                     ->label(traduct("fields.description")),
-                Toggle::make('status')
-                    ->required()
-                    ->label(traduct("fields.status")),
             ]);
     }
 
@@ -105,9 +102,6 @@ class DepartmentResource extends Resource
                                 TextEntry::make('parent.department_name')
                                     ->placeholder(__('empty.parent_department'))
                                     ->label(traduct("fields.parent_department")),
-                                IconEntry::make('status')
-                                    ->boolean()
-                                    ->label(traduct("fields.status")),
                                 TextEntry::make('description')
                                     ->placeholder(__('empty.description'))
                                     ->label(traduct("fields.description"))
@@ -147,9 +141,6 @@ class DepartmentResource extends Resource
                     ->searchable()
                     ->placeholder(__('messages.empty_value'))
                     ->label(traduct("fields.parent_department")),
-                IconColumn::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

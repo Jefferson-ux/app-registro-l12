@@ -23,7 +23,6 @@ class BranchFactory extends Factory
             'latitude'       => fake()->latitude(-18.0, -0.0),
             'longitude'      => fake()->longitude(-81.0, -68.0),
             'allowed_radius' => fake()->randomElement([50, 100, 200, 500]),
-            'status'         => fake()->boolean(80)
         ];
     }
 }

@@ -59,7 +59,7 @@ services:
         container_name: laravel_mysql
         restart: unless-stopped
         ports:
-            - "3307:3306"
+            - "3306:3306"
         environment:
             MYSQL_DATABASE: ${DB_DATABASE:?falta DB_DATABASE}
             MYSQL_USER: ${DB_USERNAME:?falta DB_USERNAME}

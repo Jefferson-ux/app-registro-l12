@@ -16,7 +16,6 @@ class CreateDefaultWorkScheduleAction
             'name'        => 'Horario Administrativo (L-V)',
             'description' => 'Jornada estándar de 8:00 AM a 5:00 PM de Lunes a Viernes',
             'type'        => 'fixed',
-            'status'   => true, 
         ]);
 
         $workingDay = [

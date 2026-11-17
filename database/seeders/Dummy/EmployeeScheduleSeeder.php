@@ -38,7 +38,7 @@ class EmployeeScheduleSeeder extends Seeder
 
         foreach ($tenants as $tenant) {
             $employees = Employee::where('tenant_id', $tenant->id)->get();
-            $schedules = WorkSchedule::where('tenant_id', $tenant->id)->where('status', true)->get();
+            $schedules = WorkSchedule::where('tenant_id', $tenant->id)->get();
 
             if ($employees->isEmpty() || $schedules->isEmpty()) {
                 continue;

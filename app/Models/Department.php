@@ -18,15 +18,7 @@ class Department extends Model
         'name',
         'parent_id',
         'description',
-        'status',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'status' => 'boolean',
-        ];
-    }
 
     public function tenant(): BelongsTo
     {

@@ -18,15 +18,7 @@ class WorkSchedule extends Model
         'name',
         'description',
         'schedule_type',
-        'status',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'status' => 'boolean',
-        ];
-    }
 
     public function tenant(): BelongsTo
     {

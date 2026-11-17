@@ -19,15 +19,7 @@ class Position extends Model
         'name',
         'prefix',
         'description',
-        'status',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'status' => 'boolean',
-        ];
-    }
 
     public function tenant(): BelongsTo
     {

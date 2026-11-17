@@ -20,7 +20,6 @@ class Branch extends Model
         'latitude',
         'longitude',
         'allowed_radius',
-        'status',
     ];
 
     protected function casts(): array
@@ -29,7 +28,6 @@ class Branch extends Model
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',
             'allowed_radius' => 'integer',
-            'status' => 'boolean',
         ];
     }
 

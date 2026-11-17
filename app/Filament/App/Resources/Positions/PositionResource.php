@@ -85,9 +85,6 @@ class PositionResource extends Resource
                     ->alphaDash()
                     ->extraInputAttributes(['style' => 'text-transform: uppercase'])
                     ->helperText('Ej: DEV para Desarrollador, GER para Gerente.'),
-                Toggle::make('status')
-                    ->required()
-                    ->label(traduct("fields.status")),
             ]);
     }
 
@@ -106,9 +103,6 @@ class PositionResource extends Resource
                                 TextEntry::make('department.name')
                                     ->placeholder(__('empty.department'))
                                     ->label(traduct("fields.department")),
-                                IconEntry::make('status')
-                                    ->boolean()
-                                    ->label(traduct("fields.status")),
                                 TextEntry::make('description')
                                     ->placeholder(__('empty.description'))
                                     ->label(traduct("fields.description"))
@@ -146,9 +140,6 @@ class PositionResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->label(traduct("fields.position_name")),
-                IconColumn::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -27,7 +27,6 @@ class WorkScheduleFactory extends Factory
             ]),
             'description'   => fake()->optional()->sentence(),
             'schedule_type' => fake()->randomElement(['fixed', 'flexible', 'rotating']),
-            'status'        => fake()->boolean(90), // 90% activos
         ];
     }
 }

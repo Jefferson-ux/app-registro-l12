@@ -98,9 +98,6 @@ class BranchResource extends Resource
                     ->default(null)
                     ->maxValue(10000000)
                     ->label(traduct("fields.allowed_radius")),
-                Toggle::make('status')
-                    ->required()
-                    ->label(traduct("fields.status")),
             ]);
     }
 
@@ -123,9 +120,6 @@ class BranchResource extends Resource
                                 TextEntry::make('address')
                                     ->placeholder('-')
                                     ->label(traduct("fields.adress")),
-                                IconEntry::make('status')
-                                    ->boolean()
-                                    ->label(traduct("fields.status")),
                             ]),
 
                         Tab::make('Ubicación')
@@ -191,9 +185,6 @@ class BranchResource extends Resource
                     ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.allowed_radius")),
-                IconColumn::make('status')
-                    ->boolean()
-                    ->label(traduct("fields.status")),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

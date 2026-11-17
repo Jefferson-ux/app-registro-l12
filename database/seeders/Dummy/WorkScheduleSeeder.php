@@ -24,19 +24,16 @@ class WorkScheduleSeeder extends Seeder
                 'name'          => 'Horario Administrativo (L-V)',
                 'description'   => 'Jornada estándar de 8:00 AM a 5:00 PM de Lunes a Viernes',
                 'schedule_type' => 'fixed',
-                'status'        => true,
             ],
             [
                 'name'          => 'Turno Operativo Rotativo',
                 'description'   => 'Rotación semanal entre turno mañana y tarde',
                 'schedule_type' => 'rotating',
-                'status'        => true,
             ],
             [
                 'name'          => 'Horario Flexible (Confianza)',
                 'description'   => 'Cumplimiento de 40 horas semanales sin marcado estricto',
                 'schedule_type' => 'flexible',
-                'status'        => true,
             ],
         ];
 
@@ -68,7 +65,7 @@ class WorkScheduleSeeder extends Seeder
         WorkSchedule::upsert(
             $schedulesToInsert,
             ['tenant_id', 'name'],
-            ['description', 'schedule_type', 'status', 'updated_at']
+            ['description', 'schedule_type', 'updated_at']
         );
     }
 }
