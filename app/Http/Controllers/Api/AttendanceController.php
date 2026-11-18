@@ -14,6 +14,7 @@ use App\Http\Resources\EmployeeResource;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
 use App\Models\EmployeeSchedule;
+use App\Services\AttendanceMarkingWindowService;
 use App\Services\FaceMatcher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -88,7 +89,11 @@ class AttendanceController extends Controller
 
     // ! ===================== Marcaciones ===========================
 
-    public function mark(MarkRequest $request, MarkAttendanceAction $markAttendance)
+    public function mark(
+        MarkRequest $request,
+        MarkAttendanceAction $markAttendance,
+        AttendanceMarkingWindowService $markingWindow,
+    )
     {
         // 1. Buscamos al empleado usando el 'employee_code' que viene en el Request
         $employee = Employee::where('tenant_id', $request->user()->tenant_id)
@@ -126,6 +131,11 @@ class AttendanceController extends Controller
 
         // 3. Si pasa todos los filtros, procedemos con la lógica de tu Action
         try {
+            $markingWindow->validate(
+                $employee,
+                $request->validated('type'),
+                $scheduleAnalysis['schedule_details'],
+            );
             $result = $markAttendance->execute($request, 'qr');
         } catch (AttendanceException $e) {
             return response()->json([
@@ -146,8 +156,12 @@ class AttendanceController extends Controller
     }
 
 
-    public function markByFace(FaceMarkRequest $request, FaceMatcher $matcher, MarkAttendanceAction $markAttendance)
-    {
+    public function markByFace(
+        FaceMarkRequest $request,
+        FaceMatcher $matcher,
+        MarkAttendanceAction $markAttendance,
+        AttendanceMarkingWindowService $markingWindow,
+    ) {
         $match = $matcher->match(
             $request->input('face_descriptor'),
             $request->user()->tenant_id
@@ -169,8 +183,11 @@ class AttendanceController extends Controller
             'distance'    => round($match['distance'], 4),
         ]);
 
-        // Hacemos que el request "parezca" un QR
-        $request->merge(['employee_code' => $employee->employee_code]);
+        // Reutilizamos el flujo compartido de marcación sin aceptar un tipo del cliente.
+        $request->merge([
+            'employee_code' => $employee->employee_code,
+            'type' => null,
+        ]);
 
         // Mismos filtros que mark()
         $scheduleAnalysis = $employee->todayScheduleAnalysis();
@@ -192,6 +209,11 @@ class AttendanceController extends Controller
         }
 
         try {
+            $markingWindow->validate(
+                $employee,
+                null,
+                $scheduleAnalysis['schedule_details'],
+            );
             $result = $markAttendance->execute($request, 'facial');
         } catch (AttendanceException $e) {
             return response()->json([
