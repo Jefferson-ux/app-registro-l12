@@ -11,11 +11,13 @@ return new class extends Migration
 
     private const METHODS = ['manual', 'qr', 'facial'];
 
+    private const TRANSITION_METHODS = ['web', 'mobile', 'kiosk', 'qr', 'manual', 'biometric', 'api', 'facial'];
+
     public function up(): void
     {
         if (DB::getDriverName() === 'mysql') {
             Schema::table('attendance_records', function (Blueprint $table) {
-                $table->enum('method', self::LEGACY_METHODS + self::METHODS)->change();
+                $table->enum('method', self::TRANSITION_METHODS)->change();
             });
         }
 
