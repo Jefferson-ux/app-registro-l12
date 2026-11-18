@@ -107,10 +107,29 @@ class UserResource extends Resource
                     ->label(traduct('fields.status')),
                 Select::make('roles')
                     ->multiple()
-                    ->options(function ($record) {
-                        $tenantId = $record?->tenant_id ?? 0;
-                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
-                        return Role::pluck('name', 'id');
+                    ->options(function (?User $record): array {
+                        $tenantId = $record?->tenant_id
+                            ?? filament()->getTenant()?->id
+                            ?? auth()->user()?->tenant_id;
+
+                        if ($tenantId === null) {
+                            return [];
+                        }
+
+                        $registrar = app(PermissionRegistrar::class);
+                        $previousTeamId = $registrar->getPermissionsTeamId();
+
+                        try {
+                            $registrar->setPermissionsTeamId($tenantId);
+
+                            return Role::query()
+                                ->where('tenant_id', $tenantId)
+                                ->orderBy('name')
+                                ->pluck('name', 'id')
+                                ->all();
+                        } finally {
+                            $registrar->setPermissionsTeamId($previousTeamId);
+                        }
                     })
                     ->preload()
                     ->searchable()
@@ -243,19 +262,24 @@ class UserResource extends Resource
                     ->hidden(fn($record) => method_exists($record, 'trashed') && $record->trashed())
 
 
-                    ->mutateRecordDataUsing(function (array $data, $record) {
-                        $tenantId = $record->tenant_id ?? 0;
-                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+                    ->mutateRecordDataUsing(function (array $data, User $record): array {
+                        $tenantId = $record->tenant_id;
+                        $registrar = app(PermissionRegistrar::class);
+                        $previousTeamId = $registrar->getPermissionsTeamId();
 
-                        $data['roles'] = $record->roles->pluck('id')->toArray();
+                        try {
+                            $registrar->setPermissionsTeamId($tenantId);
+                            $data['roles'] = $record->roles
+                                ->where('tenant_id', $tenantId)
+                                ->modelKeys();
+                        } finally {
+                            $registrar->setPermissionsTeamId($previousTeamId);
+                        }
+
                         return $data;
                     })
                     ->after(function ($record, array $data) {
-                        $tenantId = $record->tenant_id ?? 0;
-                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
-
-                        $roleNames = Role::whereIn('id', $data['roles'] ?? [])->pluck('name');
-                        $record->syncRoles($roleNames);
+                        static::syncTenantRoles($record, $data);
                     }),
                 DeleteAction::make()
                     ->label(__('actions.archive'))
@@ -344,5 +368,24 @@ class UserResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    public static function syncTenantRoles(User $user, array $data): void
+    {
+        $tenantId = $user->tenant_id;
+        $registrar = app(PermissionRegistrar::class);
+        $previousTeamId = $registrar->getPermissionsTeamId();
+
+        try {
+            $registrar->setPermissionsTeamId($tenantId);
+            $roles = Role::query()
+                ->where('tenant_id', $tenantId)
+                ->whereIn('id', $data['roles'] ?? [])
+                ->get();
+
+            $user->syncRoles($roles);
+        } finally {
+            $registrar->setPermissionsTeamId($previousTeamId);
+        }
     }
 }

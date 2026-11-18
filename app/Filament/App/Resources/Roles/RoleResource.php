@@ -101,6 +101,73 @@ class RoleResource extends Resource
         ];
     }
 
+    public static function permissionGroups(): \Illuminate\Support\Collection
+    {
+        return Permission::query()
+            ->where('guard_name', 'web')
+            ->get()
+            ->filter(fn(Permission $permission) => in_array(
+                explode(':', $permission->name)[1] ?? '',
+                static::allowedModels(),
+                true
+            ))
+            ->groupBy(fn(Permission $permission) => explode(':', $permission->name)[1] ?? traduct('permissions.others'))
+            ->sortBy(function ($group, $resourceName) {
+                $index = array_search($resourceName, static::allowedModels(), true);
+
+                return $index !== false ? $index : 999;
+            });
+    }
+
+    public static function permissionFormState(Role $role): array
+    {
+        $selectedIds = $role->permissions->modelKeys();
+        $groups = static::permissionGroups();
+        $state = [];
+
+        foreach ($groups as $resourceName => $permissions) {
+            $permissionIds = $permissions->modelKeys();
+            $selectedForResource = array_values(array_intersect($permissionIds, $selectedIds));
+
+            $state["permissions_{$resourceName}"] = $selectedForResource;
+            $state["select_all_{$resourceName}"] = count($permissionIds) > 0
+                && count($selectedForResource) === count($permissionIds);
+        }
+
+        $allPermissionIds = $groups->flatten(1)->pluck('id')->all();
+        $selectedAllowedIds = array_values(array_intersect($allPermissionIds, $selectedIds));
+        $state['select_all_global'] = count($allPermissionIds) > 0
+            && count($selectedAllowedIds) === count($allPermissionIds);
+
+        return $state;
+    }
+
+    public static function syncPermissionsFromForm(Role $role, array $data): void
+    {
+        if ($role->is_protected) {
+            return;
+        }
+
+        $selectedIds = collect($data)
+            ->filter(fn($value, $key) => str_starts_with($key, 'permissions_'))
+            ->flatten()
+            ->filter(fn($id) => is_numeric($id))
+            ->unique()
+            ->values();
+
+        $allowedIds = static::permissionGroups()
+            ->flatten(1)
+            ->pluck('id')
+            ->all();
+
+        $permissions = Permission::query()
+            ->where('guard_name', $role->guard_name)
+            ->whereIn('id', $selectedIds->intersect($allowedIds))
+            ->get();
+
+        $role->syncPermissions($permissions);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
@@ -143,19 +210,8 @@ class RoleResource extends Resource
                             ->inline(false)
                             ->live()
                             ->afterStateUpdated(function ($state, callable $set) {
-                                // Obtenemos los modelos permitidos
-                                $allowedModels = static::allowedModels();
-
-                                // 1. Agrupamos los permisos igual que en las pestañas
-                                $groupedPermissions = Permission::all()
-                                    ->filter(fn($p) => in_array(explode(':', $p->name)[1] ?? '', $allowedModels))
-                                    ->groupBy(fn($p) => explode(':', $p->name)[1] ?? traduct('permissions.others'));
-
-                                foreach ($groupedPermissions as $resourceName => $group) {
-                                    // Activa/Desactiva el Toggle individual de cada pestaña ("Dar todo" del recurso)
+                                foreach (static::permissionGroups() as $resourceName => $group) {
                                     $set("select_all_{$resourceName}", $state);
-
-                                    // Marca/Desmarca todos los CheckboxList de esa pestaña
                                     $set("permissions_{$resourceName}", $state ? $group->pluck('id')->toArray() : []);
                                 }
                             })
@@ -172,13 +228,7 @@ class RoleResource extends Resource
                 Tabs::make(traduct('fields.permissions'))
                     ->hidden(fn($record) => $record?->is_protected ?? false)
                     ->tabs(
-                        Permission::all()
-                            ->filter(fn($p) => in_array(explode(':', $p->name)[1] ?? '', static::allowedModels()))
-                            ->groupBy(fn($p) => explode(':', $p->name)[1] ?? traduct('permissions.others'))
-                            ->sortBy(function ($group, $resourceName) {
-                                $index = array_search($resourceName, static::allowedModels());
-                                return $index !== false ? $index : 999;
-                            })
+                        static::permissionGroups()
                             ->map(function ($group, $resourceName) {
                                 $tabTitle = traductModel(Str::snake($resourceName));
                                 return Tab::make($resourceName)
@@ -322,7 +372,13 @@ class RoleResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->mutateRecordDataUsing(function (array $data, Role $record): array {
+                        return array_merge($data, static::permissionFormState($record));
+                    })
+                    ->after(function (Role $record, array $data): void {
+                        static::syncPermissionsFromForm($record, $data);
+                    }),
                 DeleteAction::make()
                     ->label(__('actions.delete'))
                     ->modalHeading(__('modals.force_delete.heading'))

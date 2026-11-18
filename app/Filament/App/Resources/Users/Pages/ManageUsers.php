@@ -13,7 +13,10 @@ class ManageUsers extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->after(function ($record, array $data): void {
+                    UserResource::syncTenantRoles($record, $data);
+                }),
         ];
     }
 }

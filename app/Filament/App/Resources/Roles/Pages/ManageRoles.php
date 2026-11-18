@@ -5,7 +5,6 @@ namespace App\Filament\App\Resources\Roles\Pages;
 use App\Filament\App\Resources\Roles\RoleResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
-use Spatie\Permission\Models\Permission;
 
 class ManageRoles extends ManageRecords
 {
@@ -16,13 +15,7 @@ class ManageRoles extends ManageRecords
         return [
             CreateAction::make()->modalWidth('6xl')
                 ->after(function ($record, array $data) {
-                    $allSelectedIds = collect($data)
-                        ->filter(fn($value, $key) => str_starts_with($key, 'permissions_'))
-                        ->flatten()
-                        ->toArray();
-
-                    $permNames = Permission::whereIn('id', $allSelectedIds)->pluck('name');
-                    $record->syncPermissions($permNames);
+                    RoleResource::syncPermissionsFromForm($record, $data);
                 }),
         ];
     }
