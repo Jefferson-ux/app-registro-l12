@@ -1,4 +1,4 @@
-<x-filament-widgets::widget>
+<x-filament-widgets::widget wire:poll.10s>
     <x-filament::section>
         <x-slot name="heading">
             {{ __('messages.attendance_widget.heading') }}
