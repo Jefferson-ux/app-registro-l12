@@ -18,7 +18,7 @@ class AttendanceRecordFactory extends Factory
     public function definition(): array
     {
         $employee = Employee::inRandomOrder()->first();
-        $method = fake()->randomElement(['web', 'mobile', 'kiosk', 'qr', 'manual', 'biometric', 'api']);
+        $method = fake()->randomElement(['manual', 'qr', 'facial']);
 
         return [
             'tenant_id'         => $employee?->tenant_id ?? Tenant::inRandomOrder()->value('id'),
@@ -27,8 +27,8 @@ class AttendanceRecordFactory extends Factory
             'type'              => fake()->randomElement(['check_in', 'check_out', 'break_start', 'break_end']),
             'recorded_at'       => fake()->dateTimeBetween('-15 days', 'now'),
             'method'            => $method,
-            'latitude'          => in_array($method, ['mobile', 'kiosk']) ? fake()->latitude() : null,
-            'longitude'         => in_array($method, ['mobile', 'kiosk']) ? fake()->longitude() : null,
+            'latitude'          => in_array($method, ['qr', 'facial'], true) ? fake()->latitude() : null,
+            'longitude'         => in_array($method, ['qr', 'facial'], true) ? fake()->longitude() : null,
             'ip_address'        => fake()->ipv4(),
             'device_identifier' => 'DEV-' . fake()->bothify('??###'),
             'notes'             => fake()->boolean(15) ? fake()->sentence() : null,

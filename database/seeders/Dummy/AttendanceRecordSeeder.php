@@ -28,7 +28,7 @@ class AttendanceRecordSeeder extends Seeder
             ->values()
             ->toArray();
 
-        $methods = ['web', 'mobile', 'kiosk', 'qr', 'manual', 'biometric', 'api'];
+        $methods = ['manual', 'qr', 'facial'];
         $now = now()->toDateTimeString();
 
         foreach ($tenants as $tenant) {
@@ -81,8 +81,8 @@ class AttendanceRecordSeeder extends Seeder
                             'type'              => $punch['type'],
                             'recorded_at'       => $recordedAt,
                             'method'            => $method,
-                            'latitude'          => in_array($method, ['mobile', 'kiosk']) ? fake()->latitude() : null,
-                            'longitude'         => in_array($method, ['mobile', 'kiosk']) ? fake()->longitude() : null,
+                            'latitude'          => in_array($method, ['qr', 'facial'], true) ? fake()->latitude() : null,
+                            'longitude'         => in_array($method, ['qr', 'facial'], true) ? fake()->longitude() : null,
                             'ip_address'        => $ip,
                             'device_identifier' => $deviceId,
                             'notes'             => null,

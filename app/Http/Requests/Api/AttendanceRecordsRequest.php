@@ -25,7 +25,7 @@ class AttendanceRecordsRequest extends FormRequest
             'type'              => 'required|string|in:check_in,check_out,break_start,break_end',
 
             // 3. Método de Marcación (Basado en tu ENUM de la BD)
-            'method'            => 'required|string|in:web,mobile,kiosk,qr,manual,biometric,api',
+            'method'            => 'required|string|in:manual,qr,facial',
 
             // 4. Ubicación Geográfica (GPS del Frontend)
             // Usamos 'numeric' para validar decimales y 'between' para los rangos reales del globo terráqueo

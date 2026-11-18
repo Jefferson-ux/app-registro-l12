@@ -42,13 +42,9 @@ return [
         'break_end' => 'Fin de Descanso',
     ],
     'method' => [
-        'web' => 'Web',
-        'mobile' => 'Móvil',
-        'kiosk' => 'Kiosco',
-        'qr' => 'QR',
         'manual' => 'Manual',
-        'biometric' => 'Biométrico',
-        'api' => 'API',
+        'qr' => 'QR',
+        'facial' => 'Facial',
     ],
     'day_of_week' => [
         'monday' => 'Lunes',

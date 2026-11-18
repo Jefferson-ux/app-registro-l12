@@ -15,7 +15,7 @@ class RegisterAttendanceRecordAction
         AttendanceType $type,
         Carbon $recordedAt,
         Request $request,
-        string $method = 'kiosk',
+        string $method,
     ): AttendanceRecord {
         return AttendanceRecord::create([
             'tenant_id' => $employee->tenant_id,

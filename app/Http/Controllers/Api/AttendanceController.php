@@ -126,7 +126,7 @@ class AttendanceController extends Controller
 
         // 3. Si pasa todos los filtros, procedemos con la lógica de tu Action
         try {
-            $result = $markAttendance->execute($request);
+            $result = $markAttendance->execute($request, 'qr');
         } catch (AttendanceException $e) {
             return response()->json([
                 'success' => false,
@@ -192,7 +192,7 @@ class AttendanceController extends Controller
         }
 
         try {
-            $result = $markAttendance->execute($request);
+            $result = $markAttendance->execute($request, 'facial');
         } catch (AttendanceException $e) {
             return response()->json([
                 'success' => false,

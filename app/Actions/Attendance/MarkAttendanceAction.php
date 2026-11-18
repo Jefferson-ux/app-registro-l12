@@ -20,7 +20,7 @@ class MarkAttendanceAction
         private RegisterAttendanceRecordAction $registerRecord,
     ) {}
 
-    public function execute(Request $request): array
+    public function execute(Request $request, string $method): array
     {
         $tenantId = $request->user()->tenant_id;
         // $type = AttendanceType::from($request->input('type'));
@@ -57,7 +57,7 @@ class MarkAttendanceAction
                 AttendanceType::BreakEnd => $this->breakEnd->execute($session, $now),
             };
 
-            $this->registerRecord->execute($employee, $type, $now, $request);
+            $this->registerRecord->execute($employee, $type, $now, $request, $method);
 
             return [
                 'message' => match ($type) {

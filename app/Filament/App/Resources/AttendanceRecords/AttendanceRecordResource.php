@@ -92,13 +92,9 @@ class AttendanceRecordResource extends Resource
                     ->dehydrated(fn(string $operation): bool => $operation !== 'edit'),
                 Select::make('method')
                     ->options([
-                        'web' => traductShort('status.method.web'),
-                        'mobile' => traductShort('status.method.mobile'),
-                        'kiosk' => traductShort('status.method.kiosk'),
-                        'qr' => traductShort('status.method.qr'),
                         'manual' => traductShort('status.method.manual'),
-                        'biometric' => traductShort('status.method.biometric'),
-                        'api' => traductShort('status.method.api'),
+                        'qr' => traductShort('status.method.qr'),
+                        'facial' => traductShort('status.method.facial'),
                     ])
                     ->required()
                     ->label(traduct('fields.method'))
@@ -191,21 +187,16 @@ class AttendanceRecordResource extends Resource
                                     ->label(traduct('fields.method'))
                                     ->badge()
                                     ->formatStateUsing(fn(string $state): string => match ($state) {
-                                        'web'       => traductShort('status.method.web'),
-                                        'mobile'    => traductShort('status.method.mobile'),
-                                        'kiosk'     => traductShort('status.method.kiosk'),
-                                        'qr'        => traductShort('status.method.qr'),
-                                        'manual'    => traductShort('status.method.manual'),
-                                        'biometric' => traductShort('status.method.biometric'),
-                                        'api'       => traductShort('status.method.api'),
+                                        'manual' => traductShort('status.method.manual'),
+                                        'qr' => traductShort('status.method.qr'),
+                                        'facial' => traductShort('status.method.facial'),
                                         default     => $state,
                                     })
                                     ->color(fn(string $state): string => match ($state) {
-                                        'web', 'mobile'    => 'info',
-                                        'kiosk', 'qr'      => 'gray',
-                                        'manual'           => 'warning',
-                                        'biometric', 'api' => 'success',
-                                        default            => 'gray',
+                                        'manual' => 'warning',
+                                        'qr' => 'gray',
+                                        'facial' => 'success',
+                                        default => 'gray',
                                     }),
                                 TextEntry::make('device_identifier')
                                     ->placeholder(__('empty.device'))
@@ -286,20 +277,15 @@ class AttendanceRecordResource extends Resource
                     ->label(traduct('fields.method'))
                     ->badge()
                     ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'web' => traductShort('status.method.web'),
-                        'mobile' => traductShort('status.method.mobile'),
-                        'kiosk' => traductShort('status.method.kiosk'),
-                        'qr' => traductShort('status.method.qr'),
                         'manual' => traductShort('status.method.manual'),
-                        'biometric' => traductShort('status.method.biometric'),
-                        'api' => traductShort('status.method.api'),
+                        'qr' => traductShort('status.method.qr'),
+                        'facial' => traductShort('status.method.facial'),
                         default => $state,
                     })
                     ->color(fn(string $state): string => match ($state) {
-                        'web', 'mobile' => 'info',
-                        'kiosk', 'qr' => 'gray',
                         'manual' => 'warning',
-                        'biometric', 'api' => 'success',
+                        'qr' => 'gray',
+                        'facial' => 'success',
                         default => 'gray',
                     })
                     ->toggleable(isToggledHiddenByDefault: true),
