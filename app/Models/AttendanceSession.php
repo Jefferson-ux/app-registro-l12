@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use App\Traits\ResolvesAttendanceState;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

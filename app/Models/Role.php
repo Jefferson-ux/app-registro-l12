@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Enums\RoleColor;
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
+    use Auditable;
 
     protected $fillable = [
         'name',

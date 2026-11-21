@@ -55,4 +55,7 @@ return [
     'attendance_report' => 'Reporte de asistencia',
     'payroll_report' => 'Reporte de planilla',
 
+    // Grupo de auditoría
+    'auditoria' => 'Auditoría',
+
 ];

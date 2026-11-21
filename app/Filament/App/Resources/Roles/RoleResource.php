@@ -100,6 +100,7 @@ class RoleResource extends Resource
             'AttendanceIncident',
             'Holiday',
             'Device',
+            'AuditLog',
         ];
     }
 

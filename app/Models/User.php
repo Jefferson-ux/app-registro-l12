@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,7 +21,7 @@ use Filament\Panel;
 
 class User extends Authenticatable implements CanResetPassword, FilamentUser
 {
-    use HasFactory, Notifiable, SoftDeletes, HasRoles, BelongsToTenant, HasApiTokens;
+    use HasFactory, Notifiable, SoftDeletes, HasRoles, BelongsToTenant, HasApiTokens, Auditable;
 
     protected $fillable = [
         'name',

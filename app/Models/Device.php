@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\DeviceType;
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class Device extends Model
 {
-    use HasApiTokens, HasFactory, BelongsToTenant;
+    use HasApiTokens, HasFactory, BelongsToTenant, Auditable;
 
     public const ONLINE_THRESHOLD_SECONDS = 180;
 

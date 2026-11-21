@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 
 class Tenant extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Auditable;
     protected $fillable = [
         'uuid',
         'name',
