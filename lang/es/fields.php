@@ -146,6 +146,11 @@ return [
     'branch_name' => 'Nombre de sucursal',
     'branch_code' => 'Código de sucursal',
     'manager' => 'Encargado',
+    'type' => 'Tipo',
+    'last_used_at' => 'Último uso',
+    'disconnected' => 'Desconectado',
+    'online' => 'En línea',
+    'offline' => 'Sin conexión',
 
     // ===== Department (Departamento) =====
     'department_name' => 'Nombre del departamento',
@@ -310,4 +315,8 @@ return [
     'yes' => 'Sí',
     'no' => 'No',
 
+
+
+    'telemetry_and_meta' => 'Telemetría y metadatos',
+    'last_ip' => 'Último IP',
 ];

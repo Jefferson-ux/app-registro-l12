@@ -66,6 +66,19 @@ class PermissionsSeeder extends Seeder
         $superAdmin = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $superAdmin->syncPermissions(Permission::all());
 
+        $devicePermissions = Permission::whereIn('name', [
+            'ViewAny:Device',
+            'View:Device',
+            'Create:Device',
+            'Update:Device',
+            'Delete:Device',
+        ])->get();
+
+        foreach (\App\Models\Role::where('name', 'admin')->whereNotNull('tenant_id')->get() as $adminRole) {
+            app(PermissionRegistrar::class)->setPermissionsTeamId($adminRole->tenant_id);
+            $adminRole->givePermissionTo($devicePermissions);
+        }
+
         // 6. Limpiar la caché de Spatie nuevamente para registrar los cambios
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }

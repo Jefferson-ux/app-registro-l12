@@ -13,7 +13,7 @@ class CreateTenantAdminRoleAction
         'Branch', 'Department', 'Employee', 'EmployeeSchedule',
         'Holiday', 'Position', 'WorkSchedule', 'WorkScheduleDay',
         'AttendanceRecord', 'AttendanceSession', 'AttendanceIncident',
-        'Role','User'
+        'Role','User','Device'
     ];
 
     public function execute(int $tenantId): Role

@@ -30,6 +30,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 use Illuminate\Support\Str;
 use App\utils\Regex;
 
@@ -44,7 +45,7 @@ class RoleResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
     public static bool $shouldRegisterGlobalSearch = false;
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationGroup(): ?string
     {
@@ -98,6 +99,7 @@ class RoleResource extends Resource
             'AttendanceSession',
             'AttendanceIncident',
             'Holiday',
+            'Device',
         ];
     }
 
@@ -322,7 +324,40 @@ class RoleResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->mutateRecordDataUsing(function (array $data, Role $record): array {
+                        $tenantId = $record->tenant_id ?? 0;
+                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+
+                        foreach (static::allowedModels() as $resourceName) {
+                            $permissionIds = $record->permissions
+                                ->filter(function (Permission $permission) use ($resourceName): bool {
+                                    $parts = explode(':', $permission->name);
+                                    return ($parts[1] ?? '') === $resourceName;
+                                })
+                                ->pluck('id')
+                                ->toArray();
+
+                            $data["permissions_{$resourceName}"] = $permissionIds;
+                            $data["select_all_{$resourceName}"] = count($permissionIds) > 0;
+                        }
+
+                        return $data;
+                    })
+                    ->after(function (Role $record, array $data): void {
+                        $tenantId = $record->tenant_id ?? 0;
+                        app(PermissionRegistrar::class)->setPermissionsTeamId($tenantId);
+
+                        $permissionIds = collect($data)
+                            ->filter(fn($value, $key) => str_starts_with($key, 'permissions_'))
+                            ->flatten()
+                            ->filter(fn($value) => is_numeric($value))
+                            ->unique()
+                            ->toArray();
+
+                        $permissionNames = Permission::whereIn('id', $permissionIds)->pluck('name');
+                        $record->syncPermissions($permissionNames);
+                    }),
                 DeleteAction::make()
                     ->label(__('actions.delete'))
                     ->modalHeading(__('modals.force_delete.heading'))

@@ -24,6 +24,10 @@
         "guard_name": "web"
     },
     {
+        "name": "Create:Device",
+        "guard_name": "web"
+    },
+    {
         "name": "Create:Employee",
         "guard_name": "web"
     },
@@ -60,6 +64,10 @@
         "guard_name": "web"
     },
     {
+        "name": "Create:UserSession",
+        "guard_name": "web"
+    },
+    {
         "name": "Create:WorkSchedule",
         "guard_name": "web"
     },
@@ -85,6 +93,10 @@
     },
     {
         "name": "Delete:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:Device",
         "guard_name": "web"
     },
     {
@@ -121,6 +133,10 @@
     },
     {
         "name": "Delete:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "Delete:UserSession",
         "guard_name": "web"
     },
     {
@@ -181,6 +197,10 @@
     },
     {
         "name": "DeleteAny:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "DeleteAny:UserSession",
         "guard_name": "web"
     },
     {
@@ -356,6 +376,10 @@
         "guard_name": "web"
     },
     {
+        "name": "Update:Device",
+        "guard_name": "web"
+    },
+    {
         "name": "Update:Employee",
         "guard_name": "web"
     },
@@ -392,6 +416,10 @@
         "guard_name": "web"
     },
     {
+        "name": "Update:UserSession",
+        "guard_name": "web"
+    },
+    {
         "name": "Update:WorkSchedule",
         "guard_name": "web"
     },
@@ -421,6 +449,10 @@
     },
     {
         "name": "View:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "View:Device",
         "guard_name": "web"
     },
     {
@@ -460,6 +492,10 @@
         "guard_name": "web"
     },
     {
+        "name": "View:UserSession",
+        "guard_name": "web"
+    },
+    {
         "name": "View:WorkSchedule",
         "guard_name": "web"
     },
@@ -489,6 +525,10 @@
     },
     {
         "name": "ViewAny:Department",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:Device",
         "guard_name": "web"
     },
     {
@@ -525,6 +565,10 @@
     },
     {
         "name": "ViewAny:User",
+        "guard_name": "web"
+    },
+    {
+        "name": "ViewAny:UserSession",
         "guard_name": "web"
     },
     {

@@ -5,12 +5,13 @@ use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\KioskController;
+use App\Http\Controllers\Api\AuthKioskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware(['auth:sanctum', 'api.user']);
 
 Route::prefix('v1')->group(function () {
 
@@ -22,7 +23,24 @@ Route::prefix('v1')->group(function () {
     // api ==> POST http::/api/v1/login
     Route::post('/login', [AuthController::class, 'login'])->name('api.login'); // Login de la API
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('kiosk')->middleware(['auth:sanctum'])->group(function () {
+        Route::post('/connect', [AuthKioskController::class, 'connect'])
+            ->middleware('kiosk')
+            ->name('kiosk.connect');
+        Route::post('/disconnect', [AuthKioskController::class, 'disconnect'])
+            ->middleware('kiosk')
+            ->name('kiosk.disconnect');
+        Route::get('/info', [KioskController::class, 'info'])
+            ->middleware(['kiosk', 'kiosk.connected'])
+            ->name('kiosk.info');
+    });
+
+    Route::middleware(['auth:sanctum', 'kiosk', 'kiosk.connected'])->group(function () {
+        Route::post('/attendance/mark', [AttendanceController::class, 'mark'])->name('attendance-mark');
+        Route::post('/attendance/mark-by-face', [AttendanceController::class, 'markByFace'])->name('attendance-mark-by-face');
+    });
+
+    Route::middleware(['auth:sanctum', 'api.user'])->group(function () {
         // api ==> POST http::/api/v1/logout
         Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
 
@@ -32,13 +50,6 @@ Route::prefix('v1')->group(function () {
 
         // api ==> POST http::/api/v1/kiosk/identify
         Route::post('/kiosk/identify', [KioskController::class, 'identify'])->name('employee-identify');
-
-        //! APIs de Asistencia
-        // api ==> GET http::/api/v1/attendance/mark
-        Route::post('/attendance/mark', [AttendanceController::class, 'mark'])->name('attendance-mark');
-
-        // api ==> POST http::/api/v1/attendance/mark-by-face
-        Route::post('/attendance/mark-by-face', [AttendanceController::class, 'markByFace'])->name('attendance-mark');
 
         // api ==> GET http::/api/v1/attendance/today/{code}
         Route::get('/attendance/today/{code}', [AttendanceController::class, 'attendanceToday'])->name('get-attendance-today');

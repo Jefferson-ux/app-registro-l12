@@ -111,6 +111,10 @@ class Tenant extends Model
     {
         return $this->hasMany(AuditLog::class);
     }
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
+    }
 
     protected static function booted(): void
         {

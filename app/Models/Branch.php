@@ -50,4 +50,9 @@ class Branch extends Model
     {
         return $this->hasMany(Holiday::class);
     }
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
+    }
 }
