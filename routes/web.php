@@ -21,4 +21,12 @@ Route::get('/thank-you', function () {
     return view('pages.thank-you');
 })->name('thank-you');
 
+Route::get('/politica-de-privacidad', function () {
+    return view('pages.privacidad');
+})->name('privacidad');
+
+Route::get('/terminos-y-condiciones', function () {
+    return view('pages.terminos');
+})->name('terminos');
+
 Route::get('/mail-send', [MailController::class, 'mailMe'])->name('mail-send');

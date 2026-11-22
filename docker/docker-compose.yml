@@ -34,6 +34,7 @@ services:
             MAIL_PORT: 1025
             MAIL_ENCRYPTION: ""
             SUPER_ADMIN_EMAIL: ${SUPER_ADMIN_EMAIL:?falta SUPER_ADMIN_EMAIL}
+            TERMS_VERSION: ${TERMS_VERSION:-2026-11}
         depends_on:
             mysql:
                 condition: service_healthy

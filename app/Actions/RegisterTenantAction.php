@@ -30,6 +30,8 @@ public function execute(array $data): Tenant
             'country'       => $data['country'] ?? null,
             'timezone'      => $data['timezone'] ?? null,
             'logo'          => $data['logo'] ?? null,
+            'terms_accepted_at' => now(),
+            'terms_version'     => config('terms.version'),
         ]);
 
         $plainPassword = Str::random(12);

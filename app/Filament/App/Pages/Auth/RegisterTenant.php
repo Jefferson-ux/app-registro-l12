@@ -5,6 +5,7 @@ namespace App\Filament\App\Pages\Auth;
 use App\Actions\RegisterTenantAction;
 use App\Models\Tenant;
 use App\Models\User;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -20,6 +21,7 @@ use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 
 class RegisterTenant extends SimplePage implements HasForms
 {
@@ -139,6 +141,13 @@ class RegisterTenant extends SimplePage implements HasForms
                 ])
                     ->columns(1)
                     ->columnSpan(1),
+
+                Checkbox::make('terms_accepted')
+                    ->label(
+                        new HtmlString(__('Acepto las <a href="' . route('terminos') . '" target="_blank" style="color:#2563eb; font-weight:600; text-decoration:underline;">Términos y Condiciones</a> y la <a href="' . route('privacidad') . '" target="_blank" style="color:#2563eb; font-weight:600; text-decoration:underline;">Política de Privacidad</a>.'))
+                    )
+                    ->required()
+                    ->columnSpanFull(),
             ])
             ->statePath('data');
     }

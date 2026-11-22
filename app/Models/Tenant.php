@@ -24,6 +24,8 @@ class Tenant extends Model
         'logo',
         'status',
         'trial_ends_at',
+        'terms_accepted_at',
+        'terms_version',
     ];
 
     protected $attributes = [
@@ -35,6 +37,7 @@ class Tenant extends Model
     {
         return [
             'trial_ends_at' => 'datetime',
+            'terms_accepted_at' => 'datetime',
         ];
     }
 
