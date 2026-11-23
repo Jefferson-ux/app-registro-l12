@@ -8,11 +8,8 @@ use Filament\Widgets\Widget;
 class RecentAttendanceSession extends Widget
 {
     protected string $view = 'filament.widgets.attendance.attendance.recent-attendance-session';
-
-    protected int | string | array $columnSpan = [
-        'default' => 'full',
-        '2xl' => '2',
-    ];
+    protected int | string | array $columnSpan = 'full';
+    protected static ?int $sort = 20;
 
     public string $search = '';
 
@@ -32,6 +29,7 @@ class RecentAttendanceSession extends Widget
                 });
             })
             ->get();
+
         $columns = ['check_in_at', 'break_start_at', 'break_end_at', 'check_out_at'];
 
         $events = $sessions->flatMap(function ($s) use ($columns) {
