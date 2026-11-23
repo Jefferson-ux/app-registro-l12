@@ -4,7 +4,7 @@ use App\Models\Device;
 
 uses(Tests\TestCase::class);
 
-it('reports online state from activity and connection state', function () {
+it('indica el estado en línea a partir de la actividad y el estado de conexión', function () {
     $device = new Device([
         'name' => 'Prueba',
     ]);

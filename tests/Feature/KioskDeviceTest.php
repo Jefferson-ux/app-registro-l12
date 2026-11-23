@@ -31,8 +31,8 @@ function createKioskFixture(): array
     return [$tenant, $branch, $device];
 }
 
-it('connects a kiosk and stores its identifier and coordinates', function () {
-    [, , $device] = createKioskFixture();
+it('conecta un quiosco y almacena su identificador y sus coordenadas', function () {
+    [,, $device] = createKioskFixture();
     $token = $device->issueToken();
 
     $response = $this->withToken($token)->postJson('/api/v1/kiosk/connect', [
@@ -53,7 +53,7 @@ it('connects a kiosk and stores its identifier and coordinates', function () {
         ->longitude->toBe('-77.0427930');
 });
 
-it('returns 401 for missing or invalid kiosk tokens', function () {
+it('retorna 401 si faltan los tokens de quiosco o si estos no son válidos', function () {
     $this->post('/api/v1/kiosk/connect', [
         'device_identifier' => 'tablet-001',
     ], ['Accept' => 'text/html'])
@@ -68,8 +68,8 @@ it('returns 401 for missing or invalid kiosk tokens', function () {
         ->assertJson(['success' => false]);
 });
 
-it('rejects user tokens in kiosk routes and device tokens in user routes', function () {
-    [, , $device] = createKioskFixture();
+it('rechaza tokens de usuario en rutas de quiosco y tokens de dispositivo en rutas de usuario', function () {
+    [,, $device] = createKioskFixture();
     $kioskToken = $device->issueToken();
 
     $tenant = $device->tenant;
@@ -92,8 +92,8 @@ it('rejects user tokens in kiosk routes and device tokens in user routes', funct
         ->assertStatus(403);
 });
 
-it('validates kiosk connect data', function () {
-    [, , $device] = createKioskFixture();
+it('valida los datos de conexión del quiosco', function () {
+    [,, $device] = createKioskFixture();
     $token = $device->issueToken();
 
     $this->withToken($token)
@@ -108,8 +108,8 @@ it('validates kiosk connect data', function () {
         ->assertStatus(422);
 });
 
-it('allows reconnection only for the same device identifier', function () {
-    [, , $device] = createKioskFixture();
+it('permite la reconexión únicamente para el mismo identificador de dispositivo', function () {
+    [,, $device] = createKioskFixture();
     $token = $device->issueToken();
 
     $this->withToken($token)
@@ -125,8 +125,8 @@ it('allows reconnection only for the same device identifier', function () {
         ->assertOk();
 });
 
-it('reports kiosk info and updates heartbeat', function () {
-    [, , $device] = createKioskFixture();
+it('informa sobre los datos del quiosco y actualiza la señal de actividad (heartbeat)', function () {
+    [,, $device] = createKioskFixture();
     $token = $device->issueToken();
 
     $this->withToken($token)
@@ -148,8 +148,8 @@ it('reports kiosk info and updates heartbeat', function () {
     expect($device->fresh()->last_used_at->gte($previousHeartbeat))->toBeTrue();
 });
 
-it('disconnects idempotently and revokes the token', function () {
-    [, , $device] = createKioskFixture();
+it('desconecta de forma idempotente y revoca el token', function () {
+    [,, $device] = createKioskFixture();
     $token = $device->issueToken();
 
     $this->withToken($token)
@@ -178,8 +178,8 @@ it('disconnects idempotently and revokes the token', function () {
         ->assertStatus(401);
 });
 
-it('lets a connected kiosk reach attendance marking', function () {
-    [, , $device] = createKioskFixture();
+it('permite que un quiosco conectado realice el registro de asistencia', function () {
+    [,, $device] = createKioskFixture();
     $token = $device->issueToken();
 
     $this->withToken($token)
@@ -202,8 +202,8 @@ it('lets a connected kiosk reach attendance marking', function () {
         ->assertJsonMissing(['message' => 'Este token no puede acceder a esta ruta.']);
 });
 
-it('issues kiosk prefixed tokens with hashes in the database', function () {
-    [, , $device] = createKioskFixture();
+it('emite tokens para quiosco que incluyen prefijos y valores hash en la base de datos', function () {
+    [,, $device] = createKioskFixture();
     $plain = $device->issueToken();
 
     expect($plain)->toStartWith('kiosk_')
