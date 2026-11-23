@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! in_array(DB::getDriverName(), ['mysql', 'mariadb'], true)) {
+            return;
+        }
+
         // 1. Ruta absoluta de tu archivo SQL
         $path = database_path('queries/employee_schedules_views.sql');
 

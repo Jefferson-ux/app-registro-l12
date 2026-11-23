@@ -42,11 +42,18 @@ class MarkAttendanceAction
         $today = $now->copy()->setTimezone($tz)->toDateString();
 
         return DB::transaction(function () use ($request, $employee, $tenantId, $tz, $now, $today) {
-            $session = AttendanceSession::firstOrNew([
-                'tenant_id' => $tenantId,
-                'employee_id' => $employee->id,
-                'attendance_date' => $today,
-            ]);
+            $session = AttendanceSession::where('tenant_id', $tenantId)
+                ->where('employee_id', $employee->id)
+                ->whereDate('attendance_date', $today)
+                ->first();
+
+            if (! $session) {
+                $session = new AttendanceSession([
+                    'tenant_id' => $tenantId,
+                    'employee_id' => $employee->id,
+                    'attendance_date' => $today,
+                ]);
+            }
 
             $type = $this->resolveType($request, $session);
 
