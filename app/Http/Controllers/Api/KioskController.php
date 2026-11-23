@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AttendanceStatusDetailResource;
 use App\Http\Resources\EmployeeAttendanceStatusResource;
 use App\Http\Resources\EmployeeResource;
+use App\Http\Resources\KioskResource;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
 use Carbon\Carbon;
@@ -13,6 +14,14 @@ use Illuminate\Http\Request;
 
 class KioskController extends Controller
 {
+    public function info(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => new KioskResource($request->user()),
+        ], 200);
+    }
+
     // ? - Obtener el Status del Empleado según su propio código ...
     public function getEmployeeStatus(string $code)
     {

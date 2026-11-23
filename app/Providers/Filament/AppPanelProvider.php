@@ -73,9 +73,14 @@ class AppPanelProvider extends PanelProvider
             ->pages([
                 AppDashboard::class,
             ])
-
+            ->sidebarFullyCollapsibleOnDesktop()
             ->discoverWidgets(in: app_path('Filament/Widgets/Attendance'), for: 'App\Filament\Widgets\Attendance')
-            ->widgets([])
+            ->widgets([
+                \App\Filament\Widgets\Attendance\WelcomeWidget::class,
+                \App\Filament\Widgets\Attendance\AttendanceStats::class,
+                \App\Filament\Widgets\Attendance\RecentAttendanceSession::class,
+                \App\Filament\Widgets\Attendance\AttendanceRecordsChart::class,
+            ])
             ->navigationGroups([
                 NavigationGroup::make(fn() => traduct('navigation.business'))
                     ->collapsed(true),
@@ -84,6 +89,8 @@ class AppPanelProvider extends PanelProvider
                 NavigationGroup::make(fn() => traduct('navigation.hr'))
                     ->collapsed(true),
                 NavigationGroup::make(fn() => traduct('navigation.access_control'))
+                    ->collapsed(true),
+                NavigationGroup::make(fn() => traduct('navigation.auditoria'))
                     ->collapsed(true),
 
             ])

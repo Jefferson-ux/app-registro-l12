@@ -42,7 +42,7 @@ class DatabaseSeeder extends Seeder
                 TenantSeeder::class,
                 UserSeeder::class,
                 SubscriptionSeeder::class,
-                AuditLogSeeder::class,
+                //AuditLogSeeder::class,
                 BranchSeeder::class,
                 DepartmentSeeder::class,
                 PositionSeeder::class,

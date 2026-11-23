@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 
 class Tenant extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Auditable;
     protected $fillable = [
         'uuid',
         'name',
@@ -23,6 +24,8 @@ class Tenant extends Model
         'logo',
         'status',
         'trial_ends_at',
+        'terms_accepted_at',
+        'terms_version',
     ];
 
     protected $attributes = [
@@ -34,6 +37,7 @@ class Tenant extends Model
     {
         return [
             'trial_ends_at' => 'datetime',
+            'terms_accepted_at' => 'datetime',
         ];
     }
 
@@ -110,6 +114,10 @@ class Tenant extends Model
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);
+    }
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
     }
 
     protected static function booted(): void

@@ -3,8 +3,6 @@
 namespace App\Filament\App\Pages;
 
 use Filament\Pages\Dashboard as BaseDashboard;
-
-use Filament\Pages\Page;
 use Illuminate\Contracts\Support\Htmlable;
 
 class AppDashboard extends BaseDashboard

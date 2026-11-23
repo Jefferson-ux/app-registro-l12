@@ -49,9 +49,13 @@ return [
     'permissions' => 'Permisos',
     'audit_logs' => 'Registros de auditoría',
     'configurations' => 'Configuraciones',
+    'devices' => 'Dispositivos',
 
     // Reportes
     'attendance_report' => 'Reporte de asistencia',
     'payroll_report' => 'Reporte de planilla',
+
+    // Grupo de auditoría
+    'auditoria' => 'Auditoría',
 
 ];

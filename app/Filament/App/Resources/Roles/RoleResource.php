@@ -30,6 +30,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 use Illuminate\Support\Str;
 use App\utils\Regex;
 
@@ -44,7 +45,7 @@ class RoleResource extends Resource
     protected static ?string $recordTitleAttribute = 'name';
     public static bool $shouldRegisterGlobalSearch = false;
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationGroup(): ?string
     {

@@ -35,6 +35,10 @@ return [
         'singular' => 'Departamento',
         'plural' => 'Departamentos',
     ],
+    'device' => [
+        'singular' => 'Dispositivo',
+        'plural' => 'Dispositivos',
+    ],
     'employee' => [
         'singular' => 'Empleado',
         'plural' => 'Empleados',

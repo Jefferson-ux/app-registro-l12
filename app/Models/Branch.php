@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Branch extends Model
 {
-    use SoftDeletes,BelongsToTenant, HasFactory;
+    use SoftDeletes,BelongsToTenant, HasFactory, Auditable;
     
     protected $fillable = [
         'tenant_id',
@@ -49,5 +50,10 @@ class Branch extends Model
     public function holidays(): HasMany
     {
         return $this->hasMany(Holiday::class);
+    }
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(Device::class);
     }
 }

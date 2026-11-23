@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
-    use SoftDeletes, BelongsToTenant, HasFactory;
+    use SoftDeletes, BelongsToTenant, HasFactory, Auditable;
 
     protected $fillable = [
         'tenant_id',

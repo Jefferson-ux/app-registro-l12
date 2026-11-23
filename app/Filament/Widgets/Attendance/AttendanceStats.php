@@ -9,6 +9,18 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class AttendanceStats extends StatsOverviewWidget
 {
+    protected static ?int $sort = 10;
+    protected function getColumns(): int | array
+    {
+        return [
+            'default' => 1,
+            'sm'      => 2,
+            'md'      => 2,
+            'lg'      => 3,
+            'xl'      => 3,
+            '2xl'     => 3,
+        ];
+    }
     protected function getStats(): array
     {
         $employee_count = Employee::where('employment_status', 'active')->count();

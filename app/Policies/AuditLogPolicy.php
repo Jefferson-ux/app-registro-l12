@@ -11,7 +11,7 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class AuditLogPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:AuditLog');
@@ -22,10 +22,10 @@ class AuditLogPolicy
         return $authUser->can('View:AuditLog');
     }
 
-    public function create(AuthUser $authUser): bool
-    {
-        return $authUser->can('Create:AuditLog');
-    }
+    // public function create(AuthUser $authUser): bool
+    // {
+    //     return $authUser->can('Create:AuditLog');
+    // }
 
     // public function update(AuthUser $authUser, AuditLog $auditLog): bool
     // {
