@@ -91,9 +91,13 @@ class EmployeeResource extends Resource
                                         'other'    => 'Otro',
                                     ])
                                     ->live()
+                                    ->required(fn(Get $get): bool => filled($get('document_number')))
                                     ->afterStateUpdated(fn(Set $set) => $set('document_number', null)),
+
                                 TextInput::make('document_number')
                                     ->label(__('fields.document_number'))
+                                    ->live(onBlur: true)
+                                    ->required(fn(Get $get): bool => filled($get('document_type')))
                                     ->regex(fn(Get $get): string => match ($get('document_type')) {
                                         'dni'      => Regex::DOC_DNI,
                                         'ruc'      => Regex::TAX_ID_PE,
@@ -107,7 +111,7 @@ class EmployeeResource extends Resource
                                         default => 50,
                                     })
                                     ->default(null)
-                                    ->dehydrateStateUsing(fn(?string $state) => $state ? strtoupper($state) : null)
+                                    ->dehydrateStateUsing(fn(?string $state) => filled($state) ? strtoupper($state) : null)
                                     ->validationMessages(['regex' => 'El formato no corresponde al tipo de documento seleccionado.']),
                                 TextInput::make('first_name')
                                     ->required()

@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tenants', function (Blueprint $table) {
-            $table->timestamp('terms_accepted_at')->nullable();
-            $table->string('terms_version', 20)->nullable();
+            $table->timestamp('terms_accepted_at')->nullable()->after('trial_ends_at');
+            $table->string('terms_version', 20)->nullable()->after('terms_accepted_at');
         });
     }
 
