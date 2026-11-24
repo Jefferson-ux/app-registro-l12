@@ -99,6 +99,7 @@ return [
         'break_start_short'     => 'I. Descanso',
         'break_end_short'       => 'F. Descanso',
         'minutes'               => 'min',
+        'no_absences_recorded' => 'No se registran inasistencias',
     ],
 
     // Secciones en Infolists y Formularios

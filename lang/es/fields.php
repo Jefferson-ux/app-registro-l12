@@ -320,4 +320,16 @@ return [
     'telemetry_and_meta' => 'Telemetría y metadatos',
     'last_ip' => 'Último IP',
     'auto_close_after_minutes' => 'Cierre automático tras',
+
+
+    'max_shift_minutes'               => 'Tiempo máximo de jornada',
+    'min_daily_minutes'               => 'Mínimo diario',
+    'min_weekly_minutes'              => 'Mínimo semanal',
+    'entry_window_start'              => 'Inicio de ventana de entrada',
+    'entry_window_end'                => 'Fin de ventana de entrada',
+    'requires_break'                  => 'Requiere descanso',
+    'min_break_minutes'               => 'Descanso mínimo',
+    'max_break_minutes'               => 'Descanso máximo',
+    'min_rest_between_shifts_minutes' => 'Descanso entre turnos',
+    'expected_days'                   => 'Días esperados',
 ];

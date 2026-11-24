@@ -25,4 +25,5 @@ return [
     'resolution_notes'   => 'No resolution notes',
     'email_verified_at' => 'Email not verified',
     'last_login_at'     => 'Never logged in',
+    'no_absences_recorded' => 'Absences are not recorded',
 ];

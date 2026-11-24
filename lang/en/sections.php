@@ -98,6 +98,7 @@ return [
         'break_start_short'     => 'Break start',
         'break_end_short'       => 'Break end',
         'minutes'               => 'min',
+        'no_absences_recorded' => 'Absences are not recorded',
     ],
 
 ];
