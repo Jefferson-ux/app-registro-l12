@@ -15,6 +15,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 class AuditLogResource extends Resource
@@ -90,18 +91,36 @@ class AuditLogResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('tenant.name')
-                    ->label(traduct('fields.tenant'))
-                    ->searchable(),
                 TextColumn::make('user.name')
                     ->label(traduct('fields.user'))
                     ->searchable(),
                 TextColumn::make('action')
                     ->label(traduct('fields.action'))
-                    ->searchable(),
+                    ->searchable()
+                    ->badge()
+                    ->color(fn(string $state): string => match (true) {
+                        str_ends_with($state, '.created')     => 'success',
+                        str_ends_with($state, '.updated')     => 'info',
+                        str_ends_with($state, '.soft_delete') => 'warning',
+                        str_ends_with($state, '.deleted')     => 'danger',
+                        str_ends_with($state, '.restored')    => 'primary',
+                        default                               => 'gray',
+                    })
+                    ->formatStateUsing(function (string $state): string {
+                        [$modelKey, $event] = array_pad(explode('.', $state, 2), 2, null);
+
+                        $modelLabel = $modelKey ? traductModel($modelKey) : '';
+                        $eventLabel = $event ? (__("audit.events.{$event}") !== "audit.events.{$event}"
+                            ? __("audit.events.{$event}")
+                            : Str::headline($event)) : '';
+
+                        return trim("{$modelLabel} · {$eventLabel}", ' ·');
+                    }),
+
                 TextColumn::make('entity_type')
                     ->label(traduct('fields.entity_type'))
-                    ->searchable(),
+                    ->searchable()
+                    ->formatStateUsing(fn(string $state): string => traductModel(Str::snake($state))),
                 TextColumn::make('entity_id')
                     ->label(traduct('fields.entity_id'))
                     ->numeric()

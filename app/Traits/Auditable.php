@@ -11,7 +11,12 @@ trait Auditable
     protected static function bootAuditable(): void
     {
         static::created(function (Model $model) {
-            static::writeAudit($model, 'created', null, $model->auditableAttributes($model->getAttributes()));
+            static::writeAudit(
+                $model,
+                'created',
+                null,
+                $model->auditableAttributes($model->getAttributes())
+            );
         });
 
         static::updated(function (Model $model) {
@@ -27,7 +32,15 @@ trait Auditable
         });
 
         static::deleted(function (Model $model) {
-            static::writeAudit($model, 'deleted', $model->auditableAttributes($model->getOriginal()), null);
+            $isSoftDelete = method_exists($model, 'isForceDeleting') && ! $model->isForceDeleting();
+            $event = $isSoftDelete ? 'soft_delete' : 'deleted';
+
+            static::writeAudit(
+                $model,
+                $event,
+                $model->auditableAttributes($model->getOriginal()),
+                null
+            );
         });
     }
 
@@ -41,6 +54,15 @@ trait Auditable
         return array_diff_key($attributes, array_flip($excluded));
     }
 
+    protected static function resolveAction(Model $model, string $event): string
+    {
+        if (method_exists($model, 'auditAction')) {
+            return $model->auditAction($event);
+        }
+
+        return str(class_basename($model))->snake() . '.' . $event;
+    }
+
     protected static function writeAudit(Model $model, string $event, ?array $old, ?array $new): void
     {
         $user = auth()->user();
@@ -49,7 +71,7 @@ trait Auditable
         $tenant = null;
 
         if ($tenantId) {
-            $tenant = $user?->tenant_id === $tenantId
+            $tenant = ($user && (int) $user->tenant_id === (int) $tenantId && $user->tenant)
                 ? $user->tenant
                 : Tenant::find($tenantId);
         }
@@ -61,8 +83,8 @@ trait Auditable
             'branch_id'   => $model->branch_id ?? null,
             'user_id'     => $user?->id,
             'user_name'   => $user?->name,
-            'action'      => class_basename($model) . '.' . $event,
-            'entity_type' => $model::class,
+            'action'      => static::resolveAction($model, $event),
+            'entity_type' => class_basename($model),
             'entity_id'   => $model->getKey(),
             'old_values'  => $old,
             'new_values'  => $new,
