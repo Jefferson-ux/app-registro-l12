@@ -28,7 +28,7 @@ class WorkSchedule extends Model
 
     public function days(): HasMany
     {
-        return $this->hasMany(WorkScheduleDay::class);
+        return $this->hasMany(WorkScheduleDay::class)->orderBy('day_of_week');
     }
 
     public function employeeSchedules(): HasMany

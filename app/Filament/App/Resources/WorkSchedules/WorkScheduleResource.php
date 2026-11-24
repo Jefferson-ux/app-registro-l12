@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\WorkSchedules;
 
 use App\Filament\App\Resources\WorkSchedules\Pages\ManageWorkSchedules;
+use App\Filament\App\Resources\WorkSchedules\Schemas\FixedScheduleForm;
 use App\Models\WorkSchedule;
 use App\Traits\ScopesTenantResource;
 use BackedEnum;
@@ -34,6 +35,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\utils\Regex;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 
@@ -66,27 +68,43 @@ class WorkScheduleResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(150)
-                    ->regex(Regex::PHRASE)
-                    ->label(traduct("fields.schedule_name")),
-                Textarea::make('description')
-                    ->default(null)
-                    ->columnSpanFull()
-                    ->label(traduct("fields.description")),
-                Select::make('schedule_type')
-                    ->options([
-                        'fixed' => traduct('fields.schedule_fixed'),
-                        'flexible' => traduct('fields.schedule_flexible'),
-                        'rotating' => traduct('fields.schedule_rotating'),
-                    ])
-                    ->default('fixed')
-                    ->required()
-                    ->label(traduct("fields.schedule_type")),
-            ]);
+        return $schema->components([
+            Tabs::make('schedule')
+                ->columnSpanFull()
+                ->tabs([
+                    Tab::make(traduct('sections.work_schedule.tab_general'))
+                        ->schema([
+                            TextInput::make('name')
+                                ->required()
+                                ->maxLength(150)
+                                ->regex(Regex::PHRASE)
+                                ->label(traduct('fields.schedule_name')),
+                            Textarea::make('description')
+                                ->default(null)
+                                ->label(traduct('fields.description')),
+                        ]),
+
+                    Tab::make(traduct('sections.work_schedule.tab_schedule'))
+                        ->schema([
+                            Select::make('schedule_type')
+                                ->options([
+                                    'fixed'    => traduct('fields.schedule_fixed'),
+                                    'flexible' => traduct('fields.schedule_flexible'),
+                                    'rotating' => traduct('fields.schedule_rotating'),
+                                ])
+                                ->default('fixed')
+                                ->required()
+                                ->live()
+                                ->label(traduct('fields.schedule_type')),
+
+                            FixedScheduleForm::make(),
+
+                            // Más adelante:
+                            // FlexibleScheduleForm::make(),
+                            // RotatingScheduleForm::make(),
+                        ]),
+                ]),
+        ]);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -120,6 +138,68 @@ class WorkScheduleResource extends Resource
                                     ->placeholder(__('empty.description'))
                                     ->label(traduct('fields.description'))
                                     ->columnSpanFull(),
+                            ]),
+
+                        Tab::make(traduct('sections.work_schedule.tab_schedule'))
+                            ->icon(Heroicon::OutlinedClock)
+                            ->columns(1)
+                            ->schema([
+                                RepeatableEntry::make('days')
+                                    ->label(traduct('sections.work_schedule.tab_schedule'))
+                                    ->visible(fn(WorkSchedule $record): bool => $record->schedule_type === 'fixed')
+                                    ->placeholder(__('empty.generic'))
+                                    ->columns(4)
+                                    ->schema([
+                                        TextEntry::make('day_of_week')
+                                            ->label(traduct('fields.day_of_week'))
+                                            ->badge()
+                                            ->formatStateUsing(fn(int|string|null $state): string => match ((int) $state) {
+                                                1 => traductShort('status.day_of_week.monday'),
+                                                2 => traductShort('status.day_of_week.tuesday'),
+                                                3 => traductShort('status.day_of_week.wednesday'),
+                                                4 => traductShort('status.day_of_week.thursday'),
+                                                5 => traductShort('status.day_of_week.friday'),
+                                                6 => traductShort('status.day_of_week.saturday'),
+                                                7 => traductShort('status.day_of_week.sunday'),
+                                                default => __('empty.generic'),
+                                            }),
+                                        IconEntry::make('is_working_day')
+                                            ->label(traduct('fields.is_working_day'))
+                                            ->boolean(),
+                                        TextEntry::make('check_in_time')
+                                            ->label(traduct('fields.check_in_time'))
+                                            ->time('g:i A')
+                                            ->placeholder(__('empty.time')),
+                                        TextEntry::make('check_out_time')
+                                            ->label(traduct('fields.check_out_time'))
+                                            ->time('g:i A')
+                                            ->placeholder(__('empty.time')),
+                                        TextEntry::make('break_start_time')
+                                            ->label(traduct('fields.break_start_time'))
+                                            ->time('g:i A')
+                                            ->placeholder(__('empty.time')),
+                                        TextEntry::make('break_end_time')
+                                            ->label(traduct('fields.break_end_time'))
+                                            ->time('g:i A')
+                                            ->placeholder(__('empty.time')),
+                                        TextEntry::make('check_in_tolerance_minutes')
+                                            ->label(traduct('fields.check_in_tolerance'))
+                                            ->numeric()
+                                            ->suffix(' min'),
+                                        TextEntry::make('check_out_tolerance_minutes')
+                                            ->label(traduct('fields.check_out_tolerance'))
+                                            ->numeric()
+                                            ->suffix(' min'),
+                                    ]),
+
+                                TextEntry::make('schedule_type_notice')
+                                    ->label(traduct('fields.schedule_type'))
+                                    ->visible(fn(WorkSchedule $record): bool => $record->schedule_type !== 'fixed')
+                                    ->state(fn(WorkSchedule $record): string => match ($record->schedule_type) {
+                                        'flexible' => traduct('fields.schedule_flexible'),
+                                        'rotating' => traduct('fields.schedule_rotating'),
+                                        default    => (string) $record->schedule_type,
+                                    }),
                             ]),
 
                         Tab::make(traduct('sections.audit'))

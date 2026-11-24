@@ -87,6 +87,20 @@ return [
         "title" => "Salidas permitidas del día",
     ],
 
+    'work_schedule' => [
+        'tab_general'           => 'General',
+        'tab_schedule'          => 'Horario',
+        'apply_to_working_days' => 'Aplicar el mismo horario a todos los días laborables',
+        'working_day'           => 'Es laborable',
+        'check_in'              => 'Entrada',
+        'break_start'           => 'Inicio de descanso',
+        'break_end'             => 'Final de descanso',
+        'check_out'             => 'Salida',
+        'break_start_short'     => 'I. Descanso',
+        'break_end_short'       => 'F. Descanso',
+        'minutes'               => 'min',
+    ],
+
     // Secciones en Infolists y Formularios
     'general' => 'General',
     'personal_data' => 'Datos personales',

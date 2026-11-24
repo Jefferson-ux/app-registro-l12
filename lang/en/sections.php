@@ -86,5 +86,18 @@ return [
     "attendance_leave" => [
         "title" => "Today's Authorized Leaves",
     ],
+    'work_schedule' => [
+        'tab_general'           => 'General',
+        'tab_schedule'          => 'Schedule',
+        'apply_to_working_days' => 'Apply the same schedule to all working days',
+        'working_day'           => 'Working day',
+        'check_in'              => 'Check-in',
+        'break_start'           => 'Break start',
+        'break_end'             => 'Break end',
+        'check_out'             => 'Check-out',
+        'break_start_short'     => 'Break start',
+        'break_end_short'       => 'Break end',
+        'minutes'               => 'min',
+    ],
 
 ];
