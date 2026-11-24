@@ -332,4 +332,12 @@ return [
     'max_break_minutes'               => 'Descanso máximo',
     'min_rest_between_shifts_minutes' => 'Descanso entre turnos',
     'expected_days'                   => 'Días esperados',
+
+
+
+    'max_shift_minutes_hint'               => 'Tiempo máximo transcurrido desde la entrada (incluye descanso). Pasado este tiempo sin salida, la jornada queda incompleta.',
+    'min_weekly_minutes_hint'              => 'Valor informativo para reportes; no bloquea las marcaciones.',
+    'entry_window_end_hint'                => 'Si la hora final es menor que la inicial, la ventana cruza medianoche.',
+    'min_rest_between_shifts_minutes_hint' => 'Descanso obligatorio entre una salida y la siguiente entrada.',
+    'expected_days_hint'                   => 'Déjalo vacío si no se registran inasistencias.',
 ];

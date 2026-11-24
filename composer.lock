@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3e100da273d49b57ee9d1c79b4688e47",
+    "content-hash": "5d11f26e3296d5e0084eb15cd7f85f0e",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -2208,6 +2208,82 @@
                 }
             ],
             "time": "2026-08-24T09:15:32+00:00"
+        },
+        {
+            "name": "harvirsidhu/filament-timepicker",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/harvirsidhu/filament-timepicker.git",
+                "reference": "fdee4ee606a01545a36a31fb6e249ddff2b8519c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/harvirsidhu/filament-timepicker/zipball/fdee4ee606a01545a36a31fb6e249ddff2b8519c",
+                "reference": "fdee4ee606a01545a36a31fb6e249ddff2b8519c",
+                "shasum": ""
+            },
+            "require": {
+                "filament/forms": "^4.0|^5.0",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.15.0"
+            },
+            "require-dev": {
+                "filament/filament": "^4.0|^5.0",
+                "larastan/larastan": "^3.0",
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^8.0",
+                "orchestra/testbench": "^9.0|^10.0",
+                "pestphp/pest": "^3.7|^4.0",
+                "pestphp/pest-plugin-arch": "^3.0|^4.0",
+                "pestphp/pest-plugin-laravel": "^3.0|^4.0",
+                "pestphp/pest-plugin-livewire": "^3.0|^4.0",
+                "rector/rector": "^2.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Harvirsidhu\\FilamentTimepicker\\FilamentTimepickerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Harvirsidhu\\FilamentTimepicker\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "harvirsidhu",
+                    "email": "harvirsidhu@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A smart, type-ahead time picker field for Filament. Type freely (3p, 330, 3:30 PM) with a filterable, keyboard-navigable suggestion dropdown.",
+            "homepage": "https://github.com/harvirsidhu/filament-timepicker",
+            "keywords": [
+                "filament",
+                "filament-plugin",
+                "filament-timepicker",
+                "filamentphp",
+                "form-field",
+                "harvirsidhu",
+                "laravel",
+                "time",
+                "time-picker",
+                "timepicker"
+            ],
+            "support": {
+                "issues": "https://github.com/harvirsidhu/filament-timepicker/issues",
+                "source": "https://github.com/harvirsidhu/filament-timepicker"
+            },
+            "time": "2026-09-03T16:59:51+00:00",
+            "published-time": "2026-09-03T17:00:02+00:00"
         },
         {
             "name": "kirschbaum-development/eloquent-power-joins",
@@ -13960,5 +14036,5 @@
         "php": "^8.2"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.11.0"
 }

@@ -6,7 +6,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Repeater\TableColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\TimePicker;
+use Harvirsidhu\FilamentTimepicker\SmartTimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
@@ -153,18 +153,19 @@ class FixedScheduleForm
             });
     }
 
-    protected static function time(string $name): TimePicker
+    protected static function time(string $name): SmartTimePicker
     {
-        return TimePicker::make($name)
+        return SmartTimePicker::make($name)
             //->native(false)
             ->seconds(false)
-            ->displayFormat('h:i a');
+            ->displayFormat('h:i a')
+            ->interval(10);
     }
 
     /**
      * Hora de una fila: deshabilitada si el día no es laborable, y entonces se guarda como null.
      */
-    protected static function rowTime(string $name): TimePicker
+    protected static function rowTime(string $name): SmartTimePicker
     {
         return static::time($name)
             ->disabled(fn(Get $get) => ! $get('is_working_day'))
