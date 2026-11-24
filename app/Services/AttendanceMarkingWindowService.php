@@ -6,7 +6,10 @@ use App\Enums\AttendanceType;
 use App\Exceptions\AttendanceException;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
+use App\Models\WorkFlexibleRule;
 use App\Models\WorkScheduleDay;
+use App\Services\Attendance\Policies\FlexibleSchedulePolicy;
+use App\Services\Attendance\SchedulePolicyResolver;
 use Carbon\Carbon;
 
 class AttendanceMarkingWindowService
@@ -19,8 +22,16 @@ class AttendanceMarkingWindowService
 
     public const MINIMUM_BREAK_DURATION_MINUTES = 10;
 
-    public function validate(Employee $employee, ?string $requestedType, WorkScheduleDay $scheduleDay): void
+    public function validate(Employee $employee, ?string $requestedType, ?WorkScheduleDay $scheduleDay): void
     {
+        $policy = app(SchedulePolicyResolver::class)->forEmployee($employee);
+
+        if ($policy instanceof FlexibleSchedulePolicy) {
+            $this->validateFlexible($employee, $requestedType, $policy);
+
+            return;
+        }
+
         $timezone = $employee->tenant?->timezone ?? config('app.timezone');
         $now = Carbon::now($timezone);
         $today = $now->toDateString();
@@ -54,11 +65,16 @@ class AttendanceMarkingWindowService
 
     public function validateTiming(
         AttendanceType $type,
-        WorkScheduleDay $scheduleDay,
+        ?WorkScheduleDay $scheduleDay,
         ?AttendanceSession $session,
         Carbon $now,
         string $timezone,
     ): void {
+        // Horario flexible sin día configurado: no hay ventana horaria que validar.
+        if ($scheduleDay === null) {
+            return;
+        }
+
         $today = $now->toDateString();
 
         match ($type) {
@@ -145,6 +161,107 @@ class AttendanceMarkingWindowService
     {
         if ($now->lt($earliestTime)) {
             throw new AttendanceException($message, 422);
+        }
+    }
+
+    private function validateFlexible(Employee $employee, ?string $requestedType, FlexibleSchedulePolicy $policy): void
+    {
+        $timezone = $employee->tenant?->timezone ?? config('app.timezone');
+        $now = Carbon::now($timezone);
+
+        $session = $this->findOpenFlexibleSession($employee);
+
+        if ($session) {
+            $session->setRelation('employee', $employee);
+            $deadline = $policy->closingDeadline($employee, $now->copy(), $session);
+
+            if ($deadline !== null && $now->gt($deadline)) {
+                // Turno abandonado: cierre perezoso sin inventar salida.
+                $session->update(['status' => 'incomplete']);
+                $session = null;
+            }
+        }
+
+        if (! $session) {
+            $session = AttendanceSession::query()
+                ->where('tenant_id', $employee->tenant_id)
+                ->where('employee_id', $employee->id)
+                ->whereDate('attendance_date', $now->toDateString())
+                ->first();
+
+            if ($session) {
+                $session->setRelation('employee', $employee);
+            }
+        }
+
+        $expected = $policy->expectedNextAction($employee, $session);
+
+        if ($expected === 'COMPLETED') {
+            throw new AttendanceException('La jornada de hoy ya está completada.', 409);
+        }
+
+        $type = filled($requestedType)
+            ? AttendanceType::from($requestedType)
+            : AttendanceType::from($expected);
+
+        if ($type->value !== $expected) {
+            throw new AttendanceException('La marcación no corresponde al siguiente paso de la jornada.', 409);
+        }
+
+        $rule = $policy->rules($employee);
+
+        match ($type) {
+            AttendanceType::Entry => $policy->validateEntry($employee, $now),
+            AttendanceType::BreakStart => null,
+            AttendanceType::BreakEnd => $this->validateFlexibleBreakEnd($session, $now, $rule),
+            AttendanceType::Exit => $this->validateFlexibleExit($session, $rule),
+        };
+    }
+
+    private function findOpenFlexibleSession(Employee $employee): ?AttendanceSession
+    {
+        return AttendanceSession::query()
+            ->where('tenant_id', $employee->tenant_id)
+            ->where('employee_id', $employee->id)
+            ->whereNotNull('check_in_at')
+            ->whereNull('check_out_at')
+            ->whereNotIn('status', ['incomplete', 'absent'])
+            ->orderByDesc('check_in_at')
+            ->first();
+    }
+
+    private function validateFlexibleBreakEnd(
+        ?AttendanceSession $session,
+        Carbon $now,
+        ?WorkFlexibleRule $rule,
+    ): void {
+        if (! $session?->break_start_at) {
+            throw new AttendanceException('Debe iniciar el descanso antes de marcar su fin.', 422);
+        }
+
+        if (! $rule) {
+            return;
+        }
+
+        $elapsed = Carbon::parse($session->break_start_at)->diffInMinutes($now);
+
+        if ($rule->min_break_minutes !== null && $elapsed < $rule->min_break_minutes) {
+            throw new AttendanceException("El descanso debe durar al menos {$rule->min_break_minutes} minutos.", 422);
+        }
+
+        if ($rule->max_break_minutes !== null && $elapsed > $rule->max_break_minutes) {
+            throw new AttendanceException("El descanso no puede superar los {$rule->max_break_minutes} minutos.", 422);
+        }
+    }
+
+    private function validateFlexibleExit(?AttendanceSession $session, ?WorkFlexibleRule $rule): void
+    {
+        if (! $session || ! $session->check_in_at) {
+            throw new AttendanceException('No existe una marcación de entrada previa.', 422);
+        }
+
+        if ($rule?->requires_break && ! $session->break_end_at) {
+            throw new AttendanceException('Debe completar su descanso antes de marcar la salida.', 422);
         }
     }
 }

@@ -54,6 +54,18 @@ class KioskController extends Controller
             ], 200);
         }
 
+        // FILTRO A.1: El tipo de horario aún no está disponible (ej. rotativo)
+        if (!empty($scheduleAnalysis['blocked_reason'])) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Estado solicitado Correctamente.',
+                'data' => [
+                    'status_message' => $scheduleAnalysis['blocked_reason'],
+                    'employee' => new EmployeeResource($employee),
+                ]
+            ], 200);
+        }
+
         // FILTRO B: Tiene contrato, pero HOY no es su día laborable (Ej: Sábado con horas NULL en tu VIEW)
         if (!$scheduleAnalysis['is_working_day_today']) {
             return response()->json([

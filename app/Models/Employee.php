@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Attendance\SchedulePolicyResolver;
 use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
 use Carbon\Carbon;
@@ -159,28 +160,9 @@ class Employee extends Model
 
     public function hasWorkScheduleToday(): bool
     {
-        $activeSchedule = $this->activeSchedule();
-
-        if (!$activeSchedule) {
-            return false;
-        }
-
-        $dayConfig = $activeSchedule->workSchedule
-            ?->days()
-            ->where('day_of_week', $this->todayInTenantTimezone()->dayOfWeekIso)
-            ->first();
-
-        // Si no existe la configuración, o si explícitamente viene "is_working_day" en false, no trabaja hoy
-        if (!$dayConfig || !$dayConfig->is_working_day) {
-            return false;
-        }
-
-        // Mantenemos por seguridad que si está marcado como laborable, tenga horas válidas
-        /*if ($dayConfig->check_in_time === null || $dayConfig->check_out_time === null) {
-            return false;
-        }*/
-
-        return true;
+        return app(SchedulePolicyResolver::class)
+            ->forEmployee($this)
+            ->worksOn($this, $this->todayInTenantTimezone());
     }
 
 
@@ -203,10 +185,13 @@ class Employee extends Model
 
         // Reutilizamos la lógica de las funciones de arriba pasándoles el horario en memoria si fuera necesario,
         // o llamándolas directamente ya que Eloquent guarda en caché las relaciones repetidas en la misma petición.
+        $policy = app(SchedulePolicyResolver::class)->forEmployee($this);
+
         return [
             'has_active_contract'  => $activeSchedule !== null,
             'is_working_day_today' => $this->hasWorkScheduleToday(), // Reutiliza el filtro de NULLs
             'has_break_today'      => $this->hasBreakToday(),        // Reutiliza el filtro de breaks
+            'blocked_reason'       => $policy->blockedReason(),
 
             // Traemos el detalle de forma limpia reutilizando la misma jerarquía
             'schedule_details'     => $activeSchedule?->workSchedule

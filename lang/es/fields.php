@@ -319,4 +319,5 @@ return [
 
     'telemetry_and_meta' => 'Telemetría y metadatos',
     'last_ip' => 'Último IP',
+    'auto_close_after_minutes' => 'Cierre automático tras',
 ];

@@ -23,6 +23,7 @@ class WorkScheduleDay extends Model
         'break_end_time',
         'check_in_tolerance_minutes',
         'check_out_tolerance_minutes',
+        'auto_close_after_minutes',
     ];
 
     protected function casts(): array
@@ -36,6 +37,7 @@ class WorkScheduleDay extends Model
             'break_end_time' => 'datetime:H:i:s',
             'check_in_tolerance_minutes' => 'integer',
             'check_out_tolerance_minutes' => 'integer',
+            'auto_close_after_minutes' => 'integer',
         ];
     }
 

@@ -7,6 +7,8 @@ use App\Enums\AttendanceType;
 use App\Exceptions\AttendanceException;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
+use App\Services\Attendance\Policies\FlexibleSchedulePolicy;
+use App\Services\Attendance\SchedulePolicyResolver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -42,10 +44,30 @@ class MarkAttendanceAction
         $today = $now->copy()->setTimezone($tz)->toDateString();
 
         return DB::transaction(function () use ($request, $employee, $tenantId, $tz, $now, $today, $method) {
-            $session = AttendanceSession::where('tenant_id', $tenantId)
-                ->where('employee_id', $employee->id)
-                ->whereDate('attendance_date', $today)
-                ->first();
+            $policy = app(SchedulePolicyResolver::class)->forEmployee($employee);
+
+            if ($policy instanceof FlexibleSchedulePolicy) {
+                // Turnos flexibles pueden cruzar medianoche: buscamos la sesión abierta sin filtrar por fecha.
+                $session = AttendanceSession::where('tenant_id', $tenantId)
+                    ->where('employee_id', $employee->id)
+                    ->whereNotNull('check_in_at')
+                    ->whereNull('check_out_at')
+                    ->whereNotIn('status', ['incomplete', 'absent'])
+                    ->orderByDesc('check_in_at')
+                    ->first();
+
+                if (! $session) {
+                    $session = AttendanceSession::where('tenant_id', $tenantId)
+                        ->where('employee_id', $employee->id)
+                        ->whereDate('attendance_date', $today)
+                        ->first();
+                }
+            } else {
+                $session = AttendanceSession::where('tenant_id', $tenantId)
+                    ->where('employee_id', $employee->id)
+                    ->whereDate('attendance_date', $today)
+                    ->first();
+            }
 
             if (! $session) {
                 $session = new AttendanceSession([
@@ -55,7 +77,7 @@ class MarkAttendanceAction
                 ]);
             }
 
-            $type = $this->resolveType($request, $session);
+            $type = $this->resolveType($request, $employee, $session);
 
             $session = match ($type) {
                 AttendanceType::Entry => $this->entry->execute($session, $employee, $now, $tz),
@@ -79,17 +101,17 @@ class MarkAttendanceAction
         });
     }
 
-    private function resolveType(Request $request, AttendanceSession $session): AttendanceType
+    private function resolveType(Request $request, Employee $employee, AttendanceSession $session): AttendanceType
     {
         if ($request->filled('type')) {
             return AttendanceType::from($request->input('type'));
         }
 
-        if (! $session->exists) {
-            return AttendanceType::Entry;
-        }
+        $policy = app(SchedulePolicyResolver::class)->forEmployee($employee);
 
-        $next = $session->nextAction();
+        $next = $policy instanceof FlexibleSchedulePolicy
+            ? $policy->expectedNextAction($employee, $session)
+            : ($session->exists ? $session->nextAction() : 'ENTRY');
 
         if ($next === 'COMPLETED') {
             throw new AttendanceException('La jornada de hoy ya está completada.', 409);

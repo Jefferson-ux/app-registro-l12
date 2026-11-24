@@ -120,6 +120,15 @@ class AttendanceController extends Controller
             ], 403); // 422 Unprocessable Content
         }
 
+        // FILTRO A.1: El tipo de horario aún no está disponible (ej. rotativo)
+        if (!empty($scheduleAnalysis['blocked_reason'])) {
+            return response()->json([
+                'success' => false,
+                'message' => $scheduleAnalysis['blocked_reason'],
+                'employee' => new EmployeeResource($employee),
+            ], 403);
+        }
+
         // FILTRO B: Tiene contrato, pero HOY no es su día laborable (Ej: Sábado con horas NULL en tu VIEW)
         if (!$scheduleAnalysis['is_working_day_today']) {
             return response()->json([
@@ -196,6 +205,14 @@ class AttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'No puedes registrar asistencia porque no cuentas con un contrato o periodo de horario activo en el sistema.',
+                'employee' => new EmployeeResource($employee),
+            ], 403);
+        }
+
+        if (!empty($scheduleAnalysis['blocked_reason'])) {
+            return response()->json([
+                'success' => false,
+                'message' => $scheduleAnalysis['blocked_reason'],
                 'employee' => new EmployeeResource($employee),
             ], 403);
         }

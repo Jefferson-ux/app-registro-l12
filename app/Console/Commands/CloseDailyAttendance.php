@@ -8,6 +8,8 @@ use App\Models\Tenant;
 use App\Models\Employee;
 use App\Models\AttendanceSession;
 use App\Models\WorkScheduleDay;
+use App\Services\Attendance\Policies\FlexibleSchedulePolicy;
+use App\Services\Attendance\SchedulePolicyResolver;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -90,6 +92,14 @@ class CloseDailyAttendance extends Command
 
     protected function evaluateEmployeeAttendance(Employee $employee, string $targetDate, FindScheduleDayAction $findScheduleDay): void
     {
+        $policy = app(SchedulePolicyResolver::class)->forEmployee($employee);
+
+        if ($policy instanceof FlexibleSchedulePolicy) {
+            $this->evaluateFlexibleEmployee($employee, $policy);
+
+            return;
+        }
+
         $scheduleDay = $findScheduleDay->execute(
             $employee,
             $targetDate,
@@ -140,6 +150,32 @@ class CloseDailyAttendance extends Command
                 $session->update($updates);
             }
         }
+    }
+
+    protected function evaluateFlexibleEmployee(Employee $employee, FlexibleSchedulePolicy $policy): void
+    {
+        // Flexible nunca genera 'absent'; solo cierra turnos abandonados.
+        if ($policy->marksAbsences()) {
+            return;
+        }
+
+        $timezone = $employee->tenant?->timezone ?? config('app.timezone');
+        $now = Carbon::now($timezone);
+
+        AttendanceSession::withoutGlobalScopes()
+            ->where('tenant_id', $employee->tenant_id)
+            ->where('employee_id', $employee->id)
+            ->whereNotNull('check_in_at')
+            ->whereNull('check_out_at')
+            ->whereNotIn('status', ['incomplete', 'absent'])
+            ->get()
+            ->each(function (AttendanceSession $session) use ($employee, $policy, $now) {
+                $deadline = $policy->closingDeadline($employee, $now->copy(), $session);
+
+                if ($deadline !== null && $now->gt($deadline)) {
+                    $session->update(['status' => 'incomplete']);
+                }
+            });
     }
 
     protected function calculateScheduledMinutes(WorkScheduleDay $scheduleDetails): int

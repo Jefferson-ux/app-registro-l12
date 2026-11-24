@@ -57,6 +57,7 @@ class FixedScheduleForm
                         'check_out_time'              => $d <= 5 ? '17:00:00' : null,
                         'check_in_tolerance_minutes'  => 0,
                         'check_out_tolerance_minutes' => 0,
+                        'auto_close_after_minutes'    => 10,
                     ])->all())
                     ->table([
                         TableColumn::make('')->width('130px'),
@@ -103,6 +104,7 @@ class FixedScheduleForm
 
                         Hidden::make('check_in_tolerance_minutes')->default(0),
                         Hidden::make('check_out_tolerance_minutes')->default(0),
+                        Hidden::make('auto_close_after_minutes')->default(10),
                     ]),
             ]);
     }
@@ -112,29 +114,41 @@ class FixedScheduleForm
      */
     protected static function tolerances(): Grid
     {
-        return Grid::make(2)->schema([
+        return Grid::make(3)->schema([
             static::tolerance('check_in_tolerance', 'check_in_tolerance_minutes', 'fields.check_in_tolerance'),
             static::tolerance('check_out_tolerance', 'check_out_tolerance_minutes', 'fields.check_out_tolerance'),
+            static::tolerance(
+                'auto_close_after',
+                'auto_close_after_minutes',
+                'fields.auto_close_after_minutes',
+                min: 10,
+                default: 10,
+            )->required(),
         ]);
     }
 
-    protected static function tolerance(string $name, string $column, string $label): TextInput
-    {
+    protected static function tolerance(
+        string $name,
+        string $column,
+        string $label,
+        int $min = 0,
+        int $default = 0,
+    ): TextInput {
         return TextInput::make($name)
             ->numeric()
-            ->minValue(0)
+            ->minValue($min)
             ->maxValue(10000)
-            ->default(0)
+            ->default($default)
             ->suffix(traduct('sections.work_schedule.minutes'))
             ->dehydrated(false)
             ->live(onBlur: true)
             ->label(traduct($label))
             ->afterStateHydrated(fn($component, $record) => $component->state(
-                $record?->days->first()?->{$column} ?? 0
+                $record?->days->first()?->{$column} ?? $default
             ))
-            ->afterStateUpdated(function ($state, Get $get, Set $set) use ($column) {
+            ->afterStateUpdated(function ($state, Get $get, Set $set) use ($column, $default) {
                 foreach (array_keys($get('days') ?? []) as $key) {
-                    $set("days.{$key}.{$column}", (int) $state);
+                    $set("days.{$key}.{$column}", (int) ($state ?? $default));
                 }
             });
     }

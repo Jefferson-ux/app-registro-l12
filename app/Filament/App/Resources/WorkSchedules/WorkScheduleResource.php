@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\WorkSchedules;
 
 use App\Filament\App\Resources\WorkSchedules\Pages\ManageWorkSchedules;
 use App\Filament\App\Resources\WorkSchedules\Schemas\FixedScheduleForm;
+use App\Filament\App\Resources\WorkSchedules\Schemas\FlexibleScheduleForm;
 use App\Models\WorkSchedule;
 use App\Traits\ScopesTenantResource;
 use BackedEnum;
@@ -99,8 +100,9 @@ class WorkScheduleResource extends Resource
 
                             FixedScheduleForm::make(),
 
+                            FlexibleScheduleForm::make(),
+
                             // Más adelante:
-                            // FlexibleScheduleForm::make(),
                             // RotatingScheduleForm::make(),
                         ]),
                 ]),
