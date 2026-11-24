@@ -22,6 +22,8 @@ class AttendanceMarkingWindowService
 
     public const MINIMUM_BREAK_DURATION_MINUTES = 10;
 
+    public const MINIMUM_TIME_AFTER_CHECK_IN_MINUTES = 10;
+
     public const MINIMUM_TIME_AFTER_BREAK_MINUTES = 10;
 
     public const LAST_MARKING_TIME = '23:00:00';
@@ -84,6 +86,19 @@ class AttendanceMarkingWindowService
 
         if ($now->gt($lastMarkingTime)) {
             throw new AttendanceException('Las marcaciones se aceptan hasta las 11:00 p. m.', 422);
+        }
+
+        if ($type !== AttendanceType::Entry && $session?->check_in_at) {
+            $earliestNextMark = Carbon::parse($session->check_in_at)
+                ->setTimezone($timezone)
+                ->addMinutes(self::MINIMUM_TIME_AFTER_CHECK_IN_MINUTES);
+
+            if ($now->lt($earliestNextMark)) {
+                throw new AttendanceException(
+                    'Debe esperar al menos '.self::MINIMUM_TIME_AFTER_CHECK_IN_MINUTES.' minutos después de marcar la entrada para realizar otra marcación.',
+                    422
+                );
+            }
         }
 
         match ($type) {

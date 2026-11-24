@@ -24,6 +24,8 @@ thead .fi-ta-header-cell {
 .fi-ta-header-toolbar,
 .fi-ta-filter-indicators {
     background-color: #bed5eb !important;
+    border-top-left-radius: 0.7rem !important;
+    border-top-right-radius: 0.7rem !important;
 }
 
 .fi-ta-header-cell label,
@@ -54,7 +56,6 @@ thead .fi-ta-header-cell {
     border: 1px solid rgba(255, 255, 255, 0.08) !important;
     box-shadow: none !important;
 }
-
 
 
 

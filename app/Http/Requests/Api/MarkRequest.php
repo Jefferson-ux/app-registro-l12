@@ -27,6 +27,10 @@ class MarkRequest extends FormRequest
             'employee_code' => 'required|string',
             'type' => ['nullable', Rule::in(['ENTRY', 'BREAK_START', 'BREAK_END', 'EXIT'])],
             'request_id' => ['required', 'uuid'],
+            'latitude' => ['nullable', 'required_with:longitude', 'numeric', 'between:-90,90'],
+            'longitude' => ['nullable', 'required_with:latitude', 'numeric', 'between:-180,180'],
+            'device_identifier' => ['nullable', 'string', 'max:255'],
+            'notes' => ['prohibited'],
         ];
     }
 }

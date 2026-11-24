@@ -176,4 +176,43 @@ class AttendanceMarkingWindowServiceTest extends TestCase
             'America/Lima',
         );
     }
+
+    public function test_break_start_must_wait_10_minutes_after_check_in(): void
+    {
+        $this->expectException(AttendanceException::class);
+
+        (new AttendanceMarkingWindowService)->validateTiming(
+            AttendanceType::BreakStart,
+            new WorkScheduleDay(['break_start_time' => '12:00:00']),
+            new AttendanceSession(['check_in_at' => '2026-11-18 11:30:00']),
+            Carbon::parse('2026-11-18 11:39:59', 'America/Lima'),
+            'America/Lima',
+        );
+    }
+
+    public function test_break_start_is_allowed_10_minutes_after_check_in(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        (new AttendanceMarkingWindowService)->validateTiming(
+            AttendanceType::BreakStart,
+            new WorkScheduleDay(['break_start_time' => '12:00:00']),
+            new AttendanceSession(['check_in_at' => '2026-11-18 11:30:00']),
+            Carbon::parse('2026-11-18 11:40:00', 'America/Lima'),
+            'America/Lima',
+        );
+    }
+
+    public function test_exit_must_wait_10_minutes_after_check_in_when_no_break_is_scheduled(): void
+    {
+        $this->expectException(AttendanceException::class);
+
+        (new AttendanceMarkingWindowService)->validateTiming(
+            AttendanceType::Exit,
+            new WorkScheduleDay(['check_out_time' => '17:00:00']),
+            new AttendanceSession(['check_in_at' => '2026-11-18 16:00:00']),
+            Carbon::parse('2026-11-18 16:09:59', 'America/Lima'),
+            'America/Lima',
+        );
+    }
 }

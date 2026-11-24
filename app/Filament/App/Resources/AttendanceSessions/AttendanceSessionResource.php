@@ -246,6 +246,7 @@ class AttendanceSessionResource extends Resource
                 TextColumn::make('attendance_date')
                     ->label(traduct('fields.attendance_date'))
                     ->date()
+                    ->dateTime('d/m/Y')
                     ->sortable(),
                 TextColumn::make('status')
                     ->label(traduct('fields.status'))
@@ -415,12 +416,9 @@ class AttendanceSessionResource extends Resource
             return "hace {$diffInSeconds} segundos";
         }
 
-        if ($diffInMinutes === 1) {
-            return "hace {$diffInMinutes} minuto";
-        }
 
         if ($diffInMinutes < 60) {
-            return "hace {$diffInMinutes} minutos";
+            return "hace {$diffInMinutes} min";
         }
 
         if ($diffInHours === 1) {

@@ -28,7 +28,7 @@ class RegisterAttendanceRecordAction
             'longitude' => $request->input('longitude'),
             'ip_address' => $request->ip(),
             'device_identifier' => $request->input('device_identifier'),
-            'notes' => $request->input('notes'),
+            'notes' => null,
         ]);
     }
 }

@@ -242,7 +242,7 @@ class AttendanceRecordResource extends Resource
             ->columns([
                 TextColumn::make('employee_full_name')
                     ->label(traduct('fields.employee'))
-                    ->state(fn($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
+                    ->state(fn($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '') . ' - ' . ($record->employee?->employee_code ?? '')))
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('employee', function (Builder $q) use ($search) {
                             $q->where('first_name', 'like', "%{$search}%")
@@ -268,6 +268,7 @@ class AttendanceRecordResource extends Resource
                 TextColumn::make('recorded_at')
                     ->label(traduct('fields.recorded_at'))
                     ->dateTime()
+                    ->dateTime('d/m/Y h:m a')
                     ->sortable(),
                 TextColumn::make('branch.name')
                     ->label(traduct('fields.branch'))
@@ -301,7 +302,8 @@ class AttendanceRecordResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ip_address')
                     ->label(traduct('fields.ip_address'))
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('device_identifier')
                     ->label(traduct('fields.device_identifier'))
                     ->searchable()
