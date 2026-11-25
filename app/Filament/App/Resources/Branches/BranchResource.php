@@ -33,8 +33,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\utils\Regex;
+use Dotswan\MapPicker\Fields\Map;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Set;
 
 class BranchResource extends Resource
 {
@@ -68,36 +70,86 @@ class BranchResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(3) // Cuadrícula base de 3 columnas para alinear ambas filas
             ->components([
+                // --- FILA 1: Proporción 1:2 ---
                 TextInput::make('name')
                     ->required()
                     ->maxLength(150)
                     ->regex(Regex::PHRASE)
+                    ->columnSpan(1) // 1 parte de 3
                     ->label(traduct("fields.branch_name")),
+
                 TextInput::make('address')
                     ->default(null)
                     ->maxLength(255)
                     ->regex(Regex::PHRASE)
+                    ->columnSpan(2) // 2 partes de 3
                     ->label(traduct("fields.address")),
-                TextInput::make('latitude')
-                    ->numeric()
-                    ->step(0.0000001)
-                    ->minValue(-90)
-                    ->maxValue(90)
-                    ->nullable()
-                    ->label(traduct("fields.latitude")),
+
+                // --- FILA 2: Proporción 1:1:1 ---
                 TextInput::make('longitude')
                     ->numeric()
                     ->step(0.0000001)
                     ->minValue(-180)
                     ->maxValue(180)
                     ->nullable()
+                    ->readOnly()
+                    ->columnSpan(1) // 1 parte de 3
                     ->label(traduct("fields.longitude")),
+
+                TextInput::make('latitude')
+                    ->numeric()
+                    ->step(0.0000001)
+                    ->minValue(-90)
+                    ->maxValue(90)
+                    ->nullable()
+                    ->readOnly()
+                    ->columnSpan(1) // 1 parte de 3
+                    ->label(traduct("fields.latitude")),
+
                 TextInput::make('allowed_radius')
                     ->numeric()
-                    ->default(null)
+                    ->integer()
+                    ->minValue(10)
                     ->maxValue(10000000)
+                    ->default(100)
+                    ->suffix('m')
+                    ->columnSpan(1) // 1 parte de 3
                     ->label(traduct("fields.allowed_radius")),
+
+                // --- FILA 3: Ancho completo y mayor altura para el mapa ---
+                Map::make('location')
+                    ->label('Ubicación en el mapa')
+                    ->columnSpanFull() // Ocupa las 3 columnas
+                    ->extraStyles([
+                        'min-height: 500px', // Aumenta el alto del mapa para mayor comodidad
+                        'z-index: 1',
+                    ])
+                    ->defaultLocation(latitude: -9.0745, longitude: -78.5936)
+                    ->draggable(true)
+                    ->clickable(true)
+                    ->zoom(16)
+                    ->showMarker(true)
+                    ->showFullscreenControl(true)
+                    ->showZoomControl(true)
+                    ->showMyLocationButton(true)
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, mixed $state): void {
+                        if (is_array($state)) {
+                            $set('latitude', $state['lat'] ?? null);
+                            $set('longitude', $state['lng'] ?? null);
+                        }
+                    })
+                    ->afterStateHydrated(function (mixed $state, ?Model $record, Set $set): void {
+                        if ($record?->latitude && $record?->longitude) {
+                            $set('location', [
+                                'lat' => (float) $record->latitude,
+                                'lng' => (float) $record->longitude,
+                            ]);
+                        }
+                    })
+                    ->dehydrated(false),
             ]);
     }
 
