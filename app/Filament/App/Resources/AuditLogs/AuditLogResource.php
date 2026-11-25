@@ -58,9 +58,30 @@ class AuditLogResource extends Resource
                                     ->label(traduct('fields.user'))
                                     ->placeholder('-'),
                                 TextEntry::make('action')
-                                    ->label(traduct('fields.action')),
+                                    ->label(traduct('fields.action'))
+                                    ->badge()
+                                    ->color(fn(string $state): string => match (true) {
+                                        str_ends_with($state, '.created')     => 'success',
+                                        str_ends_with($state, '.updated')     => 'info',
+                                        str_ends_with($state, '.soft_delete') => 'warning',
+                                        str_ends_with($state, '.deleted')     => 'danger',
+                                        str_ends_with($state, '.restored')    => 'primary',
+                                        default                               => 'gray',
+                                    })
+                                    ->formatStateUsing(function (string $state): string {
+                                        [$modelKey, $event] = array_pad(explode('.', $state, 2), 2, null);
+
+                                        $modelLabel = $modelKey ? traductModel($modelKey) : '';
+                                        $eventLabel = $event ? (__("audit.events.{$event}") !== "audit.events.{$event}"
+                                            ? __("audit.events.{$event}")
+                                            : Str::headline($event)) : '';
+
+                                        return trim("{$modelLabel} · {$eventLabel}", ' ·');
+                                    }),
+
                                 TextEntry::make('entity_type')
-                                    ->label(traduct('fields.entity_type')),
+                                    ->label(traduct('fields.entity_type'))
+                                    ->formatStateUsing(fn(string $state): string => traductModel(Str::snake($state))),
                                 TextEntry::make('entity_id')
                                     ->label(traduct('fields.entity_id'))
                                     ->numeric()
@@ -71,6 +92,7 @@ class AuditLogResource extends Resource
                                 TextEntry::make('created_at')
                                     ->label(traduct('fields.created_at'))
                                     ->dateTime()
+                                    ->dateTime('l d/m/Y H:i')
                                     ->placeholder('-'),
                             ]),
                         Tab::make(traduct('sections.audit'))
@@ -130,7 +152,7 @@ class AuditLogResource extends Resource
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->label(traduct('fields.created_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

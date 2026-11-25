@@ -148,9 +148,29 @@ class AttendanceRecordResource extends Resource
                         Tab::make(traduct('sections.general'))
                             ->icon(Heroicon::OutlinedClipboardDocumentCheck)
                             ->schema([
-                                TextEntry::make('employee.id')
+                                TextEntry::make('employee.full_name')
+                                    ->state(function ($record): string {
+                                        $employee = $record->employee;
+                                        if (! $employee) {
+                                            return '—';
+                                        }
+                                        $lastName = trim($employee->last_name ?? '');
+                                        $firstName = trim($employee->first_name ?? '');
+                                        if ($lastName && $firstName) {
+                                            return "{$lastName}, {$firstName}";
+                                        }
+                                        return $lastName ?: ($firstName ?: '—');
+                                    })
                                     ->placeholder(__('empty.employee'))
                                     ->label(traduct('fields.employee')),
+                                TextEntry::make('employee.employee_code')
+                                    ->state(fn($record): string => filled($record->employee?->employee_code)
+                                        ? $record->employee->employee_code
+                                        : '—')
+                                    ->placeholder(__('empty.employee'))
+                                    ->label(traduct('fields.employee_code')),
+
+
                                 TextEntry::make('branch.name')
                                     ->placeholder(__('empty.branch'))
                                     ->label(traduct('fields.branch')),
@@ -171,7 +191,7 @@ class AttendanceRecordResource extends Resource
                                         default                    => 'gray',
                                     }),
                                 TextEntry::make('recorded_at')
-                                    ->dateTime()
+                                    ->dateTime('l d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.recorded_at')),
                                 TextEntry::make('notes')
@@ -223,11 +243,11 @@ class AttendanceRecordResource extends Resource
                             ->icon(Heroicon::OutlinedShieldCheck)
                             ->schema([
                                 TextEntry::make('created_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.created_at')),
                                 TextEntry::make('updated_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.updated_at')),
                             ]),
@@ -267,8 +287,7 @@ class AttendanceRecordResource extends Resource
                     }),
                 TextColumn::make('recorded_at')
                     ->label(traduct('fields.recorded_at'))
-                    ->dateTime()
-                    ->dateTime('d/m/Y h:m a')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('branch.name')
                     ->label(traduct('fields.branch'))
@@ -311,12 +330,12 @@ class AttendanceRecordResource extends Resource
 
                 TextColumn::make('created_at')
                     ->label(traduct('fields.created_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label(traduct('fields.updated_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 

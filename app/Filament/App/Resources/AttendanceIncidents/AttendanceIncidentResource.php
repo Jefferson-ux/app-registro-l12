@@ -175,7 +175,7 @@ class AttendanceIncidentResource extends Resource
                                         default                                            => 'gray',
                                     }),
                                 TextEntry::make('incident_date')
-                                    ->date()
+                                    ->date('d/m/Y')
                                     ->placeholder(__('empty.date'))
                                     ->label(traduct('fields.incident_date')),
                                 TextEntry::make('description')
@@ -210,7 +210,7 @@ class AttendanceIncidentResource extends Resource
                                     ->placeholder(__('empty.resolved_by'))
                                     ->label(traduct('fields.resolved_by')),
                                 TextEntry::make('resolved_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y')
                                     ->placeholder(__('empty.resolved_at'))
                                     ->label(traduct('fields.resolved_at')),
                                 TextEntry::make('resolution_notes')
@@ -223,15 +223,15 @@ class AttendanceIncidentResource extends Resource
                             ->icon(Heroicon::OutlinedShieldCheck)
                             ->schema([
                                 TextEntry::make('created_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.created_at')),
                                 TextEntry::make('updated_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.updated_at')),
                                 TextEntry::make('deleted_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->visible(fn(AttendanceIncident $record): bool => $record->trashed())
                                     ->label(traduct('fields.deleted_at')),
                             ]),
@@ -276,7 +276,7 @@ class AttendanceIncidentResource extends Resource
                     }),
                 TextColumn::make('incident_date')
                     ->label(traduct('fields.incident_date'))
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('status')
                     ->label(traduct('fields.status'))
@@ -303,22 +303,22 @@ class AttendanceIncidentResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('resolved_at')
                     ->label(traduct('fields.resolved_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label(traduct('fields.created_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label(traduct('fields.updated_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->label(traduct('fields.deleted_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

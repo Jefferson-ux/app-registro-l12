@@ -271,23 +271,23 @@ class AttendanceSessionResource extends Resource
 
                 TextColumn::make('check_in_at')
                     ->label(traduct('fields.check_in_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y h:i A')
                     ->sortable()
                     ->formatStateUsing(fn($state) => self::formatHumanTime($state)),
                 TextColumn::make('check_out_at')
                     ->label(traduct('fields.check_out_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y h:i A')
                     ->sortable()
                     ->formatStateUsing(fn($state) => self::formatHumanTime($state)),
                 TextColumn::make('break_start_at')
                     ->label(traduct('fields.break_start_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y h:i A')
                     ->formatStateUsing(fn($state) => self::formatHumanTime($state))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('break_end_at')
                     ->label(traduct('fields.break_end_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y h:i A')
                     ->sortable()
                     ->formatStateUsing(fn($state) => self::formatHumanTime($state))
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -317,12 +317,12 @@ class AttendanceSessionResource extends Resource
 
                 TextColumn::make('created_at')
                     ->label(traduct('fields.created_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label(traduct('fields.updated_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -431,6 +431,6 @@ class AttendanceSessionResource extends Resource
             return "hace {$diffInHours} h y {$minsRestantes} m";
         }
 
-        return $date->translatedFormat('Y-m-d H:i');
+        return $date->translatedFormat('d/m/Y h:i A');
     }
 }

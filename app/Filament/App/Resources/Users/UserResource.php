@@ -172,11 +172,11 @@ class UserResource extends Resource
                             ->icon(Heroicon::OutlinedKey)
                             ->schema([
                                 TextEntry::make('email_verified_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.email_verified_at'))
                                     ->label(traduct('fields.email_verified_at')),
                                 TextEntry::make('last_login_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.last_login_at'))
                                     ->label(traduct('fields.last_login_at')),
                             ]),
@@ -185,15 +185,15 @@ class UserResource extends Resource
                             ->icon(Heroicon::OutlinedShieldCheck)
                             ->schema([
                                 TextEntry::make('created_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.created_at')),
                                 TextEntry::make('updated_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.updated_at')),
                                 TextEntry::make('deleted_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->visible(fn(User $record): bool => $record->trashed())
                                     ->label(traduct('fields.deleted_at')),
                             ]),
@@ -215,7 +215,7 @@ class UserResource extends Resource
                     ->icon('heroicon-m-envelope'),
                 TextColumn::make('email_verified_at')
                     ->label(traduct('fields.email_verified_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('status')
@@ -231,26 +231,27 @@ class UserResource extends Resource
 
                 TextColumn::make('last_login_at')
                     ->label(traduct('fields.last_login_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->label(traduct('fields.created_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label(traduct('fields.updated_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('deleted_at')
                     ->label(traduct('fields.deleted_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->stackedOnMobile()
+            ->recordClasses(fn(User $record) => $record->trashed() ? 'is-trashed' : null)
             ->defaultSort('created_at', 'desc')
             ->filters([
                 TrashedFilter::make()

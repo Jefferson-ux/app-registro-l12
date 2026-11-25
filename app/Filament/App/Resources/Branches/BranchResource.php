@@ -145,15 +145,15 @@ class BranchResource extends Resource
                             ->columns(3)
                             ->schema([
                                 TextEntry::make('created_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder('-')
                                     ->label(traduct("fields.created_at")),
                                 TextEntry::make('updated_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder('-')
                                     ->label(traduct("fields.updated_at")),
                                 TextEntry::make('deleted_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->visible(fn(Branch $record): bool => $record->trashed())
                                     ->label(traduct("fields.deleted_at")),
                             ]),
@@ -186,17 +186,17 @@ class BranchResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.allowed_radius")),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.created")),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.updated_at")),
                 TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.deleted_at")),

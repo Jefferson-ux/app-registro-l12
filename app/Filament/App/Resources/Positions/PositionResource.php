@@ -113,15 +113,15 @@ class PositionResource extends Resource
                             ->icon(Heroicon::OutlinedClock)
                             ->schema([
                                 TextEntry::make('created_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct("fields.created_at")),
                                 TextEntry::make('updated_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct("fields.updated_at")),
                                 TextEntry::make('deleted_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->visible(fn(Position $record): bool => $record->trashed())
                                     ->label(traduct("fields.deleted_at")),
                             ]),
@@ -141,22 +141,23 @@ class PositionResource extends Resource
                     ->searchable()
                     ->label(traduct("fields.position_name")),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.created_at")),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.updated_at")),
                 TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.deleted_at")),
             ])
             ->stackedOnMobile()
+            ->recordClasses(fn(Position $record) => $record->trashed() ? 'is-trashed' : null)
             ->filters([
                 TrashedFilter::make()
                     ->native(false),

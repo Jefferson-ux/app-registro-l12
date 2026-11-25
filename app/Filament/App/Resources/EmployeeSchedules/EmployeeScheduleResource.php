@@ -206,11 +206,11 @@ class EmployeeScheduleResource extends Resource
                             ->icon(Heroicon::OutlinedClock)
                             ->schema([
                                 TextEntry::make('start_date')
-                                    ->date()
+                                    ->date('l d/m/Y')
                                     ->placeholder(__('empty.date'))
                                     ->label(traduct('fields.start_date')),
                                 TextEntry::make('end_date')
-                                    ->date()
+                                    ->date('l d/m/Y')
                                     ->placeholder(__('empty.end_date'))
                                     ->label(traduct('fields.end_date')),
                             ]),
@@ -219,11 +219,11 @@ class EmployeeScheduleResource extends Resource
                             ->icon(Heroicon::OutlinedShieldCheck)
                             ->schema([
                                 TextEntry::make('created_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.created_at')),
                                 TextEntry::make('updated_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.updated_at')),
                             ]),
@@ -249,23 +249,23 @@ class EmployeeScheduleResource extends Resource
                     ->searchable()
                     ->label(traduct("fields.schedule_name")),
                 TextColumn::make('start_date')
-                    ->date()
+                    ->date('D d/m/Y')
                     ->sortable()
                     ->label(traduct("fields.start_date")),
                 TextColumn::make('end_date')
-                    ->date()
+                    ->date('D d/m/Y')
                     ->sortable()
                     ->label(traduct("fields.end_date")),
                 IconColumn::make('status')
                     ->boolean()
                     ->label(traduct("fields.status")),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.created_at")),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.updated_at")),

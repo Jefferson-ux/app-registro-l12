@@ -320,11 +320,11 @@ class EmployeeResource extends Resource
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct("fields.work_email")),
                                 TextEntry::make('hire_date')
-                                    ->date()
+                                    ->date('l d/m/Y')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct("fields.hire_date")),
                                 TextEntry::make('termination_date')
-                                    ->date()
+                                    ->date('l d/m/Y')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct("fields.termination_date")),
                                 TextEntry::make('employment_status')
@@ -359,15 +359,15 @@ class EmployeeResource extends Resource
                                     ->imageHeight(200)
                                     ->columnSpanFull(),
                                 TextEntry::make('created_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct("fields.created_at")),
                                 TextEntry::make('updated_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct("fields.updated_at")),
                                 TextEntry::make('deleted_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->visible(fn(Employee $record): bool => $record->trashed())
                                     ->label(traduct("fields.deleted_at")),
                             ]),
@@ -429,12 +429,12 @@ class EmployeeResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.phone")),
                 TextColumn::make('hire_date')
-                    ->date()
+                    ->date('D d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.hire_date")),
                 TextColumn::make('termination_date')
-                    ->date()
+                    ->date('D d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.termination_date")),
@@ -450,17 +450,17 @@ class EmployeeResource extends Resource
                     })
                     ->label(traduct("fields.employment_status")),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.created_at")),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.updated_at")),
                 TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.deleted_at")),

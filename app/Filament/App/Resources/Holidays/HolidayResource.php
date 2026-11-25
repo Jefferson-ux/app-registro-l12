@@ -97,7 +97,7 @@ class HolidayResource extends Resource
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.holiday_name')),
                                 TextEntry::make('holiday_date')
-                                    ->date()
+                                    ->date('l d/m/Y')
                                     ->placeholder(__('empty.date'))
                                     ->label(traduct('fields.holiday_date')),
                                 IconEntry::make('is_paid')
@@ -109,11 +109,11 @@ class HolidayResource extends Resource
                             ->icon(Heroicon::OutlinedShieldCheck)
                             ->schema([
                                 TextEntry::make('created_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.created_at')),
                                 TextEntry::make('updated_at')
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder(__('empty.generic'))
                                     ->label(traduct('fields.updated_at')),
                             ]),
@@ -134,19 +134,19 @@ class HolidayResource extends Resource
                     ->searchable()
                     ->label(traduct('fields.holiday_name')),
                 TextColumn::make('holiday_date')
-                    ->date()
+                    ->date('D d/m/Y')
                     ->sortable()
                     ->label(traduct('fields.holiday_date')),
                 IconColumn::make('is_paid')
                     ->boolean()
                     ->label(traduct('fields.is_paid')),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct('fields.created_at')),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct('fields.updated_at')),

@@ -147,11 +147,11 @@ class DeviceResource extends Resource
                                     ->placeholder('-'),
                                 TextEntry::make('created_at')
                                     ->label(traduct('fields.created_at'))
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder('-'),
                                 TextEntry::make('updated_at')
                                     ->label(traduct('fields.updated_at'))
-                                    ->dateTime()
+                                    ->dateTime('d/m/Y H:i')
                                     ->placeholder('-'),
                             ]),
                     ]),
