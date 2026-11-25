@@ -90,7 +90,7 @@ class BranchResource extends Resource
                 // --- FILA 2: Proporción 1:1:1 ---
                 TextInput::make('longitude')
                     ->numeric()
-                    ->step(0.0000001)
+                    ->step(0.00000001)
                     ->minValue(-180)
                     ->maxValue(180)
                     ->nullable()
@@ -100,7 +100,7 @@ class BranchResource extends Resource
 
                 TextInput::make('latitude')
                     ->numeric()
-                    ->step(0.0000001)
+                    ->step(0.00000001)
                     ->minValue(-90)
                     ->maxValue(90)
                     ->nullable()
@@ -179,11 +179,11 @@ class BranchResource extends Resource
                             ->columns(3)
                             ->schema([
                                 TextEntry::make('latitude')
-                                    ->numeric()
+                                    ->copyable()
                                     ->placeholder('-')
                                     ->label(traduct("fields.latitude")),
                                 TextEntry::make('longitude')
-                                    ->numeric()
+                                    ->copyable()
                                     ->placeholder('-')
                                     ->label(traduct("fields.longitude")),
                                 TextEntry::make('allowed_radius')
@@ -226,11 +226,9 @@ class BranchResource extends Resource
                     ->searchable()
                     ->label(traduct("fields.address")),
                 TextColumn::make('latitude')
-                    ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.latitude")),
                 TextColumn::make('longitude')
-                    ->numeric()
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(traduct("fields.longitude")),
                 TextColumn::make('allowed_radius')

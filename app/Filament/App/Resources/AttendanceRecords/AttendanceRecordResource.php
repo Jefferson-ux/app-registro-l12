@@ -230,11 +230,9 @@ class AttendanceRecordResource extends Resource
                             ->icon(Heroicon::OutlinedMapPin)
                             ->schema([
                                 TextEntry::make('latitude')
-                                    ->numeric()
                                     ->placeholder(__('empty.coordinate'))
                                     ->label(traduct('fields.latitude')),
                                 TextEntry::make('longitude')
-                                    ->numeric()
                                     ->placeholder(__('empty.coordinate'))
                                     ->label(traduct('fields.longitude')),
                             ]),
@@ -311,12 +309,10 @@ class AttendanceRecordResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('latitude')
                     ->label(traduct('fields.latitude'))
-                    ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('longitude')
                     ->label(traduct('fields.longitude'))
-                    ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ip_address')
