@@ -14,6 +14,7 @@ services:
             - app_storage:/var/www/storage
         environment:
             APP_ENV: production
+            APP_TIMEZONE: ${APP_TIMEZONE:-America/Lima}
             APP_DEBUG: "true"
             APP_KEY: ${APP_KEY:?falta APP_KEY}
             APP_PACKAGES_CACHE: /tmp/laravel-packages.php
@@ -69,11 +70,7 @@ services:
         volumes:
             - mysql_data:/var/lib/mysql
         healthcheck:
-            test:
-                [
-                    "CMD-SHELL",
-                    "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD",
-                ]
+            test: [ "CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD" ]
             interval: 10s
             timeout: 5s
             retries: 10
