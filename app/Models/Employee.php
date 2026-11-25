@@ -205,4 +205,9 @@ class Employee extends Model
     {
         return Carbon::now($this->tenant?->timezone ?? config('app.timezone'));
     }
+
+    public function activeWorkSchedule(): ?WorkSchedule
+    {
+        return $this->activeSchedule()?->workSchedule;
+    }
 }

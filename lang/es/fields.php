@@ -340,4 +340,14 @@ return [
     'entry_window_end_hint'                => 'Si la hora final es menor que la inicial, la ventana cruza medianoche.',
     'min_rest_between_shifts_minutes_hint' => 'Descanso obligatorio entre una salida y la siguiente entrada.',
     'expected_days_hint'                   => 'Déjalo vacío si no se registran inasistencias.',
+
+    'short_day_of_week' => 'Día',
+    'short_check_in_time' => 'Entrada',
+    'short_break_start_time' => 'I. Descanso',
+    'short_break_end_time' => 'F. Descanso',
+    'short_check_out_time' => 'Salida',
+    'short_check_in_tolerance' => 'Tol. Entrada',
+    'short_check_out_tolerance' => 'Tol. Salida',
+
+
 ];

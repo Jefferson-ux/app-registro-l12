@@ -27,4 +27,12 @@ return [
     'ip_address' => 'IP address',
     'created_at' => 'Created at',
     'updated_at' => 'Updated at',
+
+    'short_day_of_week' => 'Day',
+    'short_check_in_time' => 'Check-in',
+    'short_break_start_time' => 'Break Start',
+    'short_break_end_time' => 'Break End',
+    'short_check_out_time' => 'Check-out',
+    'short_check_in_tolerance' => 'In Tol.',
+    'short_check_out_tolerance' => 'Out Tol.',
 ];

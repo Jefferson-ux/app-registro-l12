@@ -4,8 +4,13 @@ namespace App\Filament\App\Resources\Employees;
 
 use App\Actions\Employee\ProcessFaceCaptureAction;
 use App\Filament\App\Resources\Employees\Pages\ManageEmployees;
+use App\Filament\App\Resources\Employees\Schemas\EmployeeFixedScheduleInfolist;
+use App\Filament\App\Resources\Employees\Schemas\EmployeeFlexibleScheduleInfolist;
+use App\Filament\App\Resources\WorkSchedules\Schemas\FixedScheduleInfolist;
+use App\Filament\App\Resources\WorkSchedules\Schemas\FlexibleScheduleInfolist;
 use App\Models\Employee;
 use App\Models\Position;
+use App\Models\WorkSchedule;
 use App\Traits\ScopesTenantResource;
 use App\utils\Regex;
 use BackedEnum;
@@ -38,8 +43,10 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+
 use Illuminate\Support\Facades\Storage;
 
 class EmployeeResource extends Resource
@@ -339,7 +346,45 @@ class EmployeeResource extends Resource
                                     })
                                     ->label(traduct("fields.employment_status")),
                             ]),
+                        Tab::make(traductShort('fields.assigned_schedule'))
+                            ->icon(Heroicon::OutlinedCalendarDays)
+                            ->columns(1)
+                            ->schema([
+                                TextEntry::make('no_active_schedule')
+                                    ->hiddenLabel()
+                                    ->state('Sin horario activo actualmente')
+                                    ->visible(fn(Employee $record): bool => $record->activeWorkSchedule() === null),
 
+                                Group::make()
+                                    ->visible(fn(Employee $record): bool => $record->activeWorkSchedule() !== null)
+
+                                    ->schema([
+                                        Grid::make(2)->schema([
+                                            TextEntry::make('active_schedule_name')
+                                                ->label(traduct('fields.name'))
+                                                ->state(fn(Employee $record): ?string => $record->activeWorkSchedule()?->name),
+
+                                            TextEntry::make('active_schedule_type')
+                                                ->badge()
+                                                ->label(traduct('fields.schedule_type'))
+                                                ->state(fn(Employee $record): ?string => $record->activeWorkSchedule()?->schedule_type)
+                                                ->formatStateUsing(fn(string $state): string => match ($state) {
+                                                    'fixed'    => traduct('fields.schedule_fixed'),
+                                                    'flexible' => traduct('fields.schedule_flexible'),
+                                                    'rotating' => traduct('fields.schedule_rotating'),
+                                                    default    => $state,
+                                                })
+                                                ->color(fn(string $state): string => match ($state) {
+                                                    'fixed'    => 'indigo',
+                                                    'flexible' => 'teal',
+                                                    'rotating' => 'success',
+                                                    default    => 'gray',
+                                                }),
+                                        ]),
+                                    ]),
+                                EmployeeFixedScheduleInfolist::make(),
+                                EmployeeFlexibleScheduleInfolist::make(),
+                            ]),
                         Tab::make(traduct("sections.qr_audit"))
                             ->icon(Heroicon::OutlinedQrCode)
                             ->columns(3)
