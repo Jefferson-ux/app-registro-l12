@@ -247,11 +247,14 @@ it('bloquea la entrada flexible fuera de la ventana configurada', function (): v
         ->assertOk();
 });
 
-it('el cierre diario deja incomplete y nunca genera absent en horarios flexibles', function (): void {
+it('el cierre diario deja incomplete cuando hubo entrada aunque el día sea esperado', function (): void {
     $tenant = tenantFixture();
 
     $employeeWithShift = employeeFixture($tenant, ['employee_code' => 'EMP-FLEX-ABANDON']);
-    flexibleScheduleFixture($tenant, $employeeWithShift, ['max_shift_minutes' => 60]);
+    flexibleScheduleFixture($tenant, $employeeWithShift, [
+        'max_shift_minutes' => 60,
+        'expected_days' => [1],
+    ]);
 
     $employeeWithoutMarks = employeeFixture($tenant, ['employee_code' => 'EMP-FLEX-SIN-MARCAS']);
     flexibleScheduleFixture($tenant, $employeeWithoutMarks, ['max_shift_minutes' => 60]);
@@ -278,3 +281,92 @@ it('el cierre diario deja incomplete y nunca genera absent en horarios flexibles
         ->and(AttendanceSession::withoutGlobalScopes()->where('employee_id', $employeeWithShift->id)->count())->toBe(1)
         ->and(AttendanceSession::withoutGlobalScopes()->where('employee_id', $employeeWithoutMarks->id)->count())->toBe(0);
 });
+
+it('genera absent cuando el día esperado no tiene marcación de entrada', function (): void {
+    $tenant = tenantFixture();
+
+    $employee = employeeFixture($tenant, ['employee_code' => 'EMP-FLEX-ABSENT']);
+    flexibleScheduleFixture($tenant, $employee, [
+        'min_daily_minutes' => 240,
+        'expected_days' => [1],
+    ]);
+
+    Carbon::setTestNow(Carbon::create(2026, 11, 24, 10, 0, 0, 'America/Lima'));
+
+    $this->artisan('attendance:close-daily', [
+        '--date' => '23/11/26',
+        '--tenant-id' => $tenant->id,
+    ])->assertSuccessful();
+
+    $this->artisan('attendance:close-daily', [
+        '--date' => '23/11/26',
+        '--tenant-id' => $tenant->id,
+    ])->assertSuccessful();
+
+    $sessions = AttendanceSession::withoutGlobalScopes()
+        ->where('employee_id', $employee->id)
+        ->get();
+
+    expect($sessions)->toHaveCount(1)
+        ->and($sessions->first()->attendance_date->toDateString())->toBe('2026-11-23')
+        ->and($sessions->first()->status)->toBe('absent')
+        ->and($sessions->first()->check_in_at)->toBeNull()
+        ->and($sessions->first()->scheduled_minutes)->toBe(240);
+});
+
+it('no genera absent cuando el día no está en expected_days', function (): void {
+    $tenant = tenantFixture();
+
+    $employee = employeeFixture($tenant, ['employee_code' => 'EMP-FLEX-NO-ESPERADO']);
+    flexibleScheduleFixture($tenant, $employee, ['expected_days' => [2]]);
+
+    Carbon::setTestNow(Carbon::create(2026, 11, 24, 10, 0, 0, 'America/Lima'));
+
+    $this->artisan('attendance:close-daily', [
+        '--date' => '23/11/26',
+        '--tenant-id' => $tenant->id,
+    ])->assertSuccessful();
+
+    expect(AttendanceSession::withoutGlobalScopes()->where('employee_id', $employee->id)->count())->toBe(0);
+});
+
+it('asigna min_daily_minutes como scheduled_minutes en horarios flexibles', function (): void {
+    $tenant = tenantFixture();
+    $branch = branchFixture($tenant);
+    [, $token] = kioskDeviceFixture($tenant, $branch);
+
+    $employee = employeeFixture($tenant, ['employee_code' => 'EMP-FLEX-SCHED']);
+    flexibleScheduleFixture($tenant, $employee, ['min_daily_minutes' => 240]);
+
+    connectFlexibleKiosk($this, $token);
+
+    $this->withToken($token)
+        ->postJson('/api/v1/attendance/mark', flexibleMarkPayload('EMP-FLEX-SCHED', 'ENTRY'))
+        ->assertOk();
+
+    auth()->forgetGuards();
+
+    expect(flexibleSessionFor($employee)->scheduled_minutes)->toBe(240);
+});
+
+it('usa cero como scheduled_minutes cuando min_daily_minutes es nulo o cero', function (?int $minDailyMinutes): void {
+    $tenant = tenantFixture();
+    $branch = branchFixture($tenant);
+    [, $token] = kioskDeviceFixture($tenant, $branch);
+
+    $employee = employeeFixture($tenant, ['employee_code' => 'EMP-FLEX-SCHED-CERO']);
+    flexibleScheduleFixture($tenant, $employee, ['min_daily_minutes' => $minDailyMinutes]);
+
+    connectFlexibleKiosk($this, $token);
+
+    $this->withToken($token)
+        ->postJson('/api/v1/attendance/mark', flexibleMarkPayload('EMP-FLEX-SCHED-CERO', 'ENTRY'))
+        ->assertOk();
+
+    auth()->forgetGuards();
+
+    expect(flexibleSessionFor($employee)->scheduled_minutes)->toBe(0);
+})->with([
+    'nulo' => [null],
+    'cero' => [0],
+]);

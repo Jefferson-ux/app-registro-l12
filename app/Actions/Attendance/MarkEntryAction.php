@@ -5,6 +5,8 @@ namespace App\Actions\Attendance;
 use App\Exceptions\AttendanceException;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
+use App\Services\Attendance\Policies\FlexibleSchedulePolicy;
+use App\Services\Attendance\SchedulePolicyResolver;
 use Carbon\Carbon;
 
 class MarkEntryAction
@@ -20,6 +22,7 @@ class MarkEntryAction
         $localNow = $now->copy()->setTimezone($tz);
         $today = $localNow->toDateString();
         $scheduleDay = $this->findScheduleDay->execute($employee, $today, $localNow->dayOfWeekIso);
+        $policy = app(SchedulePolicyResolver::class)->forEmployee($employee);
 
         $lateMinutes = 0;
         $status = 'present';
@@ -42,6 +45,8 @@ class MarkEntryAction
                 $lateMinutes = (int) $scheduledIn->diffInMinutes($localNow);
                 $status = 'late';
             }
+        } elseif ($policy instanceof FlexibleSchedulePolicy) {
+            $scheduledMinutes = (int) ($policy->rules($employee)?->min_daily_minutes ?? 0);
         }
 
         $session->check_in_at = $now;

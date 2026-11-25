@@ -95,70 +95,139 @@ class CloseDailyAttendance extends Command
         $policy = app(SchedulePolicyResolver::class)->forEmployee($employee);
 
         if ($policy instanceof FlexibleSchedulePolicy) {
-            $this->evaluateFlexibleEmployee($employee, $policy);
+            $this->evaluateFlexibleEmployee($employee, $policy, $targetDate);
 
             return;
         }
 
+        $timezone = $employee->tenant?->timezone ?? config('app.timezone');
+        $now = Carbon::now($timezone);
+
+        $this->closeFixedOpenSessions($employee, $findScheduleDay, $now, $timezone);
+        $this->markFixedAbsence($employee, $targetDate, $findScheduleDay, $now, $timezone);
+    }
+
+    protected function closeFixedOpenSessions(
+        Employee $employee,
+        FindScheduleDayAction $findScheduleDay,
+        Carbon $now,
+        string $timezone,
+    ): void {
+        AttendanceSession::withoutGlobalScopes()
+            ->where('tenant_id', $employee->tenant_id)
+            ->where('employee_id', $employee->id)
+            ->whereNotNull('check_in_at')
+            ->whereNull('check_out_at')
+            ->whereNotIn('status', ['incomplete', 'absent'])
+            ->get()
+            ->each(function (AttendanceSession $session) use ($employee, $findScheduleDay, $now, $timezone) {
+                $date = Carbon::parse($session->attendance_date)->toDateString();
+                $scheduleDay = $findScheduleDay->execute($employee, $date, Carbon::parse($date)->dayOfWeekIso);
+
+                if (! $scheduleDay || ! $scheduleDay->is_working_day) {
+                    return;
+                }
+
+                $autoCloseAt = $this->fixedAutoCloseAt($scheduleDay, $date, $timezone);
+
+                if ($autoCloseAt === null || $now->lt($autoCloseAt)) {
+                    return;
+                }
+
+                $session->update([
+                    'status' => 'incomplete',
+                    'check_out_at' => $this->fixedCheckOutAt($scheduleDay, $date, $timezone),
+                ]);
+            });
+    }
+
+    protected function markFixedAbsence(
+        Employee $employee,
+        string $targetDate,
+        FindScheduleDayAction $findScheduleDay,
+        Carbon $now,
+        string $timezone,
+    ): void {
         $scheduleDay = $findScheduleDay->execute(
             $employee,
             $targetDate,
             Carbon::parse($targetDate)->dayOfWeekIso
         );
 
-        if (!$scheduleDay || !$scheduleDay->is_working_day) {
+        if (! $scheduleDay || ! $scheduleDay->is_working_day) {
+            return;
+        }
+
+        $autoCloseAt = $this->fixedAutoCloseAt($scheduleDay, $targetDate, $timezone);
+
+        if ($autoCloseAt === null || $now->lt($autoCloseAt)) {
             return;
         }
 
         $session = AttendanceSession::withoutGlobalScopes()
             ->where('tenant_id', $employee->tenant_id)
             ->where('employee_id', $employee->id)
-            ->where('attendance_date', $targetDate)
+            ->whereDate('attendance_date', $targetDate)
             ->first();
 
-        if (!$session) {
-            // CASO: Faltó por completo -> Usamos el enum 'absent' de tu base de datos
-            AttendanceSession::create([
-                'tenant_id' => $employee->tenant_id,
-                'employee_id' => $employee->id,
-                'attendance_date' => $targetDate,
-                'status' => 'absent',
-                'scheduled_minutes' => $this->calculateScheduledMinutes($scheduleDay),
-                'worked_minutes' => 0,
-                'late_minutes' => 0,
-                'early_leave_minutes' => 0,
-                'overtime_minutes' => 0,
-            ]);
-        } elseif ($session->check_in_at) {
-            $updates = [];
-
-            if (!$session->check_out_at) {
-                $updates['status'] = 'incomplete';
-
-                if ($scheduleDay->check_out_time) {
-                    $updates['check_out_at'] = $this->scheduleTime($targetDate, $scheduleDay->check_out_time);
-                } else {
-                    $this->warn(" -> El empleado {$employee->id} no tiene hora de salida configurada; la sesión queda sin cierre.");
-                }
-            }
-
-            if ($session->break_start_at && !$session->break_end_at) {
-                $updates['status'] = 'incomplete';
-            }
-
-            if ($updates) {
-                $session->update($updates);
-            }
-        }
-    }
-
-    protected function evaluateFlexibleEmployee(Employee $employee, FlexibleSchedulePolicy $policy): void
-    {
-        // Flexible nunca genera 'absent'; solo cierra turnos abandonados.
-        if ($policy->marksAbsences()) {
+        if ($session?->check_in_at) {
             return;
         }
 
+        $attributes = [
+            'status' => 'absent',
+            'scheduled_minutes' => $this->calculateScheduledMinutes($scheduleDay),
+            'worked_minutes' => 0,
+            'late_minutes' => 0,
+            'early_leave_minutes' => 0,
+            'overtime_minutes' => 0,
+        ];
+
+        if ($session) {
+            $session->update($attributes);
+
+            return;
+        }
+
+        AttendanceSession::create(array_merge([
+            'tenant_id' => $employee->tenant_id,
+            'employee_id' => $employee->id,
+            'attendance_date' => $targetDate,
+        ], $attributes));
+    }
+
+    private function fixedCheckOutAt(WorkScheduleDay $scheduleDay, string $date, string $timezone): ?Carbon
+    {
+        if (! $scheduleDay->check_out_time) {
+            return null;
+        }
+
+        $checkOut = $this->scheduleTime($date, $scheduleDay->check_out_time, $timezone);
+
+        if ($scheduleDay->check_in_time) {
+            $checkIn = $this->scheduleTime($date, $scheduleDay->check_in_time, $timezone);
+
+            if ($checkOut->lt($checkIn)) {
+                $checkOut->addDay();
+            }
+        }
+
+        return $checkOut;
+    }
+
+    private function fixedAutoCloseAt(WorkScheduleDay $scheduleDay, string $date, string $timezone): ?Carbon
+    {
+        $checkOut = $this->fixedCheckOutAt($scheduleDay, $date, $timezone);
+
+        if ($checkOut === null) {
+            return null;
+        }
+
+        return $checkOut->addMinutes((int) ($scheduleDay->auto_close_after_minutes ?? 0));
+    }
+
+    protected function evaluateFlexibleEmployee(Employee $employee, FlexibleSchedulePolicy $policy, string $targetDate): void
+    {
         $timezone = $employee->tenant?->timezone ?? config('app.timezone');
         $now = Carbon::now($timezone);
 
@@ -176,6 +245,50 @@ class CloseDailyAttendance extends Command
                     $session->update(['status' => 'incomplete']);
                 }
             });
+
+        $rule = $policy->rules($employee);
+
+        if (! $rule || empty($rule->expected_days)) {
+            return;
+        }
+
+        $expectedDays = array_map('intval', (array) $rule->expected_days);
+        $dayOfWeek = Carbon::parse($targetDate)->dayOfWeekIso;
+
+        if (! in_array($dayOfWeek, $expectedDays, true)) {
+            return;
+        }
+
+        $session = AttendanceSession::withoutGlobalScopes()
+            ->where('tenant_id', $employee->tenant_id)
+            ->where('employee_id', $employee->id)
+            ->whereDate('attendance_date', $targetDate)
+            ->first();
+
+        if ($session?->check_in_at) {
+            return;
+        }
+
+        $attributes = [
+            'status' => 'absent',
+            'scheduled_minutes' => (int) ($rule->min_daily_minutes ?? 0),
+            'worked_minutes' => 0,
+            'late_minutes' => 0,
+            'early_leave_minutes' => 0,
+            'overtime_minutes' => 0,
+        ];
+
+        if ($session) {
+            $session->update($attributes);
+
+            return;
+        }
+
+        AttendanceSession::create(array_merge([
+            'tenant_id' => $employee->tenant_id,
+            'employee_id' => $employee->id,
+            'attendance_date' => $targetDate,
+        ], $attributes));
     }
 
     protected function calculateScheduledMinutes(WorkScheduleDay $scheduleDetails): int
@@ -197,8 +310,8 @@ class CloseDailyAttendance extends Command
         return max(0, $scheduledMinutes);
     }
 
-    private function scheduleTime(string $date, \DateTimeInterface|string $time): Carbon
+    private function scheduleTime(string $date, \DateTimeInterface|string $time, string $timezone): Carbon
     {
-        return Carbon::parse($date . ' ' . Carbon::parse($time)->format('H:i:s'));
+        return Carbon::parse($date . ' ' . Carbon::parse($time)->format('H:i:s'), $timezone);
     }
 }

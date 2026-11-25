@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\AuditLog;
-use App\Models\Employee;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -17,8 +15,8 @@ it('audita la creación sin guardar campos sensibles ni timestamps', function ()
     $created = userFixture($tenant);
 
     $log = AuditLog::withoutGlobalScopes()
-        ->where('action', 'User.created')
-        ->where('entity_type', User::class)
+        ->where('action', 'user.created')
+        ->where('entity_type', 'User')
         ->where('entity_id', $created->id)
         ->first();
 
@@ -49,8 +47,8 @@ it('audita solo los atributos modificados con sus valores anteriores y nuevos', 
     $employee->update(['first_name' => 'Beatriz']);
 
     $log = AuditLog::withoutGlobalScopes()
-        ->where('action', 'Employee.updated')
-        ->where('entity_type', Employee::class)
+        ->where('action', 'employee.updated')
+        ->where('entity_type', 'Employee')
         ->where('entity_id', $employee->id)
         ->first();
 
@@ -75,8 +73,8 @@ it('audita el borrado lógico conservando los valores anteriores', function (): 
     $employee->delete();
 
     $log = AuditLog::withoutGlobalScopes()
-        ->where('action', 'Employee.deleted')
-        ->where('entity_type', Employee::class)
+        ->where('action', 'employee.soft_delete')
+        ->where('entity_type', 'Employee')
         ->where('entity_id', $employee->id)
         ->first();
 
@@ -98,7 +96,7 @@ it('no audita una actualización que solo modifica campos excluidos', function (
     $employee->update(['updated_at' => now()->addMinute()]);
 
     expect(AuditLog::withoutGlobalScopes()
-        ->where('action', 'Employee.updated')
+        ->where('action', 'employee.updated')
         ->where('entity_id', $employee->id)
         ->exists())->toBeFalse();
 });
@@ -113,7 +111,7 @@ it('aísla los registros de auditoría por empresa', function (): void {
 
     $this->actingAs($userA);
 
-    expect(AuditLog::where('entity_type', Employee::class)->where('entity_id', $employeeA->id)->exists())->toBeTrue()
-        ->and(AuditLog::where('entity_type', Employee::class)->where('entity_id', $employeeB->id)->exists())->toBeFalse()
+    expect(AuditLog::where('entity_type', 'Employee')->where('entity_id', $employeeA->id)->exists())->toBeTrue()
+        ->and(AuditLog::where('entity_type', 'Employee')->where('entity_id', $employeeB->id)->exists())->toBeFalse()
         ->and(AuditLog::where('tenant_id', $tenantB->id)->exists())->toBeFalse();
 });
