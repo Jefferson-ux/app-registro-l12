@@ -146,7 +146,7 @@ class EmployeeScheduleResource extends Resource
             ->columns([
                 TextColumn::make('employee_full_name')
                     ->label(traduct('fields.employee'))
-                    ->state(fn($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '')))
+                    ->state(fn($record) => trim(($record->employee?->first_name ?? '') . ' ' . ($record->employee?->last_name ?? '') . " - {$record->employee?->employee_code}"))
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('employee', function (Builder $q) use ($search) {
                             $q->where('first_name', 'like', "%{$search}%")

@@ -75,6 +75,6 @@ class RecentAttendanceSession extends Widget
             return "hace {$diffInHours} h y {$minsRestantes} m";
         }
 
-        return $date->translatedFormat('h:i A - d/m/Y ');
+        return $date->translatedFormat('d/m/Y - h:i A');
     }
 }
