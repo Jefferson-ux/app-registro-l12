@@ -21,6 +21,8 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
@@ -61,25 +63,39 @@ class EmployeeScheduleResource extends Resource
             ->components([
                 Select::make('employee_id')
                     ->relationship('employee', 'id')
-                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}" . " - {$record->employee_code}")
-                    ->searchable(['first_name', 'last_name', 'employee_code']) // Permite buscar por cualquiera de los tres campos
+                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name} - {$record->employee_code}")
+                    ->searchable(['first_name', 'last_name', 'employee_code'])
                     ->preload()
                     ->required()
+                    ->live()
+                    ->afterStateUpdated(function (Set $set) {
+                        $set('start_date', null);
+                        $set('end_date', null);
+                    })
                     ->label(traductModel('employee')),
+
                 Select::make('work_schedule_id')
                     ->relationship('workSchedule', 'name')
                     ->required()
                     ->label(traduct("fields.schedule_name")),
+
                 DatePicker::make('start_date')
                     ->required()
-                    ->label(traduct("fields.resolved_at"))
                     ->displayFormat('d/m/Y')
                     ->native(false)
+                    ->disabled(fn(Get $get) => blank($get('employee_id')))
+                    ->minDate(fn(Get $get) => Employee::find($get('employee_id'))?->hire_date)
+                    ->maxDate(fn(Get $get) => $get('end_date') ?: Employee::find($get('employee_id'))?->termination_date)
+                    ->afterStateUpdated(fn(Set $set) => $set('end_date', null))
                     ->label(traduct("fields.start_date")),
+
                 DatePicker::make('end_date')
-                    ->label(traduct("fields.resolved_at"))
                     ->displayFormat('d/m/Y')
                     ->native(false)
+                    ->live()
+                    ->disabled(fn(Get $get) => blank($get('employee_id')) || blank($get('start_date')))
+                    ->minDate(fn(Get $get) => $get('start_date'))
+                    ->maxDate(fn(Get $get) => Employee::find($get('employee_id'))?->termination_date)
                     ->label(traduct("fields.end_date")),
                 Toggle::make('status')
                     ->required()
