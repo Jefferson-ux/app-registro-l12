@@ -2,7 +2,6 @@
 
 namespace App\Services\Attendance\Policies;
 
-use App\Exceptions\AttendanceException;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
 use App\Models\WorkScheduleDay;
@@ -13,6 +12,11 @@ class UnsupportedSchedulePolicy implements SchedulePolicy
 {
     public function __construct(private string $scheduleType) {}
 
+    public function timezone(Employee $employee): string
+    {
+        return $employee->tenant?->timezone ?? config('app.timezone');
+    }
+
     public function worksOn(Employee $employee, Carbon $date): bool
     {
         return false;
@@ -21,11 +25,6 @@ class UnsupportedSchedulePolicy implements SchedulePolicy
     public function scheduleDay(Employee $employee, Carbon $date): ?WorkScheduleDay
     {
         return null;
-    }
-
-    public function enforcesTimeWindow(): bool
-    {
-        return false;
     }
 
     public function blockedReason(): ?string
@@ -40,13 +39,23 @@ class UnsupportedSchedulePolicy implements SchedulePolicy
         return null;
     }
 
+    public function closingCheckOutAt(Employee $employee, Carbon $date, ?AttendanceSession $session): ?Carbon
+    {
+        return null;
+    }
+
     public function marksAbsences(): bool
     {
         return false;
     }
 
-    public function validateEntry(Employee $employee, Carbon $now): void
+    public function marksAbsenceOn(Employee $employee, Carbon $date, Carbon $now): bool
     {
-        throw new AttendanceException($this->blockedReason() ?? 'Horario no disponible.', 403);
+        return false;
+    }
+
+    public function scheduledMinutesFor(Employee $employee, Carbon $date): int
+    {
+        return 0;
     }
 }
