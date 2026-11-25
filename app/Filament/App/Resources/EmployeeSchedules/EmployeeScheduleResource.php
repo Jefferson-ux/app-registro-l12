@@ -21,11 +21,15 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Closure;
 
 class EmployeeScheduleResource extends Resource
 {
@@ -57,34 +61,122 @@ class EmployeeScheduleResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
+        $getEmployee = function (Get $get): ?Employee {
+            static $cachedId = null;
+            static $cachedEmployee = null;
+
+            $id = $get('employee_id');
+
+            if (blank($id)) {
+                return null;
+            }
+
+            if ($cachedId !== $id) {
+                $cachedId = $id;
+                $cachedEmployee = Employee::find($id);
+            }
+
+            return $cachedEmployee;
+        };
+
+        $validateOverlap = function (Get $get, ?Model $record): Closure {
+            return function (string $attribute, mixed $value, Closure $fail) use ($get, $record): void {
+                $employeeId = $get('employee_id');
+                $startDate  = $get('start_date');
+                $endDate    = $attribute === 'end_date' ? $value : $get('end_date');
+                $isActive   = (bool) ($get('status') ?? true);
+
+                if (blank($employeeId) || blank($startDate)) {
+                    return;
+                }
+
+                if (filled($endDate) && $endDate < $startDate) {
+                    $fail(traduct('validation.end_date_before_start_date') !== 'validation.end_date_before_start_date'
+                        ? traduct('validation.end_date_before_start_date')
+                        : 'La fecha de fin no puede ser anterior a la fecha de inicio.');
+
+                    return;
+                }
+
+                // Si creas o editas con status = false (inactivo), no bloqueamos por solapamiento activo.
+                // Si quieres que SIEMPRE bloquee aunque status sea false, quita este `if (! $isActive) return;`.
+                if (! $isActive) {
+                    return;
+                }
+
+                $overlapExists = EmployeeSchedule::query()
+                    ->where('employee_id', $employeeId)
+                    ->where('status', true)
+                    ->when($record, fn($query) => $query->whereKeyNot($record->id))
+                    ->where(function ($query) use ($startDate, $endDate) {
+                        $query->when(
+                            filled($endDate),
+                            fn($sub) => $sub->where('start_date', '<=', $endDate)
+                        );
+
+                        $query->where(function ($sub) use ($startDate) {
+                            $sub->whereNull('end_date')
+                                ->orWhere('end_date', '>=', $startDate);
+                        });
+                    })
+                    ->exists();
+
+                if ($overlapExists) {
+                    $fail('Este empleado ya tiene un horario activo asignado que se solapa con el rango de fechas indicado.');
+                }
+            };
+        };
+
         return $schema
             ->components([
                 Select::make('employee_id')
                     ->relationship('employee', 'id')
-                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name}" . " - {$record->employee_code}")
-                    ->searchable(['first_name', 'last_name', 'employee_code']) // Permite buscar por cualquiera de los tres campos
+                    ->getOptionLabelFromRecordUsing(fn(Employee $record): string => "{$record->first_name} {$record->last_name} - {$record->employee_code}")
+                    ->searchable(['first_name', 'last_name', 'employee_code'])
                     ->preload()
                     ->required()
+                    ->live()
+                    ->afterStateUpdated(function (Set $set): void {
+                        $set('start_date', null);
+                        $set('end_date', null);
+                    })
                     ->label(traductModel('employee')),
+
                 Select::make('work_schedule_id')
                     ->relationship('workSchedule', 'name')
                     ->required()
-                    ->label(traduct("fields.schedule_name")),
+                    ->label(traduct('fields.schedule_name')),
+
                 DatePicker::make('start_date')
                     ->required()
-                    ->label(traduct("fields.resolved_at"))
                     ->displayFormat('d/m/Y')
                     ->native(false)
-                    ->label(traduct("fields.start_date")),
+                    ->live()
+                    ->disabled(fn(Get $get): bool => blank($get('employee_id')))
+                    ->minDate(fn(Get $get) => $getEmployee($get)?->hire_date)
+                    ->maxDate(fn(Get $get) => $get('end_date') ?: $getEmployee($get)?->termination_date)
+                    ->afterStateUpdated(function (Set $set): void {
+                        $set('end_date', null);
+                    })
+                    ->rule(fn(Get $get, ?Model $record): Closure => $validateOverlap($get, $record))
+                    ->label(traduct('fields.start_date')),
+
                 DatePicker::make('end_date')
-                    ->label(traduct("fields.resolved_at"))
                     ->displayFormat('d/m/Y')
                     ->native(false)
-                    ->label(traduct("fields.end_date")),
+                    ->live()
+                    ->disabled(fn(Get $get): bool => blank($get('employee_id')) || blank($get('start_date')))
+                    ->minDate(fn(Get $get) => $get('start_date'))
+                    ->maxDate(fn(Get $get) => $getEmployee($get)?->termination_date)
+                    ->rule('after_or_equal:start_date')
+                    ->rule(fn(Get $get, ?Model $record): Closure => $validateOverlap($get, $record))
+                    ->label(traduct('fields.end_date')),
+
                 Toggle::make('status')
                     ->required()
                     ->default(true)
-                    ->label(traduct("fields.status")),
+                    ->live()
+                    ->label(traduct('fields.status')),
             ]);
     }
 

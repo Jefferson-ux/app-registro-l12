@@ -12,20 +12,19 @@ use Carbon\Carbon;
 
 class FlexibleSchedulePolicy implements SchedulePolicy
 {
+    public function timezone(Employee $employee): string
+    {
+        return $employee->tenant?->timezone ?? config('app.timezone');
+    }
+
     public function worksOn(Employee $employee, Carbon $date): bool
     {
-        // Sin días fijos: con un contrato/horario vigente puede marcar cualquier día.
         return $employee->activeSchedule() !== null;
     }
 
     public function scheduleDay(Employee $employee, Carbon $date): ?WorkScheduleDay
     {
         return null;
-    }
-
-    public function enforcesTimeWindow(): bool
-    {
-        return false;
     }
 
     public function blockedReason(): ?string
@@ -41,16 +40,50 @@ class FlexibleSchedulePolicy implements SchedulePolicy
 
         $rule = $this->rules($employee);
 
-        if (! $rule) {
+        if (! $rule || $rule->max_shift_minutes === null) {
             return null;
         }
 
-        return Carbon::parse($session->check_in_at)->addMinutes($rule->max_shift_minutes);
+        $tz = $this->timezone($employee);
+
+        return Carbon::parse($session->check_in_at)
+            ->setTimezone($tz)
+            ->addMinutes((int) $rule->max_shift_minutes);
+    }
+
+    public function closingCheckOutAt(Employee $employee, Carbon $date, ?AttendanceSession $session): ?Carbon
+    {
+        return null;
     }
 
     public function marksAbsences(): bool
     {
-        return false;
+        return ! empty($this->expectedDays($this->rules(app(Employee::class))));
+    }
+
+    public function marksAbsenceOn(Employee $employee, Carbon $date, Carbon $now): bool
+    {
+        $rule = $this->rules($employee);
+        $expectedDays = $this->expectedDays($rule);
+
+        if (empty($expectedDays)) {
+            return false;
+        }
+
+        $tz = $this->timezone($employee);
+        $localDate = $date->copy()->setTimezone($tz);
+        $localNow = $now->copy()->setTimezone($tz);
+
+        if (! in_array($localDate->dayOfWeekIso, $expectedDays, true)) {
+            return false;
+        }
+
+        return $localNow->gt($localDate->copy()->endOfDay());
+    }
+
+    public function scheduledMinutesFor(Employee $employee, Carbon $date): int
+    {
+        return (int) ($this->rules($employee)?->min_daily_minutes ?? 0);
     }
 
     public function validateEntry(Employee $employee, Carbon $now): void
@@ -61,7 +94,7 @@ class FlexibleSchedulePolicy implements SchedulePolicy
             return;
         }
 
-        $timezone = $employee->tenant?->timezone ?? config('app.timezone');
+        $timezone = $this->timezone($employee);
 
         $this->validateEntryWindow($rule, $now->copy()->setTimezone($timezone));
         $this->validateRestBetweenShifts($employee, $rule, $now);
@@ -154,5 +187,17 @@ class FlexibleSchedulePolicy implements SchedulePolicy
         [$hour, $minute] = array_map('intval', explode(':', $time));
 
         return $hour * 60 + $minute;
+    }
+
+    /**
+     * @return int[]
+     */
+    private function expectedDays(?WorkFlexibleRule $rule): array
+    {
+        if (! $rule || empty($rule->expected_days)) {
+            return [];
+        }
+
+        return array_map('intval', (array) $rule->expected_days);
     }
 }

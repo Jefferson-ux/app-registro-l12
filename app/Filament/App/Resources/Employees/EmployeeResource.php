@@ -233,11 +233,15 @@ class EmployeeResource extends Resource
                                 DatePicker::make('hire_date')
                                     ->displayFormat('d/m/Y')
                                     ->native(false)
-                                    ->label(traduct("fields.hire_date")),
+                                    ->label(traduct("fields.hire_date"))
+                                    ->maxDate(fn(Get $get) => $get('termination_date'))
+                                    ->live(),
                                 DatePicker::make('termination_date')
                                     ->displayFormat('d/m/Y')
                                     ->native(false)
-                                    ->label(traduct("fields.termination_date")),
+                                    ->label(traduct("fields.termination_date"))
+                                    ->minDate(fn(Get $get) => $get('hire_date'))
+                                    ->live(),
                                 Select::make('employment_status')
                                     ->options([
                                         'active'     => traduct('status.active'),

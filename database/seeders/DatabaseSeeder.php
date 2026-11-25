@@ -3,24 +3,10 @@
 namespace Database\Seeders;
 
 use Database\Seeders\Production\{PermissionsSeeder, PlanSeeder};
-use Database\Seeders\Dummy\{
-    TenantSeeder,
-    UserSeeder,
-    SubscriptionSeeder,
-    AuditLogSeeder,
-    BranchSeeder,
-    DepartmentSeeder,
-    PositionSeeder,
-    EmployeeSeeder,
-    WorkScheduleSeeder,
-    WorkScheduleDaySeeder,
-    EmployeeScheduleSeeder,
-    HolidaySeeder,
-    AttendanceSessionSeeder,
-    AttendanceRecordSeeder,
-    AttendanceIncidentSeeder
-};
-
+use Database\Seeders\Testing\EmployeesAndSchedulesSeeder;
+use Database\Seeders\Testing\OrganizationSeeder;
+use Database\Seeders\Testing\SchedulesSeeder;
+use Database\Seeders\Testing\TenantAndUserSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -39,21 +25,10 @@ class DatabaseSeeder extends Seeder
         // 2. Seeders de Datos Dummy (Solo para desarrollo/pruebas)
         if (app()->environment('local', 'testing')) {
             $this->call([
-                TenantSeeder::class,
-                UserSeeder::class,
-                SubscriptionSeeder::class,
-                //AuditLogSeeder::class,
-                BranchSeeder::class,
-                DepartmentSeeder::class,
-                PositionSeeder::class,
-                EmployeeSeeder::class,
-                WorkScheduleSeeder::class,
-                WorkScheduleDaySeeder::class,
-                EmployeeScheduleSeeder::class,
-                HolidaySeeder::class,
-                AttendanceSessionSeeder::class,
-                AttendanceRecordSeeder::class,
-                AttendanceIncidentSeeder::class,
+                TenantAndUserSeeder::class,
+                OrganizationSeeder::class,
+                SchedulesSeeder::class,
+                EmployeesAndSchedulesSeeder::class,
             ]);
         }
     }
