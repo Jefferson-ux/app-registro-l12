@@ -9,7 +9,6 @@ use App\Http\Resources\EmployeeResource;
 use App\Http\Resources\KioskResource;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class KioskController extends Controller
@@ -137,7 +136,7 @@ class KioskController extends Controller
 
     private function todaySessionFor(Employee $employee): AttendanceSession
     {
-        $today = Carbon::now($employee->tenant?->timezone ?? config('app.timezone'))->toDateString();
+        $today = $employee->currentShiftDate()->toDateString();
 
         $session = AttendanceSession::with('employee')
             ->where('tenant_id', $employee->tenant_id)

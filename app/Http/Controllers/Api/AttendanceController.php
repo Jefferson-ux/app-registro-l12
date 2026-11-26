@@ -13,10 +13,8 @@ use App\Http\Resources\MarkResource;
 use App\Http\Resources\EmployeeResource;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
-use App\Models\EmployeeSchedule;
 use App\Services\AttendanceMarkingWindowService;
 use App\Services\FaceMatcher;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -31,12 +29,12 @@ class AttendanceController extends Controller
             ->where('employee_code', $code)
             ->firstOrFail();
 
-        $today = Carbon::now($employee->tenant?->timezone ?? config('app.timezone'))->toDateString();
+        $today = $employee->currentShiftDate()->toDateString();
 
         $session = AttendanceSession::with('employee')
             ->where('tenant_id', $employee->tenant_id)
             ->where('employee_id', $employee->id)
-            ->where('attendance_date', $today)
+            ->whereDate('attendance_date', $today)
             ->first();
 
         if (! $session) {

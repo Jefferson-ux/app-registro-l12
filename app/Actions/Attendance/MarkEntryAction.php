@@ -5,6 +5,7 @@ namespace App\Actions\Attendance;
 use App\Exceptions\AttendanceException;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
+use App\Services\Attendance\Policies\FixedSchedulePolicy;
 use App\Services\Attendance\Policies\FlexibleSchedulePolicy;
 use App\Services\Attendance\SchedulePolicyResolver;
 use Carbon\Carbon;
@@ -30,15 +31,27 @@ class MarkEntryAction
 
         if ($scheduleDay && $scheduleDay->is_working_day) {
             $scheduledIn = $this->at($today, $scheduleDay->check_in_time, $tz);
-            $scheduledOut = $this->at($today, $scheduleDay->check_out_time, $tz);
+            $scheduledOut = $policy instanceof FixedSchedulePolicy
+                ? $policy->scheduledDateTime($scheduleDay, $today, 'check_out_time', $tz)
+                : $this->at($today, $scheduleDay->check_out_time, $tz);
 
-            $breakMinutes = (int) ($scheduleDay->break_duration_minutes ?? 0);
+            $breakMinutes = 0;
             if (! empty($scheduleDay->break_start_time) && ! empty($scheduleDay->break_end_time)) {
-                $breakMinutes = (int) $this->at($today, $scheduleDay->break_start_time, $tz)
-                    ->diffInMinutes($this->at($today, $scheduleDay->break_end_time, $tz));
+                $breakStart = $policy instanceof FixedSchedulePolicy
+                    ? $policy->scheduledDateTime($scheduleDay, $today, 'break_start_time', $tz)
+                    : $this->at($today, $scheduleDay->break_start_time, $tz);
+                $breakEnd = $policy instanceof FixedSchedulePolicy
+                    ? $policy->scheduledDateTime($scheduleDay, $today, 'break_end_time', $tz)
+                    : $this->at($today, $scheduleDay->break_end_time, $tz);
+
+                if ($breakStart !== null && $breakEnd !== null) {
+                    $breakMinutes = (int) $breakStart->diffInMinutes($breakEnd);
+                }
             }
 
-            $scheduledMinutes = max(0, (int) $scheduledIn->diffInMinutes($scheduledOut) - $breakMinutes);
+            if ($scheduledOut !== null) {
+                $scheduledMinutes = max(0, (int) $scheduledIn->diffInMinutes($scheduledOut) - $breakMinutes);
+            }
 
             $tolerance = $scheduleDay->check_in_tolerance_minutes ?? 0;
             if ($localNow->gt($scheduledIn->copy()->addMinutes($tolerance))) {

@@ -7,6 +7,7 @@ use App\Enums\AttendanceType;
 use App\Exceptions\AttendanceException;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
+use App\Services\Attendance\Policies\FixedSchedulePolicy;
 use App\Services\Attendance\Policies\FlexibleSchedulePolicy;
 use App\Services\Attendance\SchedulePolicyResolver;
 use Illuminate\Http\Request;
@@ -62,6 +63,9 @@ class MarkAttendanceAction
                         ->whereDate('attendance_date', $today)
                         ->first();
                 }
+            } elseif ($policy instanceof FixedSchedulePolicy) {
+                // Turnos fijos nocturnos: reutiliza la sesión abierta del día anterior.
+                $session = $policy->sessionForMarking($employee, $now);
             } else {
                 $session = AttendanceSession::where('tenant_id', $tenantId)
                     ->where('employee_id', $employee->id)

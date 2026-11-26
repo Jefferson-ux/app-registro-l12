@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\Attendance\Policies\FixedSchedulePolicy;
 use App\Services\Attendance\SchedulePolicyResolver;
 use App\Traits\Auditable;
 use App\Traits\BelongsToTenant;
@@ -162,21 +163,50 @@ class Employee extends Model
     {
         return app(SchedulePolicyResolver::class)
             ->forEmployee($this)
-            ->worksOn($this, $this->todayInTenantTimezone());
+            ->worksOn($this, $this->currentShiftDate());
     }
 
-
     public function hasBreakToday(): bool
+    {
+        return $this->hasBreakOn($this->currentShiftDate());
+    }
+
+    public function hasBreakOn(Carbon $date): bool
     {
         $day = $this->activeSchedule()
             ?->workSchedule
             ?->days()
-            ->where('day_of_week', $this->todayInTenantTimezone()->dayOfWeekIso)
+            ->where('day_of_week', $date->dayOfWeekIso)
             ->first();
 
         // Evalúa si el día encontrado tiene horas de descanso asignadas
         // Retorna TRUE solo si la hora de inicio Y la hora de fin NO son nulas (ambas deben existir)
         return $day?->break_start_time !== null && $day?->break_end_time !== null;
+    }
+
+    /**
+     * Fecha de referencia de la jornada actual. En turnos fijos nocturnos que
+     * cruzan medianoche, devuelve el día en que inició el turno.
+     */
+    public function currentShiftDate(): Carbon
+    {
+        $timezone = $this->tenant?->timezone ?? config('app.timezone');
+        $now = Carbon::now($timezone);
+        $policy = app(SchedulePolicyResolver::class)->forEmployee($this);
+
+        if (! $policy instanceof FixedSchedulePolicy) {
+            return $now;
+        }
+
+        $session = $policy->sessionForMarking($this, $now);
+
+        if (! $session?->check_in_at || $session->check_out_at) {
+            return $now;
+        }
+
+        $shiftDate = Carbon::parse($session->attendance_date->toDateString(), $timezone);
+
+        return $shiftDate->toDateString() === $now->toDateString() ? $now : $shiftDate;
     }
 
     public function todayScheduleAnalysis(): array
@@ -186,17 +216,18 @@ class Employee extends Model
         // Reutilizamos la lógica de las funciones de arriba pasándoles el horario en memoria si fuera necesario,
         // o llamándolas directamente ya que Eloquent guarda en caché las relaciones repetidas en la misma petición.
         $policy = app(SchedulePolicyResolver::class)->forEmployee($this);
+        $reference = $this->currentShiftDate();
 
         return [
             'has_active_contract'  => $activeSchedule !== null,
-            'is_working_day_today' => $this->hasWorkScheduleToday(), // Reutiliza el filtro de NULLs
-            'has_break_today'      => $this->hasBreakToday(),        // Reutiliza el filtro de breaks
+            'is_working_day_today' => $policy->worksOn($this, $reference),
+            'has_break_today'      => $this->hasBreakOn($reference),
             'blocked_reason'       => $policy->blockedReason(),
 
             // Traemos el detalle de forma limpia reutilizando la misma jerarquía
             'schedule_details'     => $activeSchedule?->workSchedule
                 ?->days()
-                ->where('day_of_week', $this->todayInTenantTimezone()->dayOfWeekIso)
+                ->where('day_of_week', $reference->dayOfWeekIso)
                 ->first(),
         ];
     }

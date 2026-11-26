@@ -103,46 +103,100 @@ class FixedSchedulePolicy implements SchedulePolicy
         $tz = $this->timezone($employee);
         $dateStr = $date->toDateString();
 
-        $start = $this->dateTimeOn($dateStr, $day->check_in_time, $tz);
-        $end = $this->dateTimeOn($dateStr, $day->check_out_time, $tz);
+        $start = $this->scheduledDateTime($day, $dateStr, 'check_in_time', $tz);
+        $end = $this->scheduledDateTime($day, $dateStr, 'check_out_time', $tz);
 
-        if ($end->lt($start)) {
-            $end->addDay();
+        if ($start === null || $end === null) {
+            return 0;
         }
 
         $minutes = $start->diffInMinutes($end);
 
         if ($day->break_start_time && $day->break_end_time) {
-            $breakStart = $this->dateTimeOn($dateStr, $day->break_start_time, $tz);
-            $breakEnd = $this->dateTimeOn($dateStr, $day->break_end_time, $tz);
+            $breakStart = $this->scheduledDateTime($day, $dateStr, 'break_start_time', $tz);
+            $breakEnd = $this->scheduledDateTime($day, $dateStr, 'break_end_time', $tz);
 
-            if ($breakEnd->lt($breakStart)) {
-                $breakEnd->addDay();
+            if ($breakStart !== null && $breakEnd !== null) {
+                $minutes -= $breakStart->diffInMinutes($breakEnd);
             }
-
-            $minutes -= $breakStart->diffInMinutes($breakEnd);
         }
 
         return max(0, $minutes);
     }
 
-    private function checkOutAt(WorkScheduleDay $day, string $date, string $timezone): ?Carbon
+    public function isNightShift(?WorkScheduleDay $day): bool
     {
-        if (! $day->check_out_time) {
+        if (! $day?->check_in_time || ! $day->check_out_time) {
+            return false;
+        }
+
+        return $day->check_out_time->format('H:i:s') < $day->check_in_time->format('H:i:s');
+    }
+
+    /**
+     * Busca la sesión que corresponde a la marcación actual. Para turnos nocturnos
+     * que cruzan medianoche, devuelve la sesión abierta del día anterior.
+     */
+    public function sessionForMarking(Employee $employee, Carbon $now): ?AttendanceSession
+    {
+        $tz = $this->timezone($employee);
+        $today = $now->copy()->setTimezone($tz)->toDateString();
+
+        $session = AttendanceSession::withoutGlobalScopes()
+            ->where('tenant_id', $employee->tenant_id)
+            ->where('employee_id', $employee->id)
+            ->whereDate('attendance_date', $today)
+            ->first();
+
+        if ($session) {
+            return $session;
+        }
+
+        $yesterday = Carbon::parse($today, $tz)->subDay()->toDateString();
+        $day = $this->scheduleDay($employee, Carbon::parse($yesterday, $tz));
+
+        if (! $this->isNightShift($day)) {
             return null;
         }
 
-        $checkOut = $this->dateTimeOn($date, $day->check_out_time, $timezone);
+        return AttendanceSession::withoutGlobalScopes()
+            ->where('tenant_id', $employee->tenant_id)
+            ->where('employee_id', $employee->id)
+            ->whereDate('attendance_date', $yesterday)
+            ->whereNotNull('check_in_at')
+            ->whereNull('check_out_at')
+            ->whereNotIn('status', ['incomplete', 'absent'])
+            ->first();
+    }
 
-        if ($day->check_in_time) {
+    public function scheduledDateTime(
+        WorkScheduleDay $day,
+        string $date,
+        string $field,
+        string $timezone,
+    ): ?Carbon {
+        $time = $day->{$field} ?? null;
+
+        if (! $time) {
+            return null;
+        }
+
+        $value = $this->dateTimeOn($date, $time, $timezone);
+
+        if ($field !== 'check_in_time' && $day->check_in_time) {
             $checkIn = $this->dateTimeOn($date, $day->check_in_time, $timezone);
 
-            if ($checkOut->lt($checkIn)) {
-                $checkOut->addDay();
+            if ($value->lt($checkIn)) {
+                $value->addDay();
             }
         }
 
-        return $checkOut;
+        return $value;
+    }
+
+    private function checkOutAt(WorkScheduleDay $day, string $date, string $timezone): ?Carbon
+    {
+        return $this->scheduledDateTime($day, $date, 'check_out_time', $timezone);
     }
 
     private function dateTimeOn(string $date, \DateTimeInterface|string $time, string $timezone): Carbon

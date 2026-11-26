@@ -5,6 +5,8 @@ namespace App\Actions\Attendance;
 use App\Exceptions\AttendanceException;
 use App\Models\AttendanceSession;
 use App\Models\Employee;
+use App\Services\Attendance\Policies\FixedSchedulePolicy;
+use App\Services\Attendance\SchedulePolicyResolver;
 use Carbon\Carbon;
 
 class MarkExitAction
@@ -22,8 +24,14 @@ class MarkExitAction
         }
 
         $localNow = $now->copy()->setTimezone($tz);
-        $today = $localNow->toDateString();
-        $scheduleDay = $this->findScheduleDay->execute($employee, $today, $localNow->dayOfWeekIso);
+        $shiftDate = $session->attendance_date
+            ? Carbon::parse($session->attendance_date)->toDateString()
+            : $localNow->toDateString();
+        $scheduleDay = $this->findScheduleDay->execute(
+            $employee,
+            $shiftDate,
+            Carbon::parse($shiftDate)->dayOfWeekIso
+        );
 
         $workedMinutes = (int) Carbon::parse($session->check_in_at)->diffInMinutes($now);
 
@@ -37,13 +45,19 @@ class MarkExitAction
         $overtimeMinutes = 0;
 
         if ($scheduleDay && $scheduleDay->is_working_day) {
-            $scheduledOut = $this->at($today, $scheduleDay->check_out_time, $tz);
-            $tolerance = $scheduleDay->check_out_tolerance_minutes ?? 0;
+            $policy = app(SchedulePolicyResolver::class)->forEmployee($employee);
+            $scheduledOut = $policy instanceof FixedSchedulePolicy
+                ? $policy->scheduledDateTime($scheduleDay, $shiftDate, 'check_out_time', $tz)
+                : $this->at($shiftDate, $scheduleDay->check_out_time, $tz);
 
-            if ($localNow->lt($scheduledOut->copy()->subMinutes($tolerance))) {
-                $earlyLeaveMinutes = (int) $localNow->diffInMinutes($scheduledOut);
-            } elseif ($localNow->gt($scheduledOut)) {
-                $overtimeMinutes = (int) $scheduledOut->diffInMinutes($localNow);
+            if ($scheduledOut !== null) {
+                $tolerance = $scheduleDay->check_out_tolerance_minutes ?? 0;
+
+                if ($localNow->lt($scheduledOut->copy()->subMinutes($tolerance))) {
+                    $earlyLeaveMinutes = (int) $localNow->diffInMinutes($scheduledOut);
+                } elseif ($localNow->gt($scheduledOut)) {
+                    $overtimeMinutes = (int) $scheduledOut->diffInMinutes($localNow);
+                }
             }
         }
 
