@@ -112,6 +112,7 @@ class TenantResource extends Resource
                 FileUpload::make('logo')
                     ->label(traduct('fields.logo'))
                     ->image()
+                    ->disk('public')
                     ->directory('tenants/logos'), // notes: Directorio de almacenado
                 Select::make('status')
                     ->label(traduct('fields.status'))
@@ -148,6 +149,7 @@ class TenantResource extends Resource
             ->components([
                 ImageEntry::make('logo')
                     ->label(traduct('fields.logo'))
+                    ->disk('public')
                     ->placeholder('Sin logo')
                     ->imageSize(400)
                     ->alignCenter()
@@ -226,6 +228,7 @@ class TenantResource extends Resource
                 //    ->label('UUID'),
                 ImageColumn::make('logo')
                     ->label(traduct('fields.logo'))
+                    ->disk('public')
                     ->circular(),
                 TextColumn::make('name')
                     ->searchable()
